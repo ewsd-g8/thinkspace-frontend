@@ -1,0 +1,142 @@
+* {
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif ;
+}
+
+.navbar-custom{
+  background: #a1dcd8;
+}
+
+.logo span.logo-lg {
+  margin-top: -9px;
+  display: block;
+}
+
+
+.navbar-custom ul>li>a, .navbar-custom ul>li>button>i {
+  color: #000 !important;
+}
+
+.logo span.logo-sm {
+  margin-top: 0;
+}
+
+.router-link-active {
+  transition: all 0.5s ease-in-out;
+  background-color: #a1dcd8;
+  border-radius: 4px;
+  margin-left: 2px;
+  margin-right: 3px;
+  /* border-top-left-radius :20px;
+  border-bottom-left-radius: 20px; */
+  color: #000 !important;
+}
+
+#sidebar-menu>ul>li ul {
+  padding-left: 27px;
+}
+
+#sidebar-menu>ul>li>a {
+  text-decoration: none !important;
+  color: #000;
+  padding: 12px 12px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.nav-second-level li a {
+  text-decoration: none !important;
+  color: #000;
+}
+
+.auth-user-testimonial {
+  margin: 0 auto;
+}
+
+.customize-table {
+  --easy-table-header-font-size: 14px;
+  --easy-table-header-height: 45px;
+  --easy-table-header-background-color: #a1dcd8;
+
+   --easy-table-footer-background-color: #efefef;
+  --easy-table-header-item-padding: 10px 15px;
+
+  --easy-table-body-even-row-font-color: #fff;
+
+  --easy-table-body-row-font-color: #c0c7d2;
+  --easy-table-body-row-height: 45px;
+  --easy-table-body-row-font-size: 14px;
+
+  --easy-table-body-row-hover-font-color: #2d3a4f;
+  --easy-table-body-row-hover-background-color: #eee;
+
+  --easy-table-body-item-padding: 8px 15px;
+  --easy-table-footer-font-size: 14px;
+  --easy-table-footer-padding: 0px 10px;
+  --easy-table-footer-height: 45px;
+  --easy-table-rows-per-page-selector-option-padding: 10px;
+  --easy-table-rows-per-page-selector-z-index: 1;
+
+  --easy-table-scrollbar-track-color: #2d3a4f;
+  --easy-table-scrollbar-color: #2d3a4f;
+  --easy-table-scrollbar-thumb-color: #4c5d7a;
+  --easy-table-scrollbar-corner-color: #2d3a4f;
+
+  --easy-table-loading-mask-background-color: #2d3a4f;
+  --easy-table-message-font-size: 14px;
+}
+
+.mdi-close::before {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+}
+
+.mosha__toast__content__text, .mosha__toast__content__description {
+  color: #fff !important;
+}
+
+label {
+  font-weight: 100;
+}
+
+:root {
+  --popper-theme-background-color: #383535;
+  --popper-theme-background-color-hover: #383535;
+  --popper-theme-text-color: #fff;
+  --popper-theme-border-width: 0px;
+  --popper-theme-border-style: solid;
+  --popper-theme-border-radius: 5px;
+  --popper-theme-padding: 8px;
+  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
+}
+
+.permission-is-invalid {
+  border: 1px solid red;
+  border-radius: 5px;
+}
+
+.vue3-easy-data-table__main {
+  overflow-y: hidden !important;
+}
+
+.style-chooser {
+  --vs-line-height: 1.7;
+  --vs-search-input-placeholder-color: #d1d6dc;
+  --vs-border-color: #dcdee1;
+}
+
+.vuelidate-invalid {
+  border: 1.3px solid red;
+  border-radius: 5px;
+}
+
+.vs__search::placeholder {
+  color: #b4b9bd !important;
+  font-size: 15px;
+  padding-left: 8px;
+}
+
+.form-control:focus {
+  box-shadow: none !important;
+  border-color: #6a65b7;
+}
