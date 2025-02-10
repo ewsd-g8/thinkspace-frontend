@@ -18,7 +18,7 @@
         />
       </div>
     </div>
-    <div class="auth-fluid-form-box" style="background-color: #a1dcd8">
+    <div class="auth-fluid-form-box" style="background-color: #fff">
       <div class="align-items-center d-flex h-100">
         <div class="card-body">
           <h4 class="mt-0 fw-bold">Welcome to EDUplus Admin System!</h4>
