@@ -18,10 +18,10 @@
         />
       </div>
     </div>
-    <div class="auth-fluid-form-box" style="background-color: #000">
+    <div class="auth-fluid-form-box" style="background-color: #78ACFF">
       <div class="align-items-center d-flex h-100">
         <div class="card-body">
-          <h4 class="mt-0 fw-bold">Welcome to EDUplus Admin System!</h4>
+          <h4 class="mt-0 text-focus-in fw-bold">Welcome to EDUplus Admin System!</h4>
           <p class="mb-4 text-secondary">
             Enter your email address and password to access account.
           </p>
@@ -84,13 +84,14 @@
               ></v-errors>
             </div>
             <div class="text-center d-grid">
-              <button class="btn btn-success" type="submit" :disabled="loading">
+              <button class="btn btn-success text-focus-in " type="submit" :disabled="loading">
                 <span
                   v-if="loading"
                   class="spinner-border text-light spinner-border-sm me-1"
                 ></span>
                 {{ loading ? "Loading..." : "Login" }}
               </button>
+                <!-- <a href="" class="btn btn-link" >Forget Password</a> -->
             </div>
           </form>
         </div>
