@@ -1,10 +1,10 @@
 * {
-  color: #000;
+ 
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .navbar-custom {
-  background: #a1dcd8;
+  background: #620f10;
 }
 
 .logo span.logo-lg {
@@ -14,7 +14,7 @@
 
 .navbar-custom ul > li > a,
 .navbar-custom ul > li > button > i {
-  color: #000 !important;
+  color: #ffffff !important;
 }
 
 .logo span.logo-sm {
@@ -23,13 +23,13 @@
 
 .router-link-active {
   transition: all 0.5s ease-in-out;
-  background-color: #a1dcd8;
+  background-color: #620f10;
   border-radius: 4px;
   margin-left: 2px;
   margin-right: 3px;
   /* border-top-left-radius :20px;
   border-bottom-left-radius: 20px; */
-  color: #000 !important;
+  color: #ffffff !important;
 }
 
 #sidebar-menu > ul > li ul {
@@ -38,7 +38,7 @@
 
 #sidebar-menu > ul > li > a {
   text-decoration: none !important;
-  color: #000;
+  color: #000000;
   padding: 12px 12px;
   font-family: Arial, Helvetica, sans-serif;
 }
