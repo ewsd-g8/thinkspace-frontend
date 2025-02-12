@@ -2299,7 +2299,7 @@ textarea.form-control-lg {
   font-size: 1.2rem;
   font-weight: 400;
   line-height: 1.5;
-  color: #ffffff;
+  color: #fff;
   text-align: center;
   white-space: nowrap;
   background-color: transparent;
@@ -2655,20 +2655,20 @@ fieldset:disabled .btn {
 }
 .btn-success {
   color: #fff;
-  background-color: #1abc9c;
-  border-color: #1abc9c;
-  border-radius: 20px;
+  background-color: transparent;
+  border-color: #fff;
+  border-radius: 5px;
 }
 .btn-success:hover {
-  background-color: transparent;
-  border-color: #15967d;
-  color: black;
+  background-color: #5e1012;
+  border-color: #fff;
+  color: rgb(255, 255, 255);
 }
 .btn-check:focus + .btn-success,
 .btn-success:focus {
-  color: #fff;
-  background-color: #16a085;
-  border-color: #15967d;
+  color: #670e10;
+  background-color: #ffffff;
+  border-color: #fefefe;
   box-shadow: 0 0 0 0.15rem rgba(60, 198, 171, 0.5);
 }
 .btn-check:active + .btn-success,

@@ -28,7 +28,7 @@
             style="width: 350px; height: 105px"
           />
           <h4 class="mt-0 fw-bold text-focus-in">
-            Welcome to EDUplus Admin System!
+            Welcome to Think Space Admin System!
           </h4>
           <p class="mb-4 text-secondary">
             Enter your email address and password to access account.
