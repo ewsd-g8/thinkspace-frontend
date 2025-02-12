@@ -79,7 +79,7 @@
         <a href="index.html" class="logo logo-light text-center">
           <span class="logo-sm">
             <img
-              src="/icon/think-space.png"
+              src="/icon/think-space-white-logo.png"
               alt=""
               class="img-fluid"
               height="22"
@@ -87,10 +87,11 @@
           </span>
           <span class="logo-lg">
             <img
-              src="/icon/think-space.png"
+              src="/icon/think-space-icon.png"
               alt=""
               class="img-fluid"
-              height="20"
+              height="10"
+              
             />
           </span>
         </a>
