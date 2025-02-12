@@ -74,9 +74,7 @@
           <button @click="addCategory" class="btn btn-success mt-2">Add Category</button>
         </div> -->
 
-
-
-        <!-- cataegory list -->
+<-- category -->
        <table class="table">
           <thead>
             <tr>
@@ -84,9 +82,12 @@
               <th>Start Date</th>
               <th>End Date</th>
               <th>Submitted By</th>
-              
+
               <th>Applied Quantity</th>
               <th>Status</th>
+
+              <th>Applied Quantity</th>
+
               <th>Actions</th>
             </tr>
           </thead>
@@ -107,8 +108,13 @@
 <td>21.3.2025</td>
 <td>QA Manager</td>
 <td>13</td>
+
 <td style="color: blue;">Active</td>
 <td> <a href="">Details</a></td>
+
+
+<td><a href="">Details</a></td>
+
           </tbody>
           <tbody>
             <td>Fun</td>
@@ -116,7 +122,9 @@
 <td>21.3.2025</td>
 <td>QA Manager</td>
 <td>13</td>
+
 <td style="color: black;">Nonactive</td>
+
 <td><a href="">Delete</a>  |  <a href="">Details</a></td>
           </tbody>
           <tbody>
@@ -125,7 +133,11 @@
 <td>21.3.2025</td>
 <td>QA Manager</td>
 <td>13</td>
+
 <td style="color: black;">Nonactive</td>
+=======
+
+
 <td><a href="">Delete</a>  |  <a href="">Details</a></td>
           </tbody>
           <tbody>
@@ -134,7 +146,11 @@
 <td>21.3.2025</td>
 <td>QA Manager</td>
 <td>13</td>
+
 <td style="color: black;">Nonactive</td>
+=======
+
+
 <td><a href="">Delete</a>  |  <a href="">Details</a></td>
           </tbody>
           <tbody>
@@ -143,8 +159,12 @@
 <td>21.3.2025</td>
 <td>QA Manager</td>
 <td>13</td>
+
 <td style="color: blue;">Active</td>
 <td><a href="">Details</a></td>
+
+
+<td> <a href="">Details</a></td>
 
           </tbody>
         </table> 

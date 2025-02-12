@@ -5,29 +5,31 @@
     >
       <div class="auth-user-testimonial">
         <img
-          src="/icon/edu-plus-logo.png"
+          src="/icon/think-space-logo.png"
           alt="logo"
-          style="width: 200px; height: 105px"
+          style="width: 400px; height: 400px"
         />
         <br />
-        <img
+        <!-- <img
           src="/images/ani2.gif"
           alt="logo"
           class="img-fluid"
           style="height: 250px"
-        />
+        /> -->
       </div>
     </div>
-    <div class="auth-fluid-form-box" style="background-color: #78ACFF">
+    <div class="auth-fluid-form-box" style="background-color: #670e10">
       <div class="align-items-center d-flex h-100">
         <div class="card-body">
           <img
-          src="/icon/edu-plus-logo.png"
-          alt="logo"
-          class="img-fluid"
-          style="width: 200px; height: 105px"
-        />
-          <h4 class="mt-0 fw-bold text-focus-in">Welcome to EDUplus Admin System!</h4>
+            src="/icon/think-space-icon.png"
+            alt="logo"
+            class="img-fluid"
+            style="width: 350px; height: 105px"
+          />
+          <h4 class="mt-0 fw-bold text-focus-in">
+            Welcome to EDUplus Admin System!
+          </h4>
           <p class="mb-4 text-secondary">
             Enter your email address and password to access account.
           </p>
@@ -35,33 +37,17 @@
             <!-- email field -->
             <div class="mb-3">
               <label for="emailaddress" class="form-label label">
-              <span class="icon">
-    <svg
-      class="w-6 h-6 text-gray-800 dark:text-white"
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      width="30"
-      height="30"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        stroke="currentColor"
-        stroke-width="1.25"
-        d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-      ></path>
-    </svg>
-  </span>
-              <input
-                class="input form-control"
-                type="email"
-                id="emailaddress"
-                v-model="user.email"
-                :class="{
-                  'is-invalid': v$.email.$error || errorFor('email'),
-                }"
-                placeholder="Enter your email"
-              /></label>
+                <input
+                  class="input form-control"
+                  type="email"
+                  id="emailaddress"
+                  v-model="user.email"
+                  :class="{
+                    'is-invalid': v$.email.$error || errorFor('email'),
+                  }"
+                  placeholder="Enter your email"
+                />
+              </label>
               <v-errors
                 :serverErrors="errorFor('email')"
                 :vuelidateErrors="{
@@ -71,34 +57,35 @@
               ></v-errors>
             </div>
             <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
-              <div class="input-group input-group-merge">
-                <input
-                  :type="inputFieldType"
-                  id="password"
-                  autocomplete="on"
-                  v-model="user.password"
-                  class="form-control"
-                  :class="{
-                    'is-invalid': v$.password.$error || errorFor('password'),
-                  }"
-                  placeholder="Enter your password"
-                />
-                <div
-                  class="input-group-text"
-                  @click="showHidePassword()"
-                  style="cursor: pointer"
-                >
-                  <i
-                    v-if="inputFieldType == 'password'"
-                    class="mdi mdi-eye-outline"
-                  ></i>
-                  <i
-                    v-if="inputFieldType == 'text'"
-                    class="mdi mdi-eye-off-outline"
-                  ></i>
+              <label for="password" class="form-label label">
+                <div class="input-group input-group-merge">
+                  <input
+                    :type="inputFieldType"
+                    id="password"
+                    autocomplete="on"
+                    v-model="user.password"
+                    class="input form-control"
+                    :class="{
+                      'is-invalid': v$.password.$error || errorFor('password'),
+                    }"
+                    placeholder="Enter your password"
+                  />
+                  <div
+                    class="input-group-text"
+                    @click="showHidePassword()"
+                    style="cursor: pointer"
+                  >
+                    <i
+                      v-if="inputFieldType == 'password'"
+                      class="mdi mdi-eye-outline"
+                    ></i>
+                    <i
+                      v-if="inputFieldType == 'text'"
+                      class="mdi mdi-eye-off-outline"
+                    ></i>
+                  </div>
                 </div>
-              </div>
+              </label>
               <v-errors
                 :serverErrors="errorFor('password')"
                 :vuelidateErrors="{
@@ -108,7 +95,11 @@
               ></v-errors>
             </div>
             <div class="text-center d-grid">
-              <button class="btn btn-success text-focus-in" type="submit" :disabled="loading">
+              <button
+                class="btn btn-success text-focus-in"
+                type="submit"
+                :disabled="loading"
+              >
                 <span
                   v-if="loading"
                   class="spinner-border text-light spinner-border-sm me-1"
