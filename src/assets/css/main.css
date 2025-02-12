@@ -1,9 +1,9 @@
 * {
   color: #000;
-  font-family: Arial, Helvetica, sans-serif ;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-.navbar-custom{
+.navbar-custom {
   background: #a1dcd8;
 }
 
@@ -12,8 +12,8 @@
   display: block;
 }
 
-
-.navbar-custom ul>li>a, .navbar-custom ul>li>button>i {
+.navbar-custom ul > li > a,
+.navbar-custom ul > li > button > i {
   color: #000 !important;
 }
 
@@ -32,11 +32,11 @@
   color: #000 !important;
 }
 
-#sidebar-menu>ul>li ul {
+#sidebar-menu > ul > li ul {
   padding-left: 27px;
 }
 
-#sidebar-menu>ul>li>a {
+#sidebar-menu > ul > li > a {
   text-decoration: none !important;
   color: #000;
   padding: 12px 12px;
@@ -57,7 +57,7 @@
   --easy-table-header-height: 45px;
   --easy-table-header-background-color: #a1dcd8;
 
-   --easy-table-footer-background-color: #efefef;
+  --easy-table-footer-background-color: #efefef;
   --easy-table-header-item-padding: 10px 15px;
 
   --easy-table-body-even-row-font-color: #fff;
@@ -91,7 +91,8 @@
   right: 8px;
 }
 
-.mosha__toast__content__text, .mosha__toast__content__description {
+.mosha__toast__content__text,
+.mosha__toast__content__description {
   color: #fff !important;
 }
 
@@ -142,34 +143,34 @@ label {
 }
 
 .text-focus-in {
-	-webkit-animation: text-focus-in 1s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
-	        animation: text-focus-in 1s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+  color: #fff;
+  -webkit-animation: text-focus-in 1s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
+  animation: text-focus-in 1s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
 }
 @-webkit-keyframes text-focus-in {
   0% {
     -webkit-filter: blur(12px);
-            filter: blur(12px);
+    filter: blur(12px);
     opacity: 0;
   }
   100% {
     -webkit-filter: blur(0px);
-            filter: blur(0px);
+    filter: blur(0px);
     opacity: 1;
   }
 }
 @keyframes text-focus-in {
   0% {
     -webkit-filter: blur(12px);
-            filter: blur(12px);
+    filter: blur(12px);
     opacity: 0;
   }
   100% {
     -webkit-filter: blur(0px);
-            filter: blur(0px);
+    filter: blur(0px);
     opacity: 1;
   }
 }
-
 
 .container {
   margin: 0;
@@ -187,17 +188,8 @@ label {
   display: flex;
   border-radius: 6px;
   border: 2px solid white;
-  padding: 15px 8px 15px 10px;
+  padding: 7px 4px 15px 5px;
   text-align: center;
-
-  .icon {
-    position: absolute;
-    top: 50%;
-    left: 10;
-    transform: translate(-50%, -50%);
-    transition: all 0.3s ease;
-    color: #c5c5c5;
-  }
 
   .input {
     background-color: transparent;
