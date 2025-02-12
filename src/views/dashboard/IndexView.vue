@@ -74,7 +74,7 @@
           <button @click="addCategory" class="btn btn-success mt-2">Add Category</button>
         </div> -->
 
-<-- category -->
+<!-- category -->
        <table class="table">
           <thead>
             <tr>
@@ -86,8 +86,7 @@
               <th>Applied Quantity</th>
               <th>Status</th>
 
-              <th>Applied Quantity</th>
-
+      
               <th>Actions</th>
             </tr>
           </thead>
@@ -113,7 +112,7 @@
 <td> <a href="">Details</a></td>
 
 
-<td><a href="">Details</a></td>
+
 
           </tbody>
           <tbody>
@@ -164,7 +163,7 @@
 <td><a href="">Details</a></td>
 
 
-<td> <a href="">Details</a></td>
+
 
           </tbody>
         </table> 
