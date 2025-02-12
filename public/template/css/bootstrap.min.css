@@ -2660,9 +2660,9 @@ fieldset:disabled .btn {
   border-radius: 5px;
 }
 .btn-success:hover {
-  background-color: #5e1012;
-  border-color: #fff;
-  color: rgb(255, 255, 255);
+  background-color: #ffffff;
+  border-color: #670e10;
+  color: #670e10;
 }
 .btn-check:focus + .btn-success,
 .btn-success:focus {

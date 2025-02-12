@@ -4,8 +4,7 @@
       <div class="card-body">
         <h1>Dashboard Page</h1>
 
-     
-   <table class="table">
+        <table class="table">
           <thead>
             <tr>
               <th>Department</th>
@@ -28,44 +27,44 @@
 
           <!-- test idea table -->
           <tbody>
-<td>Finance</td>
-<td>Testing page</td>
-<td>Fun</td>
-<td>Tester</td>
-<td>21.2.2025</td>
-<td><a href="">Delete</a>  |  <a href="">Details</a></td>
+            <td>Finance</td>
+            <td>Testing page</td>
+            <td>Fun</td>
+            <td>Tester</td>
+            <td>21.2.2025</td>
+            <td><a href="">Delete</a> | <a href="">Details</a></td>
           </tbody>
           <tbody>
-<td>Finance</td>
-<td>Testing page</td>
-<td>Fun</td>
-<td>Tester</td>
-<td>21.2.2025</td>
-<td><a href="">Delete</a>  |  <a href="">Details</a></td>
+            <td>Finance</td>
+            <td>Testing page</td>
+            <td>Fun</td>
+            <td>Tester</td>
+            <td>21.2.2025</td>
+            <td><a href="">Delete</a> | <a href="">Details</a></td>
           </tbody>
           <tbody>
-<td>Finance</td>
-<td>Testing page</td>
-<td>Fun</td>
-<td>Tester</td>
-<td>21.2.2025</td>
-<td><a href="">Delete</a>  |  <a href="">Details</a></td>
+            <td>Finance</td>
+            <td>Testing page</td>
+            <td>Fun</td>
+            <td>Tester</td>
+            <td>21.2.2025</td>
+            <td><a href="">Delete</a> | <a href="">Details</a></td>
           </tbody>
           <tbody>
-<td>Finance</td>
-<td>Testing page</td>
-<td>Fun</td>
-<td>Tester</td>
-<td>21.2.2025</td>
-<td><a href="">Delete</a>  |   <a href="">Details</a></td>
+            <td>Finance</td>
+            <td>Testing page</td>
+            <td>Fun</td>
+            <td>Tester</td>
+            <td>21.2.2025</td>
+            <td><a href="">Delete</a> | <a href="">Details</a></td>
           </tbody>
           <tbody>
-<td>Finance</td>
-<td>Testing page</td>
-<td>Fun</td>
-<td>Tester</td>
-<td>21.2.2025</td>
-<td><a href="">Delete</a>  |  <a href="">Details</a></td>
+            <td>Finance</td>
+            <td>Testing page</td>
+            <td>Fun</td>
+            <td>Tester</td>
+            <td>21.2.2025</td>
+            <td><a href="">Delete</a> | <a href="">Details</a></td>
           </tbody>
         </table>
         <!-- <div class="mt-3">
@@ -74,8 +73,8 @@
           <button @click="addCategory" class="btn btn-success mt-2">Add Category</button>
         </div> -->
 
-<-- category -->
-       <table class="table">
+        <-- category -->
+        <table class="table">
           <thead>
             <tr>
               <th>Category</th>
@@ -103,72 +102,66 @@
 
           <!-- test idea table -->
           <tbody>
-<td>Fun</td>
-<td>21.2.2025</td>
-<td>21.3.2025</td>
-<td>QA Manager</td>
-<td>13</td>
+            <td>Fun</td>
+            <td>21.2.2025</td>
+            <td>21.3.2025</td>
+            <td>QA Manager</td>
+            <td>13</td>
 
-<td style="color: blue;">Active</td>
-<td> <a href="">Details</a></td>
+            <td style="color: blue">Active</td>
+            <td><a href="">Details</a></td>
 
-
-<td><a href="">Details</a></td>
-
+            <td><a href="">Details</a></td>
           </tbody>
           <tbody>
             <td>Fun</td>
-<td>21.2.2025</td>
-<td>21.3.2025</td>
-<td>QA Manager</td>
-<td>13</td>
+            <td>21.2.2025</td>
+            <td>21.3.2025</td>
+            <td>QA Manager</td>
+            <td>13</td>
 
-<td style="color: black;">Nonactive</td>
+            <td style="color: black">Nonactive</td>
 
-<td><a href="">Delete</a>  |  <a href="">Details</a></td>
+            <td><a href="">Delete</a> | <a href="">Details</a></td>
           </tbody>
           <tbody>
             <td>Fun</td>
-<td>21.2.2025</td>
-<td>21.3.2025</td>
-<td>QA Manager</td>
-<td>13</td>
+            <td>21.2.2025</td>
+            <td>21.3.2025</td>
+            <td>QA Manager</td>
+            <td>13</td>
 
-<td style="color: black;">Nonactive</td>
-=======
+            <td style="color: black">Nonactive</td>
+            =======
 
-
-<td><a href="">Delete</a>  |  <a href="">Details</a></td>
+            <td><a href="">Delete</a> | <a href="">Details</a></td>
           </tbody>
           <tbody>
             <td>Fun</td>
-<td>21.2.2025</td>
-<td>21.3.2025</td>
-<td>QA Manager</td>
-<td>13</td>
+            <td>21.2.2025</td>
+            <td>21.3.2025</td>
+            <td>QA Manager</td>
+            <td>13</td>
 
-<td style="color: black;">Nonactive</td>
-=======
+            <td style="color: black">Nonactive</td>
+            =======
 
-
-<td><a href="">Delete</a>  |  <a href="">Details</a></td>
+            <td><a href="">Delete</a> | <a href="">Details</a></td>
           </tbody>
           <tbody>
             <td>Fun</td>
-<td>21.2.2025</td>
-<td>21.3.2025</td>
-<td>QA Manager</td>
-<td>13</td>
+            <td>21.2.2025</td>
+            <td>21.3.2025</td>
+            <td>QA Manager</td>
+            <td>13</td>
 
-<td style="color: blue;">Active</td>
-<td><a href="">Details</a></td>
+            <td style="color: blue">Active</td>
+            <td><a href="">Details</a></td>
 
-
-<td> <a href="">Details</a></td>
-
+            <td><a href="">Details</a></td>
           </tbody>
-        </table> 
-<!-- 
+        </table>
+        <!-- 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { Http } from '@/services/http-common';
@@ -189,7 +182,6 @@ const addCategory = async () => {
   // Optionally, fetch ideas again if they depend on categories
 };
 </script> -->
-
       </div>
     </div>
   </div>
