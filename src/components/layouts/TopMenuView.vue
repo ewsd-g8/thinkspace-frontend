@@ -60,7 +60,7 @@
         <a href="index.html" class="logo logo-dark text-center">
           <span class="logo-sm">
             <img
-              src="/icon/eduplus_icon.png"
+              src="/icon/think-space.png"
               alt=""
               class="img-fluid"
               height="22"
@@ -68,7 +68,7 @@
           </span>
           <span class="logo-lg">
             <img
-              src="/icon/edu-plus-logo.png"
+              src="/icon/think-space.png"
               alt=""
               class="img-fluid"
               height="20"
@@ -79,7 +79,7 @@
         <a href="index.html" class="logo logo-light text-center">
           <span class="logo-sm">
             <img
-              src="/icon/eduplus_icon.png"
+              src="/icon/think-space.png"
               alt=""
               class="img-fluid"
               height="22"
@@ -87,7 +87,7 @@
           </span>
           <span class="logo-lg">
             <img
-              src="/icon/edu-plus-logo.png"
+              src="/icon/think-space.png"
               alt=""
               class="img-fluid"
               height="20"
