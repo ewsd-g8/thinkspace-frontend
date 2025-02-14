@@ -9,10 +9,10 @@
             href="https://eduplusmyanmar.com"
             class="link link-info"
             target="_blank"
-            >EDUPlus</a
+            >Think Space</a
           >
           Admin System by
-          <a href="javascript:void(0);" class="link link-info">Company Name</a>
+          <a href="javascript:void(0);" class="link link-info">EWSP-8</a>
         </div>
       </div>
     </div>

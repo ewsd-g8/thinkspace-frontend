@@ -12,6 +12,48 @@
           </li>
 
           <li class="menu-title mt-2">ADMINISTRATOR</li>
+
+<!-- idea_post post and idea -->
+<li> 
+            <a
+              href="#idea_post"
+              :aria-expanded="isActive(['/admin/users', '/admin/roles'])"
+              data-bs-toggle="collapse"
+            >
+            <i class="mdi mdi-lightbulb-outline"></i>
+              <span> Idea Post </span>
+              <span class="menu-arrow"></span>
+            </a>
+            <div
+              class="collapse"
+              :class="{
+                show: isActive(['/admin/idea_post_post', '/admin/idea_post_idea']),
+              }"
+              id="idea_post"
+            >
+              <ul class="nav-second-level">
+                <li>
+                  <router-link
+                    :to="{ name: 'idea_post_post' }"
+                    :class="{
+                      'router-link-active': isActive(['/admin/idea_post_post']),
+                    }"
+                    > <i class="mdi mdi-message-text-outline"></i><span class="ms-1">Post</span></router-link
+                  >
+                </li>
+                <li>
+                  <router-link
+                    :to="{ name: 'idea_post_idea' }"
+                    :class="{
+                      'router-link-active': isActive(['/admin/idea_post_idea']),
+                    }"
+                    ><i class="mdi mdi-file-document-outline"></i><span class="ms-1">Idea</span></router-link
+                  >
+                </li>
+              </ul>
+            </div>
+          </li>
+<!-- user management -->
           <li>
             <a
               href="#user-management"
