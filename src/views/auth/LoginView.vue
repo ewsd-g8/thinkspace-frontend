@@ -150,7 +150,7 @@ const user = reactive({
 const rules = computed(() => {
   return {
     email: { required, email },
-    password: { required, minLength: minLength(8) },
+    password: { required, minLength: minLength(6) },
   };
 });
 const v$ = useVuelidate(rules, user);
