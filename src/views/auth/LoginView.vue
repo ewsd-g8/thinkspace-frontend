@@ -7,7 +7,8 @@
         <img
           src="/icon/think-space-logo.png"
           alt="logo"
-          style="width: 400px; height: 400px"
+          class="img-fluid"
+          style="max-width: 100%; height: auto"
         />
         <br />
         <!-- <img
