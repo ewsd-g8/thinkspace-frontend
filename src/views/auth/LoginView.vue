@@ -7,7 +7,8 @@
         <img
           src="/icon/think-space-logo.png"
           alt="logo"
-          style="width: 400px; height: 400px"
+          class="img-fluid"
+          style="max-width: 100%; height: auto"
         />
         <br />
         <!-- <img
@@ -149,7 +150,7 @@ const user = reactive({
 const rules = computed(() => {
   return {
     email: { required, email },
-    password: { required, minLength: minLength(6) },
+    password: { required, minLength: minLength(8) },
   };
 });
 const v$ = useVuelidate(rules, user);
