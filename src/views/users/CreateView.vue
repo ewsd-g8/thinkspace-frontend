@@ -43,7 +43,7 @@
                 class="btn btn-success me-2 mb-2"
                 tabindex="0"
               >
-                <span class="d-none d-sm-block text-white">Add photo</span>
+                <span class="d-none d-sm-block text-dark">Add photo</span>
                 <i class="bx bx-upload d-block d-sm-none"></i>
                 <input
                   type="file"

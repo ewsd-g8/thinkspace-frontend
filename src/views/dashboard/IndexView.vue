@@ -3,57 +3,51 @@
     <div class="card">
       <div class="card-body">
         <h1>Dashboard Page</h1>
+        <div></div>
         <div>
-    
-  </div>
-  <div>
-    <div class="card">
-      <div class="card-body">
-        <h4>Category Page</h4>
-        <EasyDataTable
-          v-model:server-options="serverOptions"
-          :server-items-length="serverItemsLength"
-          :loading="loading"
-          :headers="headers"
-          :items="tableData"
-          show-index
-          @update-sort="updateSort"
-          :rows-items="[10, 30, 50]"
-          :search-value="searchValue"
-          table-class-name="customize-table"
-          :rows-per-page="10"
-          buttons-pagination
-          border-cell
-          theme-color="#a1dcd8"
-        >
-          <template #loading>
-            <Loading></Loading>
-          </template>
-          <template #item-action="data">
-            <Popper arrow placement="right" content="Edit" hover>
-              <router-link
-                class="btn btn-sm btn-info"
-                :to="{ name: 'role-edit', params: { id: data.id } }"
+          <div class="card">
+            <div class="card-body">
+              <h4>Category Page</h4>
+              <EasyDataTable
+                v-model:server-options="serverOptions"
+                :server-items-length="serverItemsLength"
+                :loading="loading"
+                :headers="headers"
+                :items="tableData"
+                show-index
+                @update-sort="updateSort"
+                :rows-items="[10, 30, 50]"
+                :search-value="searchValue"
+                table-class-name="customize-table"
+                :rows-per-page="10"
+                buttons-pagination
+                border-cell
+                theme-color="#a1dcd8"
               >
-                <i class="mdi mdi-square-edit-outline"></i>
-              </router-link>
-            </Popper>
-          </template>
-          <template #item-is_active="data">
-            <Badge
-              :class="data.is_active ? 'bg-success' : 'bg-danger'"
-              :name="data.is_active ? 'Active' : 'Inactive'"
-            ></Badge>
-          </template>
-        </EasyDataTable>
-       
-       
-            <!-- <div style="width: 500px;"><canvas id="dimensions"></canvas></div><br/> -->
+                <template #loading>
+                  <Loading></Loading>
+                </template>
+                <template #item-action="data">
+                  <Popper arrow placement="right" content="Edit" hover>
+                    <router-link
+                      class="btn btn-sm btn-info"
+                      :to="{ name: 'role-edit', params: { id: data.id } }"
+                    >
+                      <i class="mdi mdi-square-edit-outline"></i>
+                    </router-link>
+                  </Popper>
+                </template>
+                <template #item-is_active="data">
+                  <Badge
+                    :class="data.is_active ? 'bg-success' : 'bg-danger'"
+                    :name="data.is_active ? 'Active' : 'Inactive'"
+                  ></Badge>
+                </template>
+              </EasyDataTable>
 
- 
+              <!-- <div style="width: 500px;"><canvas id="dimensions"></canvas></div><br/> -->
 
-
-        <!-- 
+              <!-- 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { Http } from '@/services/http-common';
@@ -73,18 +67,18 @@ const addCategory = async () => {
   newCategory.value = '';
   // Optionally, fetch ideas again if they depend on categories
 };
-</script> -->
+</script> --> 
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-
-      </div>
-    </div>
-  </div> <div style="width: 800px;">
-    <canvas id="acquisitions"></canvas>
+  
   </div>
 </template>
+
+
+
 <script setup>
 // for categories
 import { ref } from "vue";
@@ -93,7 +87,7 @@ import { Http } from "@/services/http-common";
 const categories = ref([]);
 
 const fetchCategories = async () => {
-  const response = await Http.get('/api/categories');
+  const response = await Http.get("/api/categories");
   categories.value = response.data;
 };
 
@@ -122,4 +116,3 @@ const headers = [
 
 
 </script>
-

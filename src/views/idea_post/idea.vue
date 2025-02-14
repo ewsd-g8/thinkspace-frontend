@@ -1,5 +1,5 @@
 
-<template>
+<!-- <template>
     <div>
       
       <div class="card">
@@ -86,8 +86,75 @@
         </div>
       </div>
     </div>
+  </template> -->
+  <template>
+    <div>
+      <div class="card">
+        <div class="card-body">
+          <h4> Ideas</h4>
+          <ul class="list-group">
+            <li class="list-group-item">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h5>Sample Idea</h5>
+                  <p class="text-muted">
+                    Sample Category ( Fun)
+                  </p>
+                </div>
+                <div>
+                  <button class="btn btn-sm" >
+                    <i class="mdi mdi-thumb-up"></i>
+                  </button>
+                  <button class="btn btn-sm" >
+                    <i class="mdi mdi-thumb-down"></i>
+                  </button>
+                  <button class="btn btn-sm" >
+                    <i class="mdi mdi-comment"></i>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <a href="#" target="_blank">
+                  sample-file.pdf
+                </a>
+              </div>
+              <hr />
+              <div>
+                <ul class="list-group">
+                  <li class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                      <div>
+                        <p>Sample Comment</p>
+                      </div>
+                      <div>
+                        <p class="text-muted">
+                          2023-10-01
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+                <form>
+                  <div class="mb-3">
+                    <label for="comment" class="form-label">Comment</label>
+                    <textarea
+                      class="form-control"
+                      id="comment"
+                      rows="3"
+                      
+                    ></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary" >
+                    Post
+                  </button>
+                </form>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </template>
-  
   <script setup>
   import { ref, onMounted } from "vue";
   import { Http } from "@/services/http-common";

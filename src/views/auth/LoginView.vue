@@ -96,7 +96,7 @@
             </div>
             <div class="text-center d-grid">
               <button
-                class="btn btn-success text-focus-in"
+                class="btn btn-success text-focus-in border-white"
                 type="submit"
                 :disabled="loading"
               >
