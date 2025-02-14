@@ -76,10 +76,16 @@
             ></Badge>
           </template>
         </EasyDataTable>
-      </div>
+      </div> 
+
     </div>
   </div>
 </template>
+
+
+
+
+
 <script setup>
 import { ref, onMounted, reactive, watch } from "vue";
 import { Http } from "@/services/http-common";
