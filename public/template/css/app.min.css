@@ -488,7 +488,7 @@ body[data-sidebar-size="condensed"] .user-box {
 }
 @media (min-width: 768px) {
   body[data-sidebar-size="condensed"]:not([data-layout="compact"]) {
-    min-height: 1750px;
+    /* min-height: 1750px; */
   }
 }
 @media (max-width: 767.98px) {
@@ -499,7 +499,7 @@ body[data-sidebar-size="condensed"] .user-box {
 @media (max-width: 991.98px) {
   body {
     overflow-x: hidden;
-    padding-bottom: 80px;
+    /* padding-bottom: 80px; */
   }
   .left-side-menu {
     display: none;
