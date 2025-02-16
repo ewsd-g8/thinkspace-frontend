@@ -45,7 +45,8 @@
                 </template>
               </EasyDataTable>
 
-              <!-- <div style="width: 500px;"><canvas id="dimensions"></canvas></div><br/> -->
+           
+            
 
               <!-- 
 <script setup>

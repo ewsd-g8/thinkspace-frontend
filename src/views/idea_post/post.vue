@@ -49,8 +49,15 @@
     v-model="form.agreeTerms"
   />
   <label class="form-check-label" for="terms">
-    I agree to the <a href="/terms" target="_blank">terms and conditions</a>.
-  </label>
+    I agree to the 
+    <router-link
+          :to="{ name: 'term_and_condition' }"
+         
+        >
+        term and condition
+        </router-link>
+      </label>
+ 
 </div>
 
             <button type="submit" class="btn btn-primary">Post</button>

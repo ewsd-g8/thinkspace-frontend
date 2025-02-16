@@ -325,7 +325,29 @@ const rules = computed(() => {
         fileSizeValidator
       ),
     },
+    // cap , lower , special Cha and 8 long
+    password: {
+      required,
+      minLength: minLength(8),
+      hasCapitalLetter: helpers.withMessage(
+        "Must contain at least one capital letter",
+        (value) => /[A-Z]/.test(value)
+      ),
+      hasLowercaseLetter: helpers.withMessage(
+        "Must contain at least one lowercase letter",
+        (value) => /[a-z]/.test(value)
+      ),
+      hasSpecialCharacter: helpers.withMessage(
+        "Must contain at least one special character",
+        (value) => /[^A-Za-z0-9]/.test(value)
+      ),
+      hasNumber: helpers.withMessage(
+        "Must contain at least one number",
+        (value) => /\d/.test(value)
+      ),
+    },
   };
+
 });
 const v$ = useVuelidate(rules, user);
 
@@ -376,4 +398,5 @@ onMounted(() => {
   resetServerErrors();
   getRoles();
 });
+
 </script>
