@@ -168,6 +168,7 @@ const submitForm = async () => {
         {
           title: "Success",
           description: "You are successfully login!",
+          toastBackgroundColor: "#670e10",
         },
         {
           type: "success",
