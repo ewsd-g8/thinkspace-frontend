@@ -134,6 +134,7 @@
                     </div>
                   </li>
                 </ul>
+               
                 <form>
                   <div class="mb-3">
                     <label for="comment" class="form-label">Comment</label>
@@ -141,16 +142,22 @@
                       class="form-control"
                       id="comment"
                       rows="3"
+                      v-model="form.comment"
                       
                     ></textarea>
                   </div>
-                  <button type="submit" class="btn btn-primary" >
+                  <button type="submit" class="btn btn-primary"style="background-color: #5d1010;" >
                     Post
                   </button>
                 </form>
               </div>
             </li>
-          </ul>
+          </ul> 
+        </div>
+        <div style="position: fixed; bottom: 5rem; right: 2rem; z-index: 1000;">
+          <router-link :to="{ name: 'idea_post_post' }" class="btn" style="background-color: #5d1010; color: white;">
+            <i class="mdi mdi-plus me-sm-1"></i> Post Idea
+          </router-link>
         </div>
       </div>
     </div>

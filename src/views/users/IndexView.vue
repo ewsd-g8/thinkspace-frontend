@@ -15,6 +15,8 @@
         </div>
       </div>
     </div>
+
+    <!-- card --> 
     <div class="card">
       <div class="pt-3 px-3 d-flex justify-content-end bg-white">
         <div class="d-flex position-relative me-2">
@@ -94,6 +96,12 @@
         </EasyDataTable>
       </div>
     </div>
+
+
+    <!-- user cards by looking deaprtments -->
+
+
+
     <!-- Info Alert Modal -->
     <div
       id="change-status-modal"
@@ -101,6 +109,7 @@
       tabindex="-1"
       role="dialog"
       aria-hidden="true"
+    >
     >
       <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">

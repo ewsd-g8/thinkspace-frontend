@@ -60,7 +60,7 @@
  
 </div>
 
-            <button type="submit" class="btn btn-primary">Post</button>
+            <button type="submit" class="btn btn-primary" style="background-color: #5d1010;">Post</button>
           </form>
         </div>
       </div>
