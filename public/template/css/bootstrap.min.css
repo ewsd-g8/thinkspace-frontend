@@ -2654,15 +2654,15 @@ fieldset:disabled .btn {
   border-color: #6c757d;
 }
 .btn-success {
-  color: #fff;
+  color: #000000;
   background-color: transparent;
-  border-color: #fff;
+  border-color: #000000;
   border-radius: 5px;
 }
 .btn-success:hover {
-  background-color: #ffffff;
-  border-color: #670e10;
-  color: #670e10;
+  background-color: #6d757d;
+  border-color: #6d757d;
+  color: #ffffff;
 }
 .btn-check:focus + .btn-success,
 .btn-success:focus {
@@ -5986,7 +5986,7 @@ fieldset:disabled .btn {
   color: #473e9b;
 }
 .link-info {
-  color: #4fc6e1;
+  color: #620f10;
 }
 .link-info:focus,
 .link-info:hover {

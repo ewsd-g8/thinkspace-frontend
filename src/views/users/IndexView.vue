@@ -36,7 +36,7 @@
           :to="{ name: 'user-create' }"
           class="btn btn-blue waves-effect waves-light float-end"
         >
-          <i class="mdi mdi-plus me-sm-1 text-white"></i>Add New
+          <i class="mdi mdi-plus me-sm-1 text-dark"></i>Add New
         </router-link>
       </div>
       <div class="card-body">

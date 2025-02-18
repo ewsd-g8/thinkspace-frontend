@@ -55,18 +55,18 @@
 .customize-table {
   --easy-table-header-font-size: 14px;
   --easy-table-header-height: 45px;
-  --easy-table-header-background-color: #a1dcd8;
-
+  --easy-table-header-background-color: #620f10;
+  --easy-table-header-font-color: #ffffff;
   --easy-table-footer-background-color: #efefef;
   --easy-table-header-item-padding: 10px 15px;
 
-  --easy-table-body-even-row-font-color: #fff;
+  --easy-table-body-even-row-font-color: #000000;
 
-  --easy-table-body-row-font-color: #c0c7d2;
+  --easy-table-body-row-font-color: #000000;
   --easy-table-body-row-height: 45px;
   --easy-table-body-row-font-size: 14px;
 
-  --easy-table-body-row-hover-font-color: #2d3a4f;
+  --easy-table-body-row-hover-font-color: #000000;
   --easy-table-body-row-hover-background-color: #eee;
 
   --easy-table-body-item-padding: 8px 15px;
@@ -103,7 +103,7 @@ label {
 :root {
   --popper-theme-background-color: #383535;
   --popper-theme-background-color-hover: #383535;
-  --popper-theme-text-color: #fff;
+  --popper-theme-text-color: #000000;
   --popper-theme-border-width: 0px;
   --popper-theme-border-style: solid;
   --popper-theme-border-radius: 5px;

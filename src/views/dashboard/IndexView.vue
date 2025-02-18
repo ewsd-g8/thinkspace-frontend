@@ -3,176 +3,52 @@
     <div class="card">
       <div class="card-body">
         <h1>Dashboard Page</h1>
+        <div></div>
+        <div>
+          <div class="card">
+            <div class="card-body">
+              <h4>Category Page</h4>
+              <EasyDataTable
+                v-model:server-options="serverOptions"
+                :server-items-length="serverItemsLength"
+                :loading="loading"
+                :headers="headers"
+                :items="tableData"
+                show-index
+                @update-sort="updateSort"
+                :rows-items="[10, 30, 50]"
+                :search-value="searchValue"
+                table-class-name="customize-table"
+                :rows-per-page="10"
+                buttons-pagination
+                border-cell
+                theme-color="#a1dcd8"
+              >
+                <template #loading>
+                  <Loading></Loading>
+                </template>
+                <template #item-action="data">
+                  <Popper arrow placement="right" content="Edit" hover>
+                    <router-link
+                      class="btn btn-sm btn-info"
+                      :to="{ name: 'role-edit', params: { id: data.id } }"
+                    >
+                      <i class="mdi mdi-square-edit-outline"></i>
+                    </router-link>
+                  </Popper>
+                </template>
+                <template #item-is_active="data">
+                  <Badge
+                    :class="data.is_active ? 'bg-success' : 'bg-danger'"
+                    :name="data.is_active ? 'Active' : 'Inactive'"
+                  ></Badge>
+                </template>
+              </EasyDataTable>
 
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Department</th>
-              <th>Idea</th>
-              <th>Category</th>
-              <th>Submitted By</th>
-              <th>Date Submitted</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <!-- <tbody>
-            <tr v-for="idea in ideas" :key="idea.id">
-              <td>{{ idea.id }}</td>
-              <td>{{ idea.title }}</td>
-              <td>{{ idea.category }}</td>
-              <td>{{ idea.submittedBy }}</td>
-              <td>{{ idea.dateSubmitted }}</td>
-            </tr>
-          </tbody> -->
+           
+            
 
-          <!-- test idea table -->
-          <tbody>
-            <td>Finance</td>
-            <td>Testing page</td>
-            <td>Fun</td>
-            <td>Tester</td>
-            <td>21.2.2025</td>
-            <td><a href="">Delete</a> | <a href="">Details</a></td>
-          </tbody>
-          <tbody>
-            <td>Finance</td>
-            <td>Testing page</td>
-            <td>Fun</td>
-            <td>Tester</td>
-            <td>21.2.2025</td>
-            <td><a href="">Delete</a> | <a href="">Details</a></td>
-          </tbody>
-          <tbody>
-            <td>Finance</td>
-            <td>Testing page</td>
-            <td>Fun</td>
-            <td>Tester</td>
-            <td>21.2.2025</td>
-            <td><a href="">Delete</a> | <a href="">Details</a></td>
-          </tbody>
-          <tbody>
-            <td>Finance</td>
-            <td>Testing page</td>
-            <td>Fun</td>
-            <td>Tester</td>
-            <td>21.2.2025</td>
-            <td><a href="">Delete</a> | <a href="">Details</a></td>
-          </tbody>
-          <tbody>
-            <td>Finance</td>
-            <td>Testing page</td>
-            <td>Fun</td>
-            <td>Tester</td>
-            <td>21.2.2025</td>
-            <td><a href="">Delete</a> | <a href="">Details</a></td>
-          </tbody>
-        </table>
-        <!-- <div class="mt-3">
-          <h3>Add Category</h3>
-          <input type="text" v-model="newCategory" placeholder="Enter category" />
-          <button @click="addCategory" class="btn btn-success mt-2">Add Category</button>
-        </div> -->
-
-
-
-
-        <-- category -->
-        <table class="table">
-
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Submitted By</th>
-
-              <th>Applied Quantity</th>
-              <th>Status</th>
-
-      
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <!-- <tbody>
-            <tr v-for="idea in ideas" :key="idea.id">
-              <td>{{ idea.id }}</td>
-              <td>{{ idea.title }}</td>
-              <td>{{ idea.category }}</td>
-              <td>{{ idea.submittedBy }}</td>
-              <td>{{ idea.dateSubmitted }}</td>
-            </tr>
-          </tbody> -->
-
-          <!-- test idea table -->
-          <tbody>
-            <td>Fun</td>
-            <td>21.2.2025</td>
-            <td>21.3.2025</td>
-            <td>QA Manager</td>
-            <td>13</td>
-
-
-
-
-            <td style="color: blue">Active</td>
-            <td><a href="">Details</a></td>
-
-
-        
-          </tbody>
-          <tbody>
-            <td>Fun</td>
-            <td>21.2.2025</td>
-            <td>21.3.2025</td>
-            <td>QA Manager</td>
-            <td>13</td>
-
-            <td style="color: black">Nonactive</td>
-
-            <td><a href="">Delete</a> | <a href="">Details</a></td>
-          </tbody>
-          <tbody>
-            <td>Fun</td>
-            <td>21.2.2025</td>
-            <td>21.3.2025</td>
-            <td>QA Manager</td>
-            <td>13</td>
-
-            <td style="color: black">Nonactive</td>
-            =======
-
-            <td><a href="">Delete</a> | <a href="">Details</a></td>
-          </tbody>
-          <tbody>
-            <td>Fun</td>
-            <td>21.2.2025</td>
-            <td>21.3.2025</td>
-            <td>QA Manager</td>
-            <td>13</td>
-
-            <td style="color: black">Nonactive</td>
-            =======
-
-            <td><a href="">Delete</a> | <a href="">Details</a></td>
-          </tbody>
-          <tbody>
-            <td>Fun</td>
-            <td>21.2.2025</td>
-            <td>21.3.2025</td>
-            <td>QA Manager</td>
-            <td>13</td>
-
-            <td style="color: blue">Active</td>
-            <td><a href="">Details</a></td>
-
-
-
-
-
-
-          </tbody>
-        </table>
-        <!-- 
+              <!-- 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { Http } from '@/services/http-common';
@@ -192,8 +68,52 @@ const addCategory = async () => {
   newCategory.value = '';
   // Optionally, fetch ideas again if they depend on categories
 };
-</script> -->
+</script> --> 
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+  
   </div>
 </template>
+
+
+
+<script setup>
+// for categories
+import { ref } from "vue";
+import { Http } from "@/services/http-common";
+
+const categories = ref([]);
+
+const fetchCategories = async () => {
+  const response = await Http.get("/api/categories");
+  categories.value = response.data;
+};
+
+fetchCategories();
+const pageLoading = ref(true);
+const loading = ref(false);
+const tableData = ref([]);
+
+const serverItemsLength = ref(0);
+const searchValue = ref("");
+const serverOptions = ref({
+  page: 1,
+  rowsPerPage: 10,
+  sortType: "",
+  sortBy: "",
+});
+
+const headers = [
+  { text: "Name", value: "name", sortable: true },
+  { text: "Created At", value: "created_at", sortable: true },
+  { text: "Updated At", value: "updated_at", sortable: true },
+  { text: "Status", value: "is_active", sortable: true },
+  { text: "Action", value: "action", width: "200" },
+];
+
+
+
+</script>
