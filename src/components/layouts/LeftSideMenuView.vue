@@ -21,7 +21,7 @@
             </router-link>
           </li>
 <!-- idea_post post and idea -->
-<li> 
+<li>
             <a
               href="#idea_post"
               :aria-expanded="isActive(['/admin/idea_post_post', '/admin/idea_post_idea'])"
@@ -101,6 +101,55 @@
               </ul>
             </div>
           </li>
+
+<!-- chart demo  -->
+          <li>
+            <a
+                href="#chart_demo"
+                :aria-expanded="isActive(['/admin/chart_demo/bar', '/admin/chart_demo/doughnut', '/admin/chart_demo/line'])"
+                data-bs-toggle="collapse"
+            >
+              <i class="mdi mdi-account-group"></i>
+              <span> Chart Demo</span>
+              <span class="menu-arrow"></span>
+            </a>
+            <div
+                class="collapse"
+                :class="{
+                show: isActive(['/admin/chart_demo/bar', '/admin/chart_demo/doughnut', '/admin/chart_demo/line']),
+              }"
+                id="chart_demo"
+            >
+              <ul class="nav-second-level">
+                <li>
+                  <router-link
+                      :to="{ name: 'bar' }"
+                      :class="{
+                      'router-link-active': isActive(['/chart_demo/bar']),
+                    }"
+                  >Bar Chart</router-link
+                  >
+                </li>
+                <li>
+                  <router-link
+                      :to="{ name: 'doughnut' }"
+                      :class="{
+                      'router-link-active': isActive(['/chart_demo/doughnut']),
+                    }"
+                  >Doughnut Chart</router-link>
+                </li>
+                <li>
+                  <router-link
+                      :to="{ name: 'line' }"
+                      :class="{
+                      'router-link-active': isActive(['/chart_demo/line']),
+                    }"
+                  >Line Chart</router-link>
+                </li>
+              </ul>
+            </div>
+          </li>
+
         </ul>
       </div>
       <div class="clearfix"></div>

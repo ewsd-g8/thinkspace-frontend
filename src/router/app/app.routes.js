@@ -1,3 +1,8 @@
+import ChartDemoView from "@/views/chart_demo/LineChartView.vue";
+import BarChartView from "@/views/chart_demo/BarChartView.vue";
+import DoughnutChartView from "@/views/chart_demo/DoughnutChartView.vue";
+import LineChartView from "@/views/chart_demo/LineChartView.vue";
+
 const DashboardView = () => import("@/views/dashboard/IndexView.vue");
 
 const UserIndexView = () => import("@/views/users/IndexView.vue");
@@ -18,73 +23,88 @@ const categoryCreateView = () => import("@/views/category/CreateView.vue");
 const categoryEditView = () => import("@/views/category/EditView.vue");
 
 const appRoutes = [
-  {
-    path: "dashboard",
-    name: "dashboard",
-    component: DashboardView,
-  },
-  {
-    path: "users",
-    name: "user-index",
-    component: UserIndexView,
-  },
-  {
-    path: "users/create",
-    name: "user-create",
-    component: UserCreateView,
-  },
-  {
-    path: "users/:id/edit",
-    name: "user-edit",
-    component: UserEditView,
-  },
-  {
-    path: "roles",
-    name: "role-index",
-    component: RoleIndexView,
-  },
-  {
-    path: "roles/create",
-    name: "role-create",
-    component: RoleCreateView,
-  },
-  {
-    path: "roles/:id/edit",
-    name: "role-edit",
-    component: RoleEditView,
-  },
-  {
-    path: "idea_post/idea",
-    name: "idea_post_idea",
-    component: IdeaPostView,
-  },
-  {
-    path:"idea_post/post",
-    name:"idea_post_post",
-    component: PostView,
-  },
-  {
-    path:"idea_post/term_and_condition",
-    name:"term_and_condition",
-    component: TermView,
-  },
+    {
+        path: "dashboard",
+        name: "dashboard",
+        component: DashboardView,
+    },
+    {
+        path: "users",
+        name: "user-index",
+        component: UserIndexView,
+    },
+    {
+        path: "users/create",
+        name: "user-create",
+        component: UserCreateView,
+    },
+    {
+        path: "users/:id/edit",
+        name: "user-edit",
+        component: UserEditView,
+    },
+    {
+        path: "roles",
+        name: "role-index",
+        component: RoleIndexView,
+    },
+    {
+        path: "roles/create",
+        name: "role-create",
+        component: RoleCreateView,
+    },
+    {
+        path: "roles/:id/edit",
+        name: "role-edit",
+        component: RoleEditView,
+    },
+    {
+        path: "idea_post/idea",
+        name: "idea_post_idea",
+        component: IdeaPostView,
+    },
+    {
+        path:"idea_post/post",
+        name:"idea_post_post",
+        component: PostView,
+    },
+    {
+        path:"idea_post/term_and_condition",
+        name:"term_and_condition",
+        component: TermView,
+    },
 
-  // for category
-  {
-    path: "category",
-    name: "category-index",
-    component: categoryIndexView,
-  },
-  {
-    path: "category/create",
-    name: "category-create",
-    component: categoryCreateView,
-  },
-  {
-    path: "category/:id/edit",
-    name: "category-edit",
-    component: categoryEditView,
-  },
+    // for category
+    {
+        path: "category",
+        name: "category-index",
+        component: categoryIndexView,
+    },
+    {
+        path: "category/create",
+        name: "category-create",
+        component: categoryCreateView,
+    },
+    {
+        path: "category/:id/edit",
+        name: "category-edit",
+        component: categoryEditView,
+    },
+    {
+        path:"chart_demo/bar",
+        name:"bar",
+        component: BarChartView,
+    },
+    {
+        path:"chart_demo/doughnut",
+        name:"doughnut",
+        component: DoughnutChartView,
+    },
+    {
+        path:"chart_demo/line",
+        name:"line",
+        component: LineChartView,
+    }
 ];
 
 export default appRoutes;
