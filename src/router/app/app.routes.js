@@ -12,6 +12,11 @@ const IdeaPostView = () => import("@/views/idea_post/idea.vue");
 const PostView = () => import("@/views/idea_post/post.vue");
 const TermView = () => import("@/views/idea_post/term_and_condition.vue");
 
+// for category
+const categoryIndexView = () => import("@/views/category/IndexView.vue");
+const categoryCreateView = () => import("@/views/category/CreateView.vue");
+const categoryEditView = () => import("@/views/category/EditView.vue");
+
 const appRoutes = [
   {
     path: "dashboard",
@@ -62,6 +67,23 @@ const appRoutes = [
     path:"idea_post/term_and_condition",
     name:"term_and_condition",
     component: TermView,
+  },
+
+  // for category
+  {
+    path: "category",
+    name: "category-index",
+    component: categoryIndexView,
+  },
+  {
+    path: "category/create",
+    name: "category-create",
+    component: categoryCreateView,
+  },
+  {
+    path: "category/:id/edit",
+    name: "category-edit",
+    component: categoryEditView,
   },
 ];
 

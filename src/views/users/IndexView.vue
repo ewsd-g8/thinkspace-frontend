@@ -191,6 +191,7 @@ const getResults = async () => {
     `users?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
   )
     .then((res) => {
+      console.log("res", res);
       tableData.value = res.data.data.data;
       serverItemsLength.value = res.data.data.total;
     })

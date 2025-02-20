@@ -12,12 +12,19 @@
           </li>
 
           <li class="menu-title mt-2">ADMINISTRATOR</li>
-
+<!-- Category -->
+      
+<li>
+            <router-link :to="{ name: 'category-index' }">
+              <i class="mdi mdi-folder"></i>
+              <span> Category </span>
+            </router-link>
+          </li>
 <!-- idea_post post and idea -->
 <li> 
             <a
               href="#idea_post"
-              :aria-expanded="isActive(['/admin/users', '/admin/roles'])"
+              :aria-expanded="isActive(['/admin/idea_post_post', '/admin/idea_post_idea'])"
               data-bs-toggle="collapse"
             >
             <i class="mdi mdi-lightbulb-outline"></i>
@@ -41,6 +48,7 @@
                     > <i class="mdi mdi-message-text-outline"></i><span class="ms-1">Post</span></router-link
                   >
                 </li>
+
                 <li>
                   <router-link
                     :to="{ name: 'idea_post_idea' }"
