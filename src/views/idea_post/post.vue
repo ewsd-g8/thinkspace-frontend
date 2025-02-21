@@ -10,7 +10,9 @@
                 class="form-control"
                 id="idea"
                 rows="3"
-                v-model="form.idea"
+                v-model="form.ideacontent"
+                autofocus required
+                style="min-height:200px ; "
               ></textarea>
             </div>
             <div class="mb-3">
@@ -60,7 +62,11 @@
  
 </div>
 
-            <button type="submit" class="btn btn-primary">Post</button>
+
+            <button type="submit" class="btn btn-primary" style="background-color: #5d1010; width: 300px; border-radius: 10px; text-align: center;">Post</button>
+
+           
+
           </form>
         </div>
       </div>
@@ -68,9 +74,20 @@
     </div>
   </template>
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
+import { useVuelidate } from "@vuelidate/core";
+import { useRouter, useRoute } from "vue-router";
+import { createToast } from "mosha-vue-toastify";
+import Skeleton from "@/components/shared/Skeleton.vue";
+import { required, email, helpers } from "@vuelidate/validators";
 import { Http } from "@/services/http-common";
-const ideas = ref([]);
+import {
+    serverErrors,
+    errorFor,
+    resetServerErrors,
+  } from "@/composables/validationErrors";
+  const router = useRouter();
+
   const categories = ref([]);
   const form = ref({
     idea: "",
@@ -80,19 +97,26 @@ const ideas = ref([]);
   });
   
   onMounted(async () => {
-    const response = await Http.get("/api/ideas");
-    ideas.value = response.data;
-    const responseCat = await Http.get("/api/categories");
-    categories.value = responseCat.data;
+    // const response = await Http.get("/api/ideas");
+    // ideas.value = response.data;
+    getCategory();
   });
-  
+  const getCategory = async () => {
+     try {
+    const response = await Http.get("categories");
+    console.log("res",response);
+    categories.value=response.data.data.data;
+    
+   
+  } catch (error) {
+    console.error("Failed to fetch categories", error);
+  }
+  };
+ 
   const postIdea = async () => {
     const formData = new FormData();
-    formData.append("idea", form.value.idea);
+    formData.append("idea", form.ideacontent);
     formData.append("category_id", form.value.category_id);
-    if (form.value.file) formData.append("file", form.value.file);
-    const response = await Http.post("/api/ideas", formData);
-    ideas.value.push(response.data);
     form.value.idea = "";
     form.value.category_id = "";
     form.value.file = null;
@@ -101,31 +125,7 @@ const ideas = ref([]);
   const handleFileChange = (e) => {
     form.value.file = e.target.files[0];
   };
-  
-  const thumbUp = async (idea) => {
-    const response = await Http.post(`/api/ideas/${idea.id}/thumb-up`);
-    idea.has_thumbs_up = true;
-    idea.thumbs_up_count = response.data.thumbs_up_count;
-  };
-  
-  const thumbDown = async (idea) => {
-    const response = await Http.post(`/api/ideas/${idea.id}/thumb-down`);
-    idea.has_thumbs_down = true;
-    idea.thumbs_down_count = response.data.thumbs_down_count;
-  };
-  
-  const openComments = (idea) => {
-    idea.showComments = !idea.showComments;
-  };
-  
-  const postComment = async (idea) => {
-    const response = await Http.post(
-      `/api/ideas/${idea.id}/comments`,
-      idea.comments
-    );
-    idea.comments.push(response.data);
-    form.value.comment = "";
-  };
+
   </script>
   
   <style scoped>

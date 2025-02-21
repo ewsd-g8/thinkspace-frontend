@@ -75,17 +75,19 @@
             </div>
           </div>
           <form @submit.prevent="saveUser()">
+
+
             <div class="row">
               <div class="mb-3 col-md-6">
                 <label for="name" class="form-label"
-                  >Name <span class="text-danger">*</span></label
+                  >User Name <span class="text-danger">*</span></label
                 >
                 <input
                   class="form-control"
                   type="text"
                   id="name"
                   autofocus
-                  placeholder="Enter Name"
+                  placeholder="Enter User Name"
                   v-model="user.name"
                   :class="{
                     'is-invalid': v$.name.$error || errorFor('name'),
@@ -99,6 +101,31 @@
                   }"
                 ></v-errors>
               </div>
+
+              <!-- full name -->
+              <!-- <div class="mb-3 col-md-6">
+                <label for="name" class="form-label"
+                  >Full Name <span class="text-danger">*</span></label
+                >
+                <input
+                  class="form-control"
+                  type="text"
+                  id="name"
+                  autofocus
+                  placeholder="Enter Full Name"
+                  v-model="user.name"
+                  :class="{
+                    'is-invalid': v$.name.$error || errorFor('name'),
+                  }"
+                />
+                <v-errors
+                  :serverErrors="errorFor('name')"
+                  :vuelidateErrors="{
+                    errors: v$.name.$errors,
+                    value: 'Name',
+                  }"
+                ></v-errors>
+              </div> -->
               <div class="mb-3 col-md-6">
                 <label for="email" class="form-label"
                   >E-mail <span class="text-danger">*</span></label
@@ -191,6 +218,32 @@
                   }"
                 ></v-errors>
               </div>
+
+
+              <!-- To change backendcode about department -->
+              <!-- <div class="mb-3 col-md-6">
+                <label class="form-label"
+                  >Department <span class="text-danger">*</span></label
+                >
+                <v-select
+                  v-model="user.roles"
+                  class="style-chooser"
+                  placeholder="Select role"
+                  label="name"
+                  :options="roles"
+                  :reduce="(role) => role.name"
+                  :class="{
+                    'vuelidate-invalid': v$.roles.$error || errorFor('roles'),
+                  }"
+                ></v-select>
+                <v-errors
+                  :serverErrors="errorFor('roles')"
+                  :vuelidateErrors="{
+                    errors: v$.roles.$errors,
+                    value: 'Role',
+                  }"
+                ></v-errors>
+              </div> -->
               <div class="mb-3 col-md-6">
                 <label for="mobile" class="form-label">Mobile</label>
                 <input
@@ -283,10 +336,16 @@ const resetFile = () => {
 
 const getRoles = async () => {
   await Http.get("get-all-roles").then((res) => {
+    console.log(res);
     roles.value = res.data.data;
   });
 };
-
+const getCategories = async () => {
+  await Http.get("get-all-categories").then((res) => {
+    console.log(res);
+    roles.value = res.data.data;
+  });
+};
 const mobileFormatValidator = helpers.withParams(
   { type: "mobileFormat" },
   (value) => /^09\d{7,9}$/.test(value)
@@ -397,6 +456,7 @@ const saveUser = async () => {
 onMounted(() => {
   resetServerErrors();
   getRoles();
+  getCategories();
 });
 
 </script>

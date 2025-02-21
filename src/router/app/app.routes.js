@@ -1,3 +1,8 @@
+import ChartDemoView from "@/views/chart_demo/LineChartView.vue";
+import BarChartView from "@/views/chart_demo/BarChartView.vue";
+import DoughnutChartView from "@/views/chart_demo/DoughnutChartView.vue";
+import LineChartView from "@/views/chart_demo/LineChartView.vue";
+
 const DashboardView = () => import("@/views/dashboard/IndexView.vue");
 
 const UserIndexView = () => import("@/views/users/IndexView.vue");
@@ -15,6 +20,15 @@ const TermView = () => import("@/views/idea_post/term_and_condition.vue");
 const ClosureIndexView = () => import("@/views/closure/IndexView.vue");
 const ClosureCreateView = () => import("@/views/closure/CreateView.vue");
 const ClosureEditView = () => import("@/views/closure/UpdateView.vue");
+// for category
+const categoryIndexView = () => import("@/views/category/IndexView.vue");
+const categoryCreateView = () => import("@/views/category/CreateView.vue");
+const categoryEditView = () => import("@/views/category/EditView.vue");
+
+// for department
+const departmentIndexView = () => import("@/views/departments/IndexView.vue");
+const departmentCreateView = () => import("@/views/departments/CreateView.vue");
+const departmentEditView = () => import("@/views/departments/EditView.vue");
 
 const appRoutes = [
   {
@@ -81,6 +95,55 @@ const appRoutes = [
     path: "closure/update",
     name: "closure-update",
     component: ClosureEditView,
+  },
+
+  // for category
+  {
+    path: "category",
+    name: "category-index",
+    component: categoryIndexView,
+  },
+  {
+    path: "category/create",
+    name: "category-create",
+    component: categoryCreateView,
+  },
+  {
+    path: "category/:id/edit",
+    name: "category-edit",
+    component: categoryEditView,
+  },
+  // for department
+  {
+    path: "department",
+    name: "department-index",
+    component: departmentIndexView,
+  },
+  {
+    path: "department/create",
+    name: "department-create",
+    component: departmentCreateView,
+  },
+  {
+    path: "department/:id/edit",
+    name: "department-edit",
+    component: departmentEditView,
+  },
+
+  {
+    path: "chart_demo/bar",
+    name: "bar",
+    component: BarChartView,
+  },
+  {
+    path: "chart_demo/doughnut",
+    name: "doughnut",
+    component: DoughnutChartView,
+  },
+  {
+    path: "chart_demo/line",
+    name: "line",
+    component: LineChartView,
   },
 ];
 
