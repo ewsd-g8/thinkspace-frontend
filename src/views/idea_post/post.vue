@@ -11,6 +11,8 @@
                 id="idea"
                 rows="3"
                 v-model="form.ideacontent"
+                autofocus required
+                style="min-height:200px ; "
               ></textarea>
             </div>
             <div class="mb-3">
@@ -60,7 +62,7 @@
  
 </div>
 
-            <button type="submit" class="btn btn-primary" style="background-color: #5d1010;">Post</button>
+            <button type="submit" class="btn btn-primary" style="background-color: #5d1010; width: 300px; border-radius: 10px; text-align: center;">Post</button>
           </form>
         </div>
       </div>

@@ -20,6 +20,14 @@
               <span> Category </span>
             </router-link>
           </li>
+
+          <!-- Department -->
+          <li>
+            <router-link :to="{ name: 'department-index' }">
+              <i class="mdi mdi-office-building"></i>
+              <span> Department </span>
+            </router-link>
+          </li>
 <!-- idea_post post and idea -->
 <li> 
             <a

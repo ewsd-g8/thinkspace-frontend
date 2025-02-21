@@ -17,6 +17,12 @@ const categoryIndexView = () => import("@/views/category/IndexView.vue");
 const categoryCreateView = () => import("@/views/category/CreateView.vue");
 const categoryEditView = () => import("@/views/category/EditView.vue");
 
+
+// for department
+const departmentIndexView = () => import("@/views/departments/IndexView.vue");
+const departmentCreateView = () => import("@/views/departments/CreateView.vue");
+const departmentEditView = () => import("@/views/departments/EditView.vue");
+
 const appRoutes = [
   {
     path: "dashboard",
@@ -84,6 +90,22 @@ const appRoutes = [
     path: "category/:id/edit",
     name: "category-edit",
     component: categoryEditView,
+  },
+  // for department
+  {
+    path: "department",
+    name: "department-index",
+    component: departmentIndexView,
+  },
+  {
+    path: "department/create",
+    name: "department-create",
+    component: departmentCreateView,
+  },
+  {
+    path: "department/:id/edit",
+    name: "department-edit",
+    component: departmentEditView,
   },
 ];
 
