@@ -12,6 +12,10 @@ const IdeaPostView = () => import("@/views/idea_post/idea.vue");
 const PostView = () => import("@/views/idea_post/post.vue");
 const TermView = () => import("@/views/idea_post/term_and_condition.vue");
 
+const ClosureIndexView = () => import("@/views/closure/IndexView.vue");
+const ClosureCreateView = () => import("@/views/closure/CreateView.vue");
+const ClosureEditView = () => import("@/views/closure/UpdateView.vue");
+
 const appRoutes = [
   {
     path: "dashboard",
@@ -54,14 +58,29 @@ const appRoutes = [
     component: IdeaPostView,
   },
   {
-    path:"idea_post/post",
-    name:"idea_post_post",
+    path: "idea_post/post",
+    name: "idea_post_post",
     component: PostView,
   },
   {
-    path:"idea_post/term_and_condition",
-    name:"term_and_condition",
+    path: "idea_post/term_and_condition",
+    name: "term_and_condition",
     component: TermView,
+  },
+  {
+    path: "closure",
+    name: "closure-index",
+    component: ClosureIndexView,
+  },
+  {
+    path: "closure/create",
+    name: "closure-create",
+    component: ClosureCreateView,
+  },
+  {
+    path: "closure/update",
+    name: "closure-update",
+    component: ClosureEditView,
   },
 ];
 
