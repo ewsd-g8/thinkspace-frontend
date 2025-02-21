@@ -228,7 +228,6 @@ const getUserDetail = async () => {
   loading.value = true;
   await Http.get(`users/${route.params.id}`)
     .then((res) => {
-      console.log(res)
       user.id = res.data.data.id;
       user.name = res.data.data.name;
       user.email = res.data.data.email;

@@ -99,6 +99,8 @@
       </div>
     </div>
   </template>
+  <script type='text/javascript' src='/JavaScriptSpellCheck/include.js' ></script>
+  <script type='text/javascript'>$Spelling.SpellCheckAsYouType('myTextArea')</script>
   <script setup>
   import { ref, reactive, onMounted, computed } from "vue";
   import { useVuelidate } from "@vuelidate/core";
