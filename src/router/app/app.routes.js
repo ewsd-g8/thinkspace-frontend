@@ -1,3 +1,8 @@
+import ChartDemoView from "@/views/chart_demo/LineChartView.vue";
+import BarChartView from "@/views/chart_demo/BarChartView.vue";
+import DoughnutChartView from "@/views/chart_demo/DoughnutChartView.vue";
+import LineChartView from "@/views/chart_demo/LineChartView.vue";
+
 const DashboardView = () => import("@/views/dashboard/IndexView.vue");
 
 const UserIndexView = () => import("@/views/users/IndexView.vue");
@@ -16,6 +21,7 @@ const TermView = () => import("@/views/idea_post/term_and_condition.vue");
 const categoryIndexView = () => import("@/views/category/IndexView.vue");
 const categoryCreateView = () => import("@/views/category/CreateView.vue");
 const categoryEditView = () => import("@/views/category/EditView.vue");
+
 
 
 // for department
@@ -107,6 +113,24 @@ const appRoutes = [
     name: "department-edit",
     component: departmentEditView,
   },
+
+
+    {
+        path:"chart_demo/bar",
+        name:"bar",
+        component: BarChartView,
+    },
+    {
+        path:"chart_demo/doughnut",
+        name:"doughnut",
+        component: DoughnutChartView,
+    },
+    {
+        path:"chart_demo/line",
+        name:"line",
+        component: LineChartView,
+    }
+
 ];
 
 export default appRoutes;

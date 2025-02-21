@@ -7,7 +7,8 @@
         <img
           src="/icon/think-space-logo.png"
           alt="logo"
-          style="width: 400px; height: 400px"
+          class="img-fluid"
+          style="max-width: 100%; height: auto"
         />
         <br />
         <!-- <img
@@ -27,9 +28,7 @@
             class="img-fluid"
             style="width: 350px; height: 105px"
           />
-          <h4 class="mt-0 fw-bold text-focus-in">
-            Welcome to Think Space Admin System!
-          </h4>
+          <h4 class="mt-0 fw-bold text-focus-in">Welcome to Think Space!!</h4>
           <p class="mb-4 text-secondary">
             Enter your email address and password to access account.
           </p>
@@ -168,6 +167,7 @@ const submitForm = async () => {
         {
           title: "Success",
           description: "You are successfully login!",
+          toastBackgroundColor: "#efce87",
         },
         {
           type: "success",
