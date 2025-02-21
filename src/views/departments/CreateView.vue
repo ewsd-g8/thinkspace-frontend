@@ -10,13 +10,13 @@
                 </li>
   
                 <li class="breadcrumb-item active">
-                  <router-link :to="{ name: 'category-index' }">Category</router-link>
+                  <router-link :to="{ name: 'department-index' }">Department</router-link>
                 </li>
   
                 <li class="breadcrumb-item active">Create</li>
               </ol>
             </div>
-            <h4 class="page-title">Category Create</h4>
+            <h4 class="page-title">Department Create</h4>
           </div>
         </div>
       </div>
@@ -27,21 +27,21 @@
           </div>
           <div v-else>
            
-            <form @submit.prevent="savecategory()">
+            <form @submit.prevent="savedepartment()">
   
   
               <div class="row">
                 <div class="mb-3 col-md-6">
                   <label for="name" class="form-label"
-                    >Category Name <span class="text-danger">*</span></label
+                    >Department Name <span class="text-danger">*</span></label
                   >
                   <input
                     class="form-control"
                     type="text"
                     id="name"
                     autofocus
-                    placeholder="Enter Category Name"
-                    v-model="categories.name"
+                    placeholder="Enter department Name"
+                    v-model="department.name"
                     :class="{
                       'is-invalid': v$?.name?.$error || errorFor('name'),
                     }"
@@ -66,7 +66,7 @@
                     id="description"
                     autofocus
                     placeholder="Enter Description"
-                    v-model="categories.description"
+                    v-model="department.description"
                     :class="{
                       'is-invalid': v$?.description?.$error || errorFor('description'),
                     }"
@@ -88,7 +88,7 @@
                   Submit
                 </button>
                 <router-link
-                  :to="{ name: 'category-index' }"
+                  :to="{ name: 'department-index' }"
                   class="btn btn-outline-secondary"
                   >Cancel</router-link
                 >
@@ -117,7 +117,7 @@
   const router = useRouter();
  
   
-  const categories = reactive({
+  const department = reactive({
     name: "",
     description:"",
   });
@@ -126,9 +126,9 @@
 
   
   
-  const v$ = useVuelidate(categories);
+  const v$ = useVuelidate(  department);
   
-  const savecategory = async () => {
+  const savedepartment = async () => {
     let isFormCorrect = await v$.value.$validate();
     if (!isFormCorrect) return;
     loading.value = true;
@@ -136,10 +136,10 @@
     resetServerErrors();
   
     const fd = new FormData();
-    fd.append("name", categories.name);
-    fd.append("description", categories.description);
+    fd.append("name", department.name);
+    fd.append("description", department.description);
   
-    await Http.post("categories", fd, {
+    await Http.post("departments", fd, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -172,4 +172,3 @@
   });
   
   </script>
-  

@@ -336,10 +336,16 @@ const resetFile = () => {
 
 const getRoles = async () => {
   await Http.get("get-all-roles").then((res) => {
+    console.log(res);
     roles.value = res.data.data;
   });
 };
-
+const getCategories = async () => {
+  await Http.get("get-all-categories").then((res) => {
+    console.log(res);
+    roles.value = res.data.data;
+  });
+};
 const mobileFormatValidator = helpers.withParams(
   { type: "mobileFormat" },
   (value) => /^09\d{7,9}$/.test(value)
@@ -450,6 +456,7 @@ const saveUser = async () => {
 onMounted(() => {
   resetServerErrors();
   getRoles();
+  getCategories();
 });
 
 </script>

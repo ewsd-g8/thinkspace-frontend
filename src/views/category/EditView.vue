@@ -195,3 +195,4 @@
     getCategoriesDetail();
   });
   </script>
+
