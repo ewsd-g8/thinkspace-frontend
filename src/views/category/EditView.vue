@@ -135,6 +135,7 @@
         categories.id = res.data.data.id;
         categories.name = res.data.data.name;
         categories.description = res.data.data.description;
+        loading.value=false;
       })
       .catch((err) => {
         if (err.response.status == 404) {
@@ -149,7 +150,7 @@
  
   const v$ = useVuelidate( categories);
   
-  const updateCategory = async () => {
+  const updatecategory = async () => {
     let isFormCorrect = await v$.value.$validate();
     if (!isFormCorrect) return;
     loading.value = true;
