@@ -12,15 +12,14 @@
           </li>
 
           <li class="menu-title mt-2">ADMINISTRATOR</li>
-<!-- Category -->
-      
-<li>
+          <!-- Category -->
+
+          <li>
             <router-link :to="{ name: 'category-index' }">
               <i class="mdi mdi-folder"></i>
               <span> Category </span>
             </router-link>
           </li>
-
 
           <!-- Department -->
           <li>
@@ -30,21 +29,33 @@
             </router-link>
           </li>
 
-<!-- idea_post post and idea -->
-<li>
+          <!-- <<<<<<< HEAD -->
+          <!-- idea_post post and idea -->
+          <li>
+            <!-- ======= -->
+            <!-- idea_post post and idea -->
+          </li>
+
+          <li>
+            <!-- >>>>>>> develop -->
             <a
               href="#idea_post"
-              :aria-expanded="isActive(['/admin/idea_post_post', '/admin/idea_post_idea'])"
+              :aria-expanded="
+                isActive(['/admin/idea_post_post', '/admin/idea_post_idea'])
+              "
               data-bs-toggle="collapse"
             >
-            <i class="mdi mdi-lightbulb-outline"></i>
+              <i class="mdi mdi-lightbulb-outline"></i>
               <span> Idea Post </span>
               <span class="menu-arrow"></span>
             </a>
             <div
               class="collapse"
               :class="{
-                show: isActive(['/admin/idea_post_post', '/admin/idea_post_idea']),
+                show: isActive([
+                  '/admin/idea_post_post',
+                  '/admin/idea_post_idea',
+                ]),
               }"
               id="idea_post"
             >
@@ -55,7 +66,9 @@
                     :class="{
                       'router-link-active': isActive(['/admin/idea_post_post']),
                     }"
-                    > <i class="mdi mdi-message-text-outline"></i><span class="ms-1">Post</span></router-link
+                  >
+                    <i class="mdi mdi-message-text-outline"></i
+                    ><span class="ms-1">Post</span></router-link
                   >
                 </li>
 
@@ -65,13 +78,14 @@
                     :class="{
                       'router-link-active': isActive(['/admin/idea_post_idea']),
                     }"
-                    ><i class="mdi mdi-file-document-outline"></i><span class="ms-1">Idea</span></router-link
+                    ><i class="mdi mdi-file-document-outline"></i
+                    ><span class="ms-1">Idea</span></router-link
                   >
                 </li>
               </ul>
             </div>
           </li>
-<!-- user management -->
+          <!-- user management -->
           <li>
             <a
               href="#user-management"
@@ -111,55 +125,72 @@
               </ul>
             </div>
           </li>
+          <li>
+            <router-link :to="{ name: 'closure-index' }">
+              <i class="mdi mdi-desktop-mac-dashboard"></i>
+              <span> Closure </span>
+            </router-link>
+          </li>
 
-<!-- chart demo  -->
+          <!-- chart demo  -->
           <li>
             <a
-                href="#chart_demo"
-                :aria-expanded="isActive(['/admin/chart_demo/bar', '/admin/chart_demo/doughnut', '/admin/chart_demo/line'])"
-                data-bs-toggle="collapse"
+              href="#chart_demo"
+              :aria-expanded="
+                isActive([
+                  '/admin/chart_demo/bar',
+                  '/admin/chart_demo/doughnut',
+                  '/admin/chart_demo/line',
+                ])
+              "
+              data-bs-toggle="collapse"
             >
               <i class="mdi mdi-account-group"></i>
               <span> Chart Demo</span>
               <span class="menu-arrow"></span>
             </a>
             <div
-                class="collapse"
-                :class="{
-                show: isActive(['/admin/chart_demo/bar', '/admin/chart_demo/doughnut', '/admin/chart_demo/line']),
+              class="collapse"
+              :class="{
+                show: isActive([
+                  '/admin/chart_demo/bar',
+                  '/admin/chart_demo/doughnut',
+                  '/admin/chart_demo/line',
+                ]),
               }"
-                id="chart_demo"
+              id="chart_demo"
             >
               <ul class="nav-second-level">
                 <li>
                   <router-link
-                      :to="{ name: 'bar' }"
-                      :class="{
+                    :to="{ name: 'bar' }"
+                    :class="{
                       'router-link-active': isActive(['/chart_demo/bar']),
                     }"
-                  >Bar Chart</router-link
+                    >Bar Chart</router-link
                   >
                 </li>
                 <li>
                   <router-link
-                      :to="{ name: 'doughnut' }"
-                      :class="{
+                    :to="{ name: 'doughnut' }"
+                    :class="{
                       'router-link-active': isActive(['/chart_demo/doughnut']),
                     }"
-                  >Doughnut Chart</router-link>
+                    >Doughnut Chart</router-link
+                  >
                 </li>
                 <li>
                   <router-link
-                      :to="{ name: 'line' }"
-                      :class="{
+                    :to="{ name: 'line' }"
+                    :class="{
                       'router-link-active': isActive(['/chart_demo/line']),
                     }"
-                  >Line Chart</router-link>
+                    >Line Chart</router-link
+                  >
                 </li>
               </ul>
             </div>
           </li>
-
         </ul>
       </div>
       <div class="clearfix"></div>

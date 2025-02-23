@@ -5,20 +5,16 @@
         <div class="page-title-box">
           <div class="page-title-right">
             <ol class="breadcrumb m-0">
-              <li class="breadcrumb-item">
-                <a href="javascript: void(0);">User Management</a>
-              </li>
-
               <li class="breadcrumb-item active">
-                <router-link :to="{ name: 'category-index' }"
-                  >Category</router-link
+                <router-link :to="{ name: 'closure-index' }"
+                  >Closure</router-link
                 >
               </li>
 
-              <li class="breadcrumb-item active">Edit</li>
+              <li class="breadcrumb-item active">Update</li>
             </ol>
           </div>
-          <h4 class="page-title">Category Edit</h4>
+          <h4 class="page-title">Closure Update</h4>
         </div>
       </div>
     </div>
@@ -34,15 +30,15 @@
           <div class="row">
             <div class="mb-3 col-md-6">
               <label for="name" class="form-label"
-                >Category Name <span class="text-danger">*</span></label
+                >Closure Name <span class="text-danger">*</span></label
               >
               <input
                 class="form-control"
                 type="text"
                 id="name"
                 autofocus
-                placeholder="Enter Category Name"
-                v-model="categories.name"
+                placeholder="Enter Closure Name"
+                v-model="closures.name"
                 :class="{
                   'is-invalid': v$?.name?.$error || errorFor('name'),
                 }"
@@ -56,40 +52,58 @@
               ></v-errors>
             </div>
             <div class="mb-3 col-md-6">
-              <label for="description" class="form-label"
-                >Category Description <span class="text-danger">*</span></label
+              <label for="date" class="form-label"
+                >Date <span class="text-danger">*</span></label
               >
               <input
                 class="form-control"
-                type="text"
-                id="description"
-                autofocus
-                placeholder="Enter Category Description"
-                v-model="categories.description"
+                type="date"
+                id="date"
+                v-model="closures.date"
                 :class="{
-                  'is-invalid':
-                    v$?.description?.$error || errorFor('description'),
+                  'is-invalid': v$?.date?.$error || errorFor('date'),
                 }"
               />
               <v-errors
-                :serverErrors="errorFor('description')"
+                :serverErrors="errorFor('date')"
                 :vuelidateErrors="{
-                  errors: v$?.description?.$errors,
-                  value: 'description',
+                  errors: v$?.date?.$errors,
+                  value: 'date',
+                }"
+              ></v-errors>
+            </div>
+            <div class="mb-3 col-md-6">
+              <label for="finaldate" class="form-label"
+                >Final Date <span class="text-danger">*</span></label
+              >
+              <input
+                class="form-control"
+                type="date"
+                id="finaldate"
+                v-model="closures.finaldate"
+                :class="{
+                  'is-invalid': v$?.finaldate?.$error || errorFor('finaldate'),
+                }"
+              />
+              <v-errors
+                :serverErrors="errorFor('finaldate')"
+                :vuelidateErrors="{
+                  errors: v$?.finaldate?.$errors,
+                  value: 'Final Date',
                 }"
               ></v-errors>
             </div>
           </div>
           <div class="mt-2">
             <button
-              @click="updatecategory()"
+              @click="updateClosure()"
               class="btn btn-success loading-button me-2 loading-button"
             >
               Update
             </button>
 
             <router-link
-              :to="{ name: 'category-index' }"
+              :to="{ name: 'closure-index' }"
               class="btn btn-outline-secondary"
               >Cancel</router-link
             >
@@ -118,59 +132,57 @@ const loading = ref(false);
 const router = useRouter();
 const route = useRoute();
 
-
-const categories = reactive({
+const closures = reactive({
   id: "",
   name: "",
-  description: "",
-});  
-  const getCategoriesDetail = async () => {
-    loading.value = true;
-    await Http.get(`categories/${route.params.id}`)
-      .then((res) => {
-        console.log("res", res);
-        categories.id = res.data.data.id;
-        categories.name = res.data.data.name;
-        categories.description = res.data.data.description;
-        loading.value=false;
-      })
-      .catch((err) => {
-        if (err.response.status == 404) {
-          router.push({ name: "page-not-found" });
-        }
-      });
-  
-   
-  };
-  
-  
- 
-  const v$ = useVuelidate( categories);
-  
-  const updatecategory = async () => {
-    let isFormCorrect = await v$.value.$validate();
-    if (!isFormCorrect) return;
-    loading.value = true;
-  
-    resetServerErrors();
-  
-    const fd = new FormData();
-    fd.append("name", categories.name);
-    fd.append("description", categories.description);
-    
-  
-    await Http.post(`categories/${route.params.id}?_method=PUT`, fd, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+  date: "",
+  finaldate: "",
+});
 
+const getClosureDetail = async () => {
+  loading.value = true;
+  //   console.log(route.params.id);
+  await Http.get(`closures/${route.params.id}`)
+    .then((res) => {
+      console.log("res", res);
+      closures.id = res.data.data.data.id;
+      closures.name = res.data.data.data.name;
+      closures.date = res.data.data.data.date;
+      closures.finaldate = res.data.data.data.final_date;
+      loading.value = false;
+    })
+    .catch((err) => {
+      if (err.response.status == 404) {
+        router.push({ name: "page-not-found" });
+      }
+    });
+};
+
+const v$ = useVuelidate(closures);
+
+const updateClosure = async () => {
+  let isFormCorrect = await v$.value.$validate();
+  if (!isFormCorrect) return;
+  loading.value = true;
+
+  resetServerErrors();
+
+  const fd = new FormData();
+  fd.append("name", closures.name);
+  fd.append("date", closures.date);
+  fd.append("final_date", closures.finaldate);
+
+  await Http.post(`closures/${route.params.id}?_method=PUT`, fd, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   })
     .then(() => {
-      router.push({ name: "category-index" });
+      router.push({ name: "closure-index" });
       createToast(
         {
           title: "Success",
-          description: "Successfully Updated User!",
+          description: "Successfully Updated Closure!",
         },
         {
           type: "success",
@@ -190,6 +202,6 @@ const categories = reactive({
 };
 onMounted(() => {
   resetServerErrors();
-  getCategoriesDetail();
+  getClosureDetail();
 });
 </script>
