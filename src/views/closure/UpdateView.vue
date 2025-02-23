@@ -141,14 +141,13 @@ const closures = reactive({
 
 const getClosureDetail = async () => {
   loading.value = true;
-  //   console.log(route.params.id);
   await Http.get(`closures/${route.params.id}`)
     .then((res) => {
       console.log("res", res);
-      closures.id = res.data.data.data.id;
-      closures.name = res.data.data.data.name;
-      closures.date = res.data.data.data.date;
-      closures.finaldate = res.data.data.data.final_date;
+      closures.id = res.data.data.id;
+      closures.name = res.data.data.name;
+      closures.date = res.data.data.date;
+      closures.finaldate = res.data.data.final_date;
       loading.value = false;
     })
     .catch((err) => {
