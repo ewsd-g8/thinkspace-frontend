@@ -29,15 +29,15 @@
             </router-link>
           </li>
 
-          <<<<<<< HEAD
+          <!-- <<<<<<< HEAD -->
           <!-- idea_post post and idea -->
           <li>
-            =======
+            <!-- ======= -->
             <!-- idea_post post and idea -->
           </li>
 
           <li>
-            >>>>>>> develop
+            <!-- >>>>>>> develop -->
             <a
               href="#idea_post"
               :aria-expanded="

@@ -92,7 +92,7 @@ const appRoutes = [
     component: ClosureCreateView,
   },
   {
-    path: "closure/update",
+    path: "closure/:id/edit",
     name: "closure-update",
     component: ClosureEditView,
   },
