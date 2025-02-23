@@ -3,7 +3,27 @@
       <div class="card">
         <div class="card-body">
           <h4>Post Idea</h4>
-          <form @submit.prevent="postIdea">
+          <form @submit.prevent="postIdea()">
+            <div class="mb-3">
+              <label for="userId" class="form-label" hidden>User ID</label>
+              <input
+                type="text"
+                class="form-control"
+                id="userId"
+                v-model="form.userId"
+                readonly hidden
+              />
+            </div>
+            <div class="mb-3">
+              <label for="title" class="form-label" required>Title</label>
+              <input
+                type="text"
+                class="form-control"
+                id="title"
+                v-model="form.title"
+                autofocus required
+              />
+            </div>
             <div class="mb-3">
               <label for="idea" class="form-label">Idea</label>
               <textarea
@@ -16,33 +36,45 @@
               ></textarea>
             </div>
             <div class="mb-3">
-              <label for="category" class="form-label">Category</label>
+              <label class="form-label">Categories</label>
+              
+              <ul style="display:flex; flex-wrap:wrap; margin-right:10px;">
+                <li  v-for="category in categories" :key="category.id" style="list-style-type: none; padding: 20px;">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    :id="'category-' + category.id" 
+                    :value="category.id" 
+                    v-model="selectedCategories"
+                    style="display:inline-block; margin-right:10px;"
+                  />
+                  <label class="form-check-label" :for="'category-' + category.id">
+                    {{ category.name }}
+                  </label>
+                </li>
+              </ul>
+            </div>
+          
+            <div class="mb-3">
+              <label for="closure" class="form-label">Closure</label>
               <select
                 class="form-select"
-                id="category"
-                aria-label="Select Category"
-                v-model="form.category_id"
+                id="closure"
+                aria-label="Select Closure"
+                v-model="form.closure_id"
               >
-                <option value="" selected>Choose Category</option>
+                <option value="" selected>Choose Closure</option>
                 <option
-                  v-for="category in categories"
-                  :key="category.id"
-                  :value="category.id"
+                  v-for="closure in closures"
+                  :key="closure.id"
+                  :value="closure.id"
                 >
-                  {{ category.name }}
+                  {{ closure.name }}
                 </option>
               </select>
             </div>
 
-            <div class="mb-3">
-              <label for="file" class="form-label">File</label>
-              <input
-                class="form-control"
-                type="file"
-                id="file"
-                @change="handleFileChange"
-              />
-            </div>
+            
             <div class="form-check mb-3">
   <input
     class="form-check-input"
@@ -81,6 +113,10 @@ import { createToast } from "mosha-vue-toastify";
 import Skeleton from "@/components/shared/Skeleton.vue";
 import { required, email, helpers } from "@vuelidate/validators";
 import { Http } from "@/services/http-common";
+import { useAuthStore } from "@/stores/auth";
+const authStore = useAuthStore();
+const getUserID = computed(() => authStore.getUserId);
+
 import {
     serverErrors,
     errorFor,
@@ -90,8 +126,10 @@ import {
 
   const categories = ref([]);
   const form = ref({
-    idea: "",
-    category_id: "",
+    userId: getUserID,
+    ideacontent: "",
+    category_ids: "",
+    closure_id: "",
     file: null,
     comment: "",
   });
@@ -100,6 +138,7 @@ import {
     // const response = await Http.get("/api/ideas");
     // ideas.value = response.data;
     getCategory();
+    getClosure();
   });
   const getCategory = async () => {
      try {
@@ -113,13 +152,28 @@ import {
   }
   };
  
+  const getClosure = async () => {
+     try {
+    const response = await Http.get("closures");
+    console.log("res",response);
+    closures.value=response.data.data.data;
+    
+   
+  } catch (error) {
+    console.error("Failed to fetch closures", error);
+  }
+  };
   const postIdea = async () => {
-    const formData = new FormData();
-    formData.append("idea", form.ideacontent);
-    formData.append("category_id", form.value.category_id);
-    form.value.idea = "";
-    form.value.category_id = "";
-    form.value.file = null;
+    let isFormCorrect = await v$.value.$validate();
+    if (!isFormCorrect) return;
+    loading.value = true;
+    resetServerErrors();
+    const fd = new FormData();
+    fd.append("title", form.value.ideacontent);
+    fd.append("category_id", form.value.category_id);
+    fd.append("closure_id", form.value.closure_id);
+    fd.append("file", form.value.file);
+    fd.append("comment", form.value.comment);
   };
   
   const handleFileChange = (e) => {

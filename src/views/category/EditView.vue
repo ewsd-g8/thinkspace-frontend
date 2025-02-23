@@ -118,45 +118,52 @@ const loading = ref(false);
 const router = useRouter();
 const route = useRoute();
 
+
 const categories = reactive({
   id: "",
   name: "",
   description: "",
-});
+});  
+  const getCategoriesDetail = async () => {
+    loading.value = true;
+    await Http.get(`categories/${route.params.id}`)
+      .then((res) => {
+        console.log("res", res);
+        categories.id = res.data.data.id;
+        categories.name = res.data.data.name;
+        categories.description = res.data.data.description;
+        loading.value=false;
+      })
+      .catch((err) => {
+        if (err.response.status == 404) {
+          router.push({ name: "page-not-found" });
+        }
+      });
+  
+   
+  };
+  
+  
+ 
+  const v$ = useVuelidate( categories);
+  
+  const updatecategory = async () => {
+    let isFormCorrect = await v$.value.$validate();
+    if (!isFormCorrect) return;
+    loading.value = true;
+  
+    resetServerErrors();
+  
+    const fd = new FormData();
+    fd.append("name", categories.name);
+    fd.append("description", categories.description);
+    
+  
+    await Http.post(`categories/${route.params.id}?_method=PUT`, fd, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
 
-const getCategoriesDetail = async () => {
-  loading.value = true;
-  await Http.get(`categories/${route.params.id}`)
-    .then((res) => {
-      console.log("res", res);
-      categories.id = res.data.data.id;
-      categories.name = res.data.data.name;
-      categories.description = res.data.data.description;
-    })
-    .catch((err) => {
-      if (err.response.status == 404) {
-        router.push({ name: "page-not-found" });
-      }
-    });
-};
-
-const v$ = useVuelidate(categories);
-
-const updateCategory = async () => {
-  let isFormCorrect = await v$.value.$validate();
-  if (!isFormCorrect) return;
-  loading.value = true;
-
-  resetServerErrors();
-
-  const fd = new FormData();
-  fd.append("name", categories.name);
-  fd.append("description", categories.description);
-
-  await Http.post(`categories/${route.params.id}?_method=PUT`, fd, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
   })
     .then(() => {
       router.push({ name: "category-index" });

@@ -32,6 +32,9 @@ export const useAuthStore = defineStore("auth", {
     getAuthUserRoles(state) {
       return state.roles;
     },
+    getUserId(state) {
+      return state.user.id;
+    },
   },
   actions: {
     login(email, password) {
@@ -105,3 +108,4 @@ export const useAuthStore = defineStore("auth", {
     ],
   },
 });
+
