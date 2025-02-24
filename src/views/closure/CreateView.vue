@@ -90,7 +90,7 @@
                 <v-errors
                   :serverErrors="errorFor('finaldate')"
                   :vuelidateErrors="{
-                    errors: v$?.date?.$errors,
+                    errors: v$?.finaldate?.$errors,
                     value: 'Final Date',
                   }"
                 ></v-errors>
@@ -162,7 +162,7 @@ const saveClosure = async () => {
       createToast(
         {
           title: "Success",
-          description: "Successfully Created Category!",
+          description: "Successfully Created Closure Date!",
         },
         {
           type: "success",
