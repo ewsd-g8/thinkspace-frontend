@@ -1,242 +1,160 @@
+<template>
+  <div>
+    <div class="card">
+      <div class="card-body">
+        <h4>Ideas</h4>
 
-<!-- <template>
-    <div>
-      
-      <div class="card">
-        <div class="card-body">
-          <h4> Ideas</h4>
-          <ul class="list-group">
-            <li
-              class="list-group-item"
-              v-for="idea in ideas"
-              :key="idea.id"
-            >
-              <div class="d-flex justify-content-between">
-                <div>
-                  <h5>{{ idea.idea }}</h5>
-                  <p class="text-muted">
-                    {{ idea.category.name }} - {{ idea.created_at }}
-                  </p>
-                </div>
-                <div>
-                  <button
-                    class="btn btn-sm"
-                    @click="thumbUp(idea)"
-                    :disabled="idea.has_thumbs_up"
-                  >
-                    <i class="mdi mdi-thumb-up"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm"
-                    @click="thumbDown(idea)"
-                    :disabled="idea.has_thumbs_down"
-                  >
-                    <i class="mdi mdi-thumb-down"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm"
-                    @click="openComments(idea)"
-                  >
-                    <i class="mdi mdi-comment"></i>
-                  </button>
-                </div>
-              </div>
-              <div v-if="idea.file">
-                <a :href="`/uploads/${idea.file}`" target="_blank">
-                  {{ idea.file }}
-                </a>
-              </div>
-              <hr />
-              <div v-if="idea.showComments">
-                <ul class="list-group">
-                  <li
-                    class="list-group-item"
-                    v-for="comment in idea.comments"
-                    :key="comment.id"
-                  >
-                    <div class="d-flex justify-content-between">
-                      <div>
-                        <p>{{ comment.comment }}</p>
-                      </div>
-                      <div>
-                        <p class="text-muted">
-                          {{ comment.created_at }}
-                        </p>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-                <form @submit.prevent="postComment(idea)">
-                  <div class="mb-3">
-                    <label for="comment" class="form-label">Comment</label>
-                    <textarea
-                      class="form-control"
-                      id="comment"
-                      rows="3"
-                      v-model="form.comment"
-                    ></textarea>
-                  </div>
-                  <button type="submit" class="btn btn-primary">
-                    Post
-                  </button>
-                </form>
-              </div>
-            </li>
-          </ul>
+        <div class="mb-3">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search by title"
+            v-model="searchQuery"
+            @input="filterIdeas"
+          />
         </div>
+        
+        <div class="mb-3">
+          <select class="form-control" v-model="selectedCategory"  @change="filterIdeas">
+            <option value="">All Categories</option>
+            <option v-for="category in uniqueCategories" :key="category"multiple>{{ category }}</option>
+          </select>
+         
+        </div>
+        <ul class="list-group">
+          <li
+            class="list-group-item"
+            v-for="idea in filteredIdeas"
+            :key="idea.id"
+            style="box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49); -webkit-box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49); -moz-box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49); margin-bottom: 20px;"
+          >
+            <div style="display: inline-block">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <i
+                  class="mdi mdi-account-circle rounded-circle"
+                  style="font-size: 40px"
+                ></i>
+                <span style="font-weight: bold; margin-left: 5px">Anonymous Participant</span>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div>
+                <p class="text-muted">
+                  <span
+                    style="
+                      background-color: #e5e5e5;
+                      border: 1px solid #ccc;
+                      border-radius: 5px;
+                      padding: 5px;
+                      margin-right: 5px;
+                    "
+                  >
+                    {{
+                      idea.categories && idea.categories.length
+                        ? `Tagged Categories: ${idea.categories.map((cat) => cat.name).join(", ")}`
+                        : "No categories"
+                    }}
+                  </span>
+                  - -
+                  <span style="font-weight: bold">{{ idea.closure_id ? ` ${idea.closure.name}` : "No closure ID" }}</span>
+                </p>
+                <h5 style="font-weight: bold; font-size: 20px">{{ idea.title }}</h5>
+                <div style="font-size: 15px">
+                  <p>{{ idea.content }}</p>
+                </div>
+              </div>
+            </div>
+            <hr />
+
+            <div>
+              <button class="btn btn-sm" @click="thumbUp(idea)" :disabled="idea.has_thumbs_up">
+                <i class="mdi mdi-thumb-up"></i>
+              </button>
+
+              <button class="btn btn-sm" @click="thumbDown(idea)" :disabled="idea.has_thumbs_down">
+                <i class="mdi mdi-thumb-down"></i>
+              </button>
+
+              <button
+                class="btn btn-sm"
+                @click="() => $router.push({ name: 'idea_details', params: { id: idea.id } }).catch(err => console.error(err))"
+              >
+                <i class="mdi mdi-comment"></i>
+              </button>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
-  </template> -->
-  <template>
-    <div>
-      <div class="card">
-        <div class="card-body">
-          <h4> Ideas</h4>
-          <ul class="list-group">
-            <li class="list-group-item">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <h5>Sample Idea</h5>
-                  <p class="text-muted">
-                    Sample Category ( Fun)
-                  </p>
-                </div>
-                <div>
-                  <button class="btn btn-sm" >
-                    <i class="mdi mdi-thumb-up"></i>
-                  </button>
-                  <button class="btn btn-sm" >
-                    <i class="mdi mdi-thumb-down"></i>
-                  </button>
-                  <button class="btn btn-sm" >
-                    <i class="mdi mdi-comment"></i>
-                  </button>
-                </div>
-              </div>
-              <div>
-                <a href="#" target="_blank">
-                  sample-file.pdf
-                </a>
-              </div>
-              <hr />
-              <div>
-                <ul class="list-group">
-                  <li class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                      <div>
-                        <p>Sample Comment</p>
-                      </div>
-                      <div>
-                        <p class="text-muted">
-                          2023-10-01
-                        </p>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-               
-                <form>
-                  <div class="mb-3">
-                    <label for="comment" class="form-label">Comment</label>
-                    <textarea
-                      class="form-control"
-                      id="comment"
-                      rows="3"
-                      v-model="form.comment"
-                      
-                    ></textarea>
-                  </div>
-                  <button type="submit" class="btn btn-primary"style="background-color: #5d1010;" >
-                    Post
-                  </button>
-                </form>
-              </div>
-            </li>
-          </ul> 
-        </div>
-        <div style="position: fixed; bottom: 5rem; right: 2rem; z-index: 1000;">
-          <router-link :to="{ name: 'idea_post_post' }" class="btn" style="background-color: #5d1010; color: white;">
-            <i class="mdi mdi-plus me-sm-1"></i> Post Idea
-          </router-link>
-        </div>
-      </div>
-    </div>
-  </template>
-  <script setup>
-  import { ref, onMounted } from "vue";
-  import { Http } from "@/services/http-common";
-  
-  const ideas = ref([]);
-  const categories = ref([]);
-  const form = ref({
-    idea: "",
-    category_id: "",
-    file: null,
-    comment: "",
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { Http } from "@/services/http-common";
+import { useRouter } from "vue-router";
+
+const ideas = ref([]);
+const searchQuery = ref("");
+const selectedCategory = ref("");
+
+const router = useRouter();
+
+const uniqueCategories = computed(() => {
+  const categories = ideas.value.map((idea) => 
+    idea.categories ? idea.categories.map((cat) => cat.name) : []
+  ).flat();
+  return [...new Set(categories)];
+});
+
+const filteredIdeas = computed(() => {
+  return ideas.value.filter((idea) => {
+    const matchesTitle = idea.title.toLowerCase().includes(searchQuery.value.toLowerCase());
+    const matchesCategory =
+      selectedCategory.value === "" ||
+      (idea.categories &&
+        idea.categories.some((cat) => cat.name === selectedCategory.value));
+    return matchesTitle && matchesCategory;
   });
-  
-  onMounted(async () => {
-    const response = await Http.get("/api/ideas");
-    ideas.value = response.data;
-    const responseCat = await Http.get("/api/categories");
-    categories.value = responseCat.data;
-  });
-  
-  const postIdea = async () => {
-    const formData = new FormData();
-    formData.append("idea", form.value.idea);
-    formData.append("category_id", form.value.category_id);
-    if (form.value.file) formData.append("file", form.value.file);
-    const response = await Http.post("/api/ideas", formData);
-    ideas.value.push(response.data);
-    form.value.idea = "";
-    form.value.category_id = "";
-    form.value.file = null;
-  };
-  
-  const handleFileChange = (e) => {
-    form.value.file = e.target.files[0];
-  };
-  
-  const thumbUp = async (idea) => {
-    const response = await Http.post(`/api/ideas/${idea.id}/thumb-up`);
-    idea.has_thumbs_up = true;
-    idea.thumbs_up_count = response.data.thumbs_up_count;
-  };
-  
-  const thumbDown = async (idea) => {
-    const response = await Http.post(`/api/ideas/${idea.id}/thumb-down`);
-    idea.has_thumbs_down = true;
-    idea.thumbs_down_count = response.data.thumbs_down_count;
-  };
-  
-  const openComments = (idea) => {
-    idea.showComments = !idea.showComments;
-  };
-  
-  const postComment = async (idea) => {
-    const response = await Http.post(
-      `/api/ideas/${idea.id}/comments`,
-      idea.comments
-    );
-    idea.comments.push(response.data);
-    form.value.comment = "";
-  };
-  </script>
-  
-  <style scoped>
-  ul.list-group {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+});
+
+const getIdeaById = async (id) => {
+  try {
+    const response = await Http.get(`ideas/${id}`);
+    const idea = response.data.data;
+    console.log(idea);
+  } catch (error) {
+    console.error("Failed to fetch idea by ID", error);
   }
-  
-  ul.list-group > li {
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  ul.list-group > li:last-child {
-    border-bottom: none;
-  }
-  </style>
+};
+
+onMounted(async () => {
+  const response = await Http.get("ideas");
+  ideas.value = response.data.data.data;
+  getIdeaById();
+});
+</script>
+
+<style scoped>
+ul.list-group {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul.list-group > li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+ul.list-group > li:last-child {
+  border-bottom: none;
+}
+</style>
+

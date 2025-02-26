@@ -145,11 +145,11 @@
       },
     })
       .then(() => {
-        router.push({ name: "category-index" });
+        router.push({ name: "department-index" });
         createToast(
           {
             title: "Success",
-            description: "Successfully Created Category!",
+            description: "Successfully Created Department!",
           },
           {
             type: "success",

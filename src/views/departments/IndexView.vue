@@ -126,7 +126,7 @@
       .then((res) => {
         console.log("res", res);
         tableData.value = res.data.data.data;
-        serverItemsLength.value = res.data.data.data.total;
+        serverItemsLength.value = res.data.data.total;
       })
       .catch((err) => {
         console.log(err);

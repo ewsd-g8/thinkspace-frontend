@@ -90,7 +90,7 @@
                 <v-errors
                   :serverErrors="errorFor('finaldate')"
                   :vuelidateErrors="{
-                    errors: v$?.date?.$errors,
+                    errors: v$?.finaldate?.$errors,
                     value: 'Final Date',
                   }"
                 ></v-errors>
