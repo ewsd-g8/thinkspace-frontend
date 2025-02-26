@@ -78,7 +78,7 @@
               </button>
             </Popper>
 
-            <Popper arrow placement="top" content="Edit" hover>
+            <Popper arrow placement="top" content="Edit" hover >
               <router-link
                 :to="{ name: 'user-edit', params: { id: data.id } }"
                 class="btn btn-sm btn-info"
@@ -86,6 +86,23 @@
                 <i class="mdi mdi-square-edit-outline"></i>
               </router-link>
             </Popper>
+            <div>
+            <Popper arrow placement="top" content="Block" hover>
+              <button
+                class="btn btn-sm btn-danger"
+                @click="blockUser(data.id)"
+              >
+                <i class="mdi mdi-block-helper"></i>
+              </button>
+            </Popper>
+            <Popper arrow placement="top" content="Hide" hover style="padding: 5px;">
+              <button
+                class="btn btn-sm btn-danger"
+                @click="HideUser(data.id)"
+              >
+                <i class="mdi mdi-eye-off-outline" ></i>
+              </button>
+            </Popper></div>
           </template>
           <template #item-is_active="data">
             <Badge
