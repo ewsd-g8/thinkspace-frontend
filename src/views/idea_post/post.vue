@@ -261,18 +261,10 @@ const form = reactive({
 onMounted(async () => {
   getCategory();
   getClosure();
-  isOffensive ();
+
   
 });
-const isOffensive = async () => {
-      const text = this.content.toLowerCase();
-      for (const word of this.offensiveWords) {
-        if (text.includes(word)) {
-          return true;
-        }
-      }
-      return false;
-    };
+
 const getCategory = async () => {
   try {
     const response = await Http.get("categories");

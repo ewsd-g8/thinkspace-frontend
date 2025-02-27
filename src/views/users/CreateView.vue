@@ -103,7 +103,7 @@
               </div>
 
               <!-- full name -->
-              <!-- <div class="mb-3 col-md-6">
+              <div class="mb-3 col-md-6">
                 <label for="name" class="form-label"
                   >Full Name <span class="text-danger">*</span></label
                 >
@@ -113,19 +113,19 @@
                   id="name"
                   autofocus
                   placeholder="Enter Full Name"
-                  v-model="user.name"
+                  v-model="user.fullname"
                   :class="{
-                    'is-invalid': v$.name.$error || errorFor('name'),
+                    'is-invalid': v$?.fullname?.$error || errorFor('fullname'),
                   }"
                 />
                 <v-errors
-                  :serverErrors="errorFor('name')"
+                  :serverErrors="errorFor('fullname')"
                   :vuelidateErrors="{
-                    errors: v$.name.$errors,
+                    errors: v$?.fullname?.$errors,
                     value: 'Name',
                   }"
                 ></v-errors>
-              </div> -->
+              </div> 
               <div class="mb-3 col-md-6">
                 <label for="email" class="form-label"
                   >E-mail <span class="text-danger">*</span></label
@@ -219,7 +219,30 @@
                 ></v-errors>
               </div>
 
-
+              <div class="mb-3 col-md-6">
+                <label class="form-label"
+                  >Department <span class="text-danger">*</span></label
+                >
+                <v-select
+                  v-model="user.departments"
+                  class="style-chooser"
+                  placeholder="Select department"
+                  label="name"
+                  :options="departments"
+                  :reduce="(department) => department.id"
+                  :class="{
+                    'vuelidate-invalid':
+                    v$?.departments?.$error || errorFor('departments'),
+                  }"
+                ></v-select>
+                <v-errors
+                  :serverErrors="errorFor('departments')"
+                  :vuelidateErrors="{
+                    errors: v$?.departments?.$errors,
+                    value: 'Department',
+                  }"
+                ></v-errors>
+              </div>
               <!-- To change backendcode about department -->
               <!-- <div class="mb-3 col-md-6">
                 <label class="form-label"
@@ -308,15 +331,17 @@ const loading = ref(false);
 const imagePreview = ref("");
 const router = useRouter();
 const roles = ref([]);
-
+const departments = ref([]);
 const user = reactive({
   name: "",
+  fullname: "",
   email: "",
   password: "",
   password_confirmation: "",
   roles: [],
   mobile: "",
   profile: "",
+  departments: [],
 });
 
 const handleFileChange = (event) => {
@@ -340,11 +365,13 @@ const getRoles = async () => {
     roles.value = res.data.data;
   });
 };
-const getCategories = async () => {
-  await Http.get("get-all-categories").then((res) => {
-    console.log(res);
-    roles.value = res.data.data;
-  });
+const getDepartments = async () => {
+  try {
+    const response = await Http.get("departments");
+    departments.value = response.data.data.data;
+  } catch (error) {
+    console.error("Failed to fetch categories", error);
+  }
 };
 const mobileFormatValidator = helpers.withParams(
   { type: "mobileFormat" },
@@ -419,13 +446,15 @@ const saveUser = async () => {
 
   const fd = new FormData();
   fd.append("name", user.name);
+  fd.append("full_name", user.fullname);
   fd.append("email", user.email);
   fd.append("password", user.password);
   fd.append("password_confirmation", user.password_confirmation);
   fd.append("roles", user.roles);
   fd.append("mobile", user.mobile);
   fd.append("profile", user.profile);
-
+  fd.append("department_id", user.departments);
+console.log(user.departments);
   await Http.post("users", fd, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -456,7 +485,7 @@ const saveUser = async () => {
 onMounted(() => {
   resetServerErrors();
   getRoles();
-  getCategories();
+  getDepartments();
 });
 
 </script>

@@ -73,8 +73,14 @@
             <hr />
 
             <div>
-              <button class="btn btn-sm" @click="thumbUp(idea)" :disabled="idea.has_thumbs_up">
-                <i class="mdi mdi-thumb-up"></i>
+              <button
+                class="btn btn-sm"
+                @click="thumbUp(idea)"
+               
+               
+              >
+              <span v-if="idea.has_thumbs_up" >1</span>  <i class="mdi mdi-thumb-up"></i>
+            
               </button>
 
               <button class="btn btn-sm" @click="thumbDown(idea)" :disabled="idea.has_thumbs_down">
@@ -99,11 +105,12 @@
 import { ref, onMounted, computed } from "vue";
 import { Http } from "@/services/http-common";
 import { useRouter } from "vue-router";
-
+import { useAuthStore } from "@/stores/auth.js";
 const ideas = ref([]);
 const searchQuery = ref("");
 const selectedCategory = ref("");
-
+const store = useAuthStore();
+const user_id = store.getAuthUser.id;
 const router = useRouter();
 
 const uniqueCategories = computed(() => {
@@ -128,7 +135,8 @@ const getIdeaById = async (id) => {
   try {
     const response = await Http.get(`ideas/${id}`);
     const idea = response.data.data;
-    console.log(idea);
+    console.log(idea.id);
+    return idea;
   } catch (error) {
     console.error("Failed to fetch idea by ID", error);
   }
@@ -136,9 +144,66 @@ const getIdeaById = async (id) => {
 
 onMounted(async () => {
   const response = await Http.get("ideas");
+  console.log("idea",response);
   ideas.value = response.data.data.data;
+  console.log("idea value",ideas.value);
+  thumbUp();
+  thumbDown();
+  getUserReactionForIdea();
+  checkReactionSuccess();
   getIdeaById();
 });
+
+const thumbUp = async (idea) => {
+const Upresponse = await Http.post(`reactions`, {
+    user_id: user_id,
+    idea_id: idea.id,
+    type: true,
+  });
+ 
+ 
+  const { data } = Upresponse;
+  if (data.success) {
+    const index = ideas.value.findIndex((i) => i.id === idea.id);
+    ideas.value[index].has_thumbs_up = true;
+    if (index !== -1) {
+      ideas.value[index].has_thumbs_up = true;
+    }
+  }
+};
+
+const thumbDown = async (idea) => {
+  const response = await Http.post(`reactions`, {
+    user_id: user_id,
+    idea_id: idea.id,
+    type: false,
+  });
+  const { data } = response;
+  if (data.success) {
+    const index = ideas.value.findIndex((i) => i.id === idea.id);
+    if (index !== -1) {
+      ideas.value[index].has_thumbs_down = true;
+    }
+  }
+};
+const getUserReactionForIdea = async (idea) => {
+  try {
+   
+    const response = await Http.get(`ideas/${idea.id}/reactions/me`);
+    console.log(response);
+    const { data } = response;
+    if (data.success) {
+      const index = ideas.value.findIndex((i) => i.id === idea.id);
+      if (index !== -1) {
+        ideas.value[index].has_thumbs_up = data.data.type === true;
+        ideas.value[index].has_thumbs_down = data.data.type === false;
+         console.log(ideas);
+      }
+    }
+  } catch (error) {
+    console.error("Failed to get user reaction for idea", error);
+  }
+};
 </script>
 
 <style scoped>
