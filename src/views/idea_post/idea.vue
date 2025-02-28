@@ -13,20 +13,40 @@
             @input="filterIdeas"
           />
         </div>
-        
+
         <div class="mb-3">
-          <select class="form-control" v-model="selectedCategory"  @change="filterIdeas">
+          <select
+            class="form-control"
+            v-model="selectedCategory"
+            @change="filterIdeas"
+          >
             <option value="">All Categories</option>
-            <option v-for="category in uniqueCategories" :key="category"multiple>{{ category }}</option>
+            <option
+              v-for="category in uniqueCategories"
+              :key="category"
+              multiple
+            >
+              {{ category }}
+            </option>
           </select>
-         
         </div>
         <ul class="list-group">
           <li
             class="list-group-item"
+            @click="
+              () =>
+                $router
+                  .push({ name: 'idea_details', params: { id: idea.id } })
+                  .catch((err) => console.error(err))
+            "
             v-for="idea in filteredIdeas"
             :key="idea.id"
-            style="box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49); -webkit-box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49); -moz-box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49); margin-bottom: 20px;"
+            style="
+              box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49);
+              -webkit-box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49);
+              -moz-box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49);
+              margin-bottom: 20px;
+            "
           >
             <div style="display: inline-block">
               <div
@@ -40,7 +60,9 @@
                   class="mdi mdi-account-circle rounded-circle"
                   style="font-size: 40px"
                 ></i>
-                <span style="font-weight: bold; margin-left: 5px">Anonymous Participant</span>
+                <span style="font-weight: bold; margin-left: 5px"
+                  >Anonymous Participant</span
+                >
               </div>
             </div>
             <div class="d-flex justify-content-between">
@@ -57,14 +79,20 @@
                   >
                     {{
                       idea.categories && idea.categories.length
-                        ? `Tagged Categories: ${idea.categories.map((cat) => cat.name).join(", ")}`
+                        ? `Tagged Categories: ${idea.categories
+                            .map((cat) => cat.name)
+                            .join(", ")}`
                         : "No categories"
                     }}
                   </span>
                   - -
-                  <span style="font-weight: bold">{{ idea.closure_id ? ` ${idea.closure.name}` : "No closure ID" }}</span>
+                  <span style="font-weight: bold">{{
+                    idea.closure_id ? ` ${idea.closure.name}` : "No closure ID"
+                  }}</span>
                 </p>
-                <h5 style="font-weight: bold; font-size: 20px">{{ idea.title }}</h5>
+                <h5 style="font-weight: bold; font-size: 20px">
+                  {{ idea.title }}
+                </h5>
                 <div style="font-size: 15px">
                   <p>{{ idea.content }}</p>
                 </div>
@@ -73,23 +101,27 @@
             <hr />
 
             <div>
-              <button
-                class="btn btn-sm"
-                @click="thumbUp(idea)"
-               
-               
-              >
-              <span v-if="idea.has_thumbs_up" >1</span>  <i class="mdi mdi-thumb-up"></i>
-            
+              <button class="btn btn-sm" @click="thumbUp(idea)">
+                <span v-if="idea.has_thumbs_up">1</span>
+                <i class="mdi mdi-thumb-up"></i>
               </button>
 
-              <button class="btn btn-sm" @click="thumbDown(idea)" :disabled="idea.has_thumbs_down">
+              <button
+                class="btn btn-sm"
+                @click="thumbDown(idea)"
+                :disabled="idea.has_thumbs_down"
+              >
                 <i class="mdi mdi-thumb-down"></i>
               </button>
 
               <button
                 class="btn btn-sm"
-                @click="() => $router.push({ name: 'idea_details', params: { id: idea.id } }).catch(err => console.error(err))"
+                @click="
+                  () =>
+                    $router
+                      .push({ name: 'idea_details', params: { id: idea.id } })
+                      .catch((err) => console.error(err))
+                "
               >
                 <i class="mdi mdi-comment"></i>
               </button>
@@ -114,15 +146,19 @@ const user_id = store.getAuthUser.id;
 const router = useRouter();
 
 const uniqueCategories = computed(() => {
-  const categories = ideas.value.map((idea) => 
-    idea.categories ? idea.categories.map((cat) => cat.name) : []
-  ).flat();
+  const categories = ideas.value
+    .map((idea) =>
+      idea.categories ? idea.categories.map((cat) => cat.name) : []
+    )
+    .flat();
   return [...new Set(categories)];
 });
 
 const filteredIdeas = computed(() => {
   return ideas.value.filter((idea) => {
-    const matchesTitle = idea.title.toLowerCase().includes(searchQuery.value.toLowerCase());
+    const matchesTitle = idea.title
+      .toLowerCase()
+      .includes(searchQuery.value.toLowerCase());
     const matchesCategory =
       selectedCategory.value === "" ||
       (idea.categories &&
@@ -144,9 +180,9 @@ const getIdeaById = async (id) => {
 
 onMounted(async () => {
   const response = await Http.get("ideas");
-  console.log("idea",response);
+  console.log("idea", response);
   ideas.value = response.data.data.data;
-  console.log("idea value",ideas.value);
+  console.log("idea value", ideas.value);
   thumbUp();
   thumbDown();
   getUserReactionForIdea();
@@ -155,13 +191,12 @@ onMounted(async () => {
 });
 
 const thumbUp = async (idea) => {
-const Upresponse = await Http.post(`reactions`, {
+  const Upresponse = await Http.post(`reactions`, {
     user_id: user_id,
     idea_id: idea.id,
     type: true,
   });
- 
- 
+
   const { data } = Upresponse;
   if (data.success) {
     const index = ideas.value.findIndex((i) => i.id === idea.id);
@@ -188,7 +223,6 @@ const thumbDown = async (idea) => {
 };
 const getUserReactionForIdea = async (idea) => {
   try {
-   
     const response = await Http.get(`ideas/${idea.id}/reactions/me`);
     console.log(response);
     const { data } = response;
@@ -197,7 +231,7 @@ const getUserReactionForIdea = async (idea) => {
       if (index !== -1) {
         ideas.value[index].has_thumbs_up = data.data.type === true;
         ideas.value[index].has_thumbs_down = data.data.type === false;
-         console.log(ideas);
+        console.log(ideas);
       }
     }
   } catch (error) {
@@ -222,4 +256,3 @@ ul.list-group > li:last-child {
   border-bottom: none;
 }
 </style>
-
