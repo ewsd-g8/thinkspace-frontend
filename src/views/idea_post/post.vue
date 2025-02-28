@@ -6,25 +6,11 @@
         <form @submit.prevent="postIdea()">
           <div class="mb-3">
             <label for="userId" class="form-label" hidden>User ID</label>
-            <input
-              type="text"
-              class="form-control"
-              id="userId"
-              v-model="form.userId"
-              readonly
-              hidden
-            />
+            <input type="text" class="form-control" id="userId" v-model="form.userId" readonly hidden />
           </div>
           <div class="mb-3">
             <label for="title" class="form-label" required>Title</label>
-            <input
-              type="text"
-              class="form-control"
-              id="title"
-              v-model="form.title"
-              autofocus
-              required
-            />
+            <input type="text" class="form-control" id="title" v-model="form.title" autofocus required />
           </div>
           <div class="mb-3">
             <label for="content" class="form-label">Idea Content</label>
@@ -38,20 +24,18 @@
               style="min-height: 200px"
               spellcheck="true"
             ></textarea>
-           
-          
           </div>
-         
           <div class="mb-3">
-            <label class="form-label"
-              >Category <span class="text-danger">*</span></label>
-           <p >
-             Suggested Categories : 
-             <span v-if="categories.length > 0" style="background-color: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-right: 5px">{{ categories[categories.length - 1].name }}</span>
-             <span v-if="categories.length > 1" style="background-color: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-right: 5px">{{ categories[categories.length - 2].name }}</span>
-             <span v-if="categories.length > 2" style="background-color: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-right: 5px">{{ categories[categories.length - 5].name }}</span>
-           </p>
-            
+            <label class="form-label">Category <span class="text-danger">*</span></label>
+            <p>
+              Suggested Categories:
+              <span v-if="categories.length > 0" style="background-color: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-right: 5px">
+                {{ categories[categories.length - 1].name }}
+              </span>
+              <span v-if="categories.length > 1" style="background-color: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-right: 5px">
+                {{ categories[categories.length - 2].name }}
+              </span>
+            </p>
             <v-select
               v-model="form.category_id"
               class="style-chooser"
@@ -60,158 +44,77 @@
               :options="categories"
               :reduce="(category) => category.id"
               multiple
-              :class="{
-                'vuelidate-invalid': v$?.categories?.$error || errorFor('categories'),
-              }"
             ></v-select>
-            <v-errors
-              :serverErrors="errorFor('categories')"
-              :vuelidateErrors="{
-                errors: v$?.categories?.$errors,
-                value: 'Category',
-              }"
-            ></v-errors>
           </div>
-          <!-- <div class="mb-3">
-            <label for="categories" class="form-label">Categories</label>
-            <ul class="category-list" style="display: flex; flex-wrap: wrap">
-              <li
-                v-for="category in categories"
-                :key="category.id"
-                class="category-item"
-                style="list-style-type: none; padding: 20px"
-              >
-                <input
-                  type="checkbox"
-                  :id="'category-' + category.id"
-                  :value="category.id"
-                  v-model="form.category_id"
-                  style="display: inline-block; margin-right: 10px"
-                />
-                <label :for="'category-' + category.id">
-                  {{ category.name }}
-                </label>
-              </li>
-            </ul>
-          </div> -->
 
+          <!-- Document Upload -->
           <div class="mb-3">
-            
-            <p>
-              
-               This closure  is <span v-if="closures.length > 0 && closures[0]" style="font-weight: bold;">{{ closures[0].name }}</span> and opened in <span v-if="closures.length > 0 && closures[0]" style="font-weight: bold;">{{ closures[0].date }}</span> and will be closed in <span v-if="closures.length > 0 && closures[0]" style="font-weight: bold;">{{ closures[0].final_date }}</span>. After submitted your idea , QA manager will review your idea and will be closed within <span style="font-weight: bold;">{{ Math.ceil(Math.abs(new Date(closures[0]?.final_date) - new Date(closures[0]?.date)) / (1000 * 60 * 60 * 24)) }} days</span>.
-              
-            </p>
-            <button type="button" class="af button" @click="$refs.fileInput.click()">
-            
-           
+            <label class="form-label">Documents (Max 3, JPG/JPEG/PNG/PDF, 5MB each)</label>
             <input
               type="file"
-              ref="fileInput"
+              ref="documentInput"
               style="display: none"
-              @change="handleFileChange"
+              multiple
+              accept=".jpg,.jpeg,.png,.pdf"
+              @change="handleDocumentChange"
             />
-  <svg
-    aria-hidden="true"
-    stroke="currentColor"
-    stroke-width="2"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      stroke-width="2"
-      stroke="#fffffff"
-      d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H11M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V11.8125"
-      stroke-linejoin="round"
-      stroke-linecap="round"
-    ></path>
-    <path
-      stroke-linejoin="round"
-      stroke-linecap="round"
-      stroke-width="2"
-      stroke="#fffffff"
-      d="M17 15V18M17 21V18M17 18H14M17 18H20"
-    ></path>
-  </svg></input>
-  ADD FILE
-   </button>
-   </div>
-          <div >
-            <div
-            class="d-flex align-items-start align-items-sm-center gap-4 mb-3"
-          >
-            <img
-              :src="imagePreview ? imagePreview : '/images/empty.png'"
-              alt="user-profile"
-              class="d-block rounded border"
-              height="100"
-              width="100"
-              id="uploadedAvatar"
-            />
-            <div class="button-wrapper">
-              <label
-                for="upload"
-                class="btn btn-success me-2 mb-2"
-                tabindex="0"
+            <button type="button" class="btn btn-primary" @click="triggerDocumentInput">
+              <svg
+                aria-hidden="true"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                class="icon"
               >
-                <span class="d-none d-sm-block text-dark">Add photo</span>
-                <i class="bx bx-upload d-block d-sm-none"></i>
-                <input
-                  type="file"
-                  id="upload"
-                  name="profile"
-                  multiple
-                  class="account-file-input"
-                  hidden
-                  accept="image/png, image/jpeg"
-                  @change="handleFileChange"
-                />
-              </label>
-              <button
-                type="button"
-                @click="resetFile"
-                class="btn btn-outline-secondary account-image-reset mb-2"
-              >
-                Reset
-              </button>
-              <!-- <p class="text-muted mb-2">
-                Allowed JPG, GIF or PNG. Max size of 800K
-              </p> -->
-              <!-- <v-errors
-                :serverErrors="errorFor('profile')"
-                :vuelidateErrors="{
-                  errors: v$.profile.$errors,
-                  value: 'Profile',
-                }"
-              ></v-errors> -->
-            </div>
+                <path
+                  stroke-width="2"
+                  stroke="#ffffff"
+                  d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H11M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V11.8125"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                ></path>
+                <path
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                  stroke-width="2"
+                  stroke="#ffffff"
+                  d="M17 15V18M17 21V18M17 18H14M17 18H20"
+                ></path>
+              </svg>
+              Add Documents and photos
+            </button>
+            <ul v-if="selectedDocuments.length" class="mt-3">
+              <li v-for="(file, index) in selectedDocuments" :key="index">{{ file.name }} ({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</li>
+            </ul>
+            <p v-if="documentError" class="text-danger">{{ documentError }}</p>
           </div>
+
+        
+          
+
+          <!-- Closure Information -->
+          <div class="mb-3">
+            <p v-if="closures.length > 0 && closures[0]">
+              This closure is <span style="font-weight: bold;">{{ closures[0].name }}</span> and opened on
+              <span style="font-weight: bold;">{{ closures[0].date }}</span> and will be closed on
+              <span style="font-weight: bold;">{{ closures[0].final_date }}</span>. After submission, your idea will be reviewed by the QA manager and closed within
+              <span style="font-weight: bold;">{{ Math.ceil(Math.abs(new Date(closures[0]?.final_date) - new Date(closures[0]?.date)) / (1000 * 60 * 60 * 24)) }} days</span>.
+            </p>
           </div>
+
           <div class="form-check mb-3">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="terms"
-              v-model="form.agreeTerms"
-              required
-            />
+            <input class="form-check-input" type="checkbox" id="terms" v-model="form.agreeTerms" required />
             <label class="form-check-label" for="terms">
-              I agree to the
-              <router-link :to="{ name: 'term_and_condition' }">
-                term and condition
-              </router-link>
+              I agree to the <router-link :to="{ name: 'term_and_condition' }">terms and conditions</router-link>
             </label>
           </div>
+
           <button
             type="submit"
             class="btn btn-primary"
-            style="
-              background-color: #5d1010;
-              width: 300px;
-              border-radius: 10px;
-              text-align: center;
-            "
+            style="background-color: #5d1010; width: 300px; border-radius: 10px; text-align: center;"
           >
             Post
           </button>
@@ -220,23 +123,12 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
-import { useVuelidate } from "@vuelidate/core";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { createToast } from "mosha-vue-toastify";
 import { Http } from "@/services/http-common";
 import { useAuthStore } from "@/stores/auth";
-import {
-  serverErrors,
-  errorFor,
-  resetServerErrors,
-} from "@/composables/validationErrors";
-
-
-
-
 
 const authStore = useAuthStore();
 const getUserID = computed(() => authStore.getUserId);
@@ -246,23 +138,63 @@ const categories = ref([]);
 const closures = ref([]);
 const form = reactive({
   title: "",
-
-  // the content of the idea
   content: "",
-
-  // the ID of the closure that the idea belongs to
   closure_id: "",
   userId: getUserID,
-  // the categories that the idea belongs to
-
   category_id: [],
+  agreeTerms: false,
 });
 
-onMounted(async () => {
-  getCategory();
-  getClosure();
+const documentInput = ref(null);
 
-  
+const selectedDocuments = ref([]);
+const selectedPhotos = ref([]);
+const documentError = ref("");
+
+// Trigger document input
+const triggerDocumentInput = () => {
+  documentInput.value.click();
+};
+
+// Trigger photo input
+const triggerPhotoInput = () => {
+  photoInput.value.click();
+};
+
+// Handle document selection with validation
+const handleDocumentChange = (event) => {
+  const files = Array.from(event.target.files);
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+  const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+
+  // Reset error
+  documentError.value = "";
+
+  // Validate files
+  if (files.length > 3) {
+    documentError.value = "Maximum of 3 documents allowed.";
+    return;
+  }
+
+  for (const file of files) {
+    if (!allowedTypes.includes(file.type)) {
+      documentError.value = "Only JPG, JPEG, PNG, and PDF files are allowed.";
+      return;
+    }
+    if (file.size > maxSize) {
+      documentError.value = "Each file must be less than 5MB.";
+      return;
+    }
+  }
+
+  selectedDocuments.value = files;
+  console.log("Selected documents:", selectedDocuments.value);
+};
+
+
+onMounted(async () => {
+  await getCategory();
+  await getClosure();
 });
 
 const getCategory = async () => {
@@ -274,7 +206,6 @@ const getCategory = async () => {
   }
 };
 
-
 const getClosure = async () => {
   try {
     const response = await Http.get("closures");
@@ -284,58 +215,58 @@ const getClosure = async () => {
   }
 };
 
-const v$ = useVuelidate();
-
 const postIdea = async () => {
-  let isFormCorrect = await v$.value.$validate();
-  if (!isFormCorrect) return;
+  if (!form.agreeTerms) {
+    createToast(
+      { title: "Error", description: "You must agree to the terms and conditions." },
+      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+    );
+    return;
+  }
 
-  resetServerErrors();
+  if (form.category_id.length === 0) {
+    createToast(
+      { title: "Error", description: "You must choose at least one category." },
+      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+    );
+    return;
+  }
+
+  if (documentError.value) {
+    createToast(
+      { title: "Error", description: documentError.value },
+      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+    );
+    return;
+  }
+
   const fd = new FormData();
-
   fd.append("title", form.title);
   fd.append("content", form.content);
   if (closures.value.length > 0) {
     fd.append("closure_id", closures.value[0].id);
-   
   } else {
     createToast(
-      {
-        title: "Error",
-        description: "No closure available",
-      },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
+      { title: "Error", description: "No closure available." },
+      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
     );
     return;
   }
-  
   fd.append("user_id", form.userId);
-  fd.append("categories", form.category_id);
-  form.category_id.forEach((category_id) => {
-    fd.append("categories[]", category_id);
+
+  // Append categories as an array
+  form.category_id.forEach(categoryId => {
+    fd.append("categories[]", categoryId);
   });
 
-  console.log(form);
-  console.log("category_id", form.category_id);
-  if (form.category_id.length === 0) {
-    return createToast(
-      {
-        title: "Error",
-        description: "You must choose at least one category",
-      },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
-  }
+  // Append documents as an array
+  selectedDocuments.value.forEach((file, index) => {
+    fd.append(`documents[${index}]`, file);
+  });
+
+
+  
+
   try {
     await Http.post("ideas", fd, {
       headers: {
@@ -344,76 +275,43 @@ const postIdea = async () => {
     });
     router.push({ name: "category-index" });
     createToast(
-      {
-        title: "Success",
-        description: "Successfully Created Post!",
-      },
-      {
-        type: "success",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
+      { title: "Success", description: "Successfully Created Post!" },
+      { type: "success", transition: "bounce", position: "top-right", showIcon: true }
     );
   } catch (error) {
-    serverErrors(error.response?.data.errors);
     console.error("Failed to create post", error);
+    createToast(
+      { title: "Error", description: error.response?.data?.message || "Failed to post idea." },
+      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+    );
   }
 };
 </script>
-
 <style scoped>
-ul.list-group {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-ul.list-group > li {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-}
-
-ul.list-group > li:last-child {
-  border-bottom: none;
-}
-.af  {
-  border: none;
+.btn {
   display: flex;
-  padding: 0.75rem 1.5rem;
-  background-color: #f4e9c3;
-  color: #ffffff;
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 700;
-  text-align: center;
-  cursor: pointer;
-  text-transform: uppercase;
-  vertical-align: middle;
   align-items: center;
-  border-radius: 0.5rem;
-  user-select: none;
-  gap: 0.75rem;
-  box-shadow:
-    0 4px 6px -1px #488aec31,
-    0 2px 4px -1px #488aec17;
-  transition: all 0.6s ease;
+  gap: 8px;
+  padding: 10px 15px;
+  font-size: 16px;
 }
 
-.af :hover {
-  box-shadow:
-    0 10px 15px -3px #488aec4f,
-    0 4px 6px -2px #488aec17;
+.icon {
+  width: 24px;
+  height: 24px;
 }
 
-.af :focus,
-.af :active {
-  opacity: 0.85;
-  box-shadow: none;
+ul {
+  list-style-type: none;
+  padding: 0;
 }
 
-.af  svg {
-  width: 1.25rem;
-  height: 1.25rem;
+li {
+  padding: 5px 0;
+}
+
+.text-danger {
+  font-size: 14px;
+  margin-top: 5px;
 }
 </style>
