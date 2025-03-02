@@ -152,6 +152,12 @@
         <ul v-else class="list-group">
           <li
             class="list-group-item"
+            @click="
+              () =>
+                $router
+                  .push({ name: 'idea_details', params: { id: idea.id } })
+                  .catch((err) => console.error(err))
+            "
             v-for="idea in paginatedIdeas"
             :key="idea.id"
             style="
