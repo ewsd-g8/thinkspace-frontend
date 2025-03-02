@@ -148,7 +148,7 @@ const form = reactive({
 const documentInput = ref(null);
 
 const selectedDocuments = ref([]);
-const selectedPhotos = ref([]);
+
 const documentError = ref("");
 
 // Trigger document input
@@ -156,10 +156,7 @@ const triggerDocumentInput = () => {
   documentInput.value.click();
 };
 
-// Trigger photo input
-const triggerPhotoInput = () => {
-  photoInput.value.click();
-};
+
 
 // Handle document selection with validation
 const handleDocumentChange = (event) => {
