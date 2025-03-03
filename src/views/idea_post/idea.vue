@@ -4,6 +4,7 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4>Ideas</h4>
+          <!-- Summary Button (visible only to managers) -->
           <button class="btn btn-info" @click="toggleSummary">
             {{ showSummary ? "Hide Summary" : "Show Summary" }}
           </button>
@@ -27,7 +28,9 @@
               <ul class="list-group">
                 <li v-for="(categories, closure) in categoriesPerClosure" :key="closure" class="list-group-item d-flex justify-content-between align-items-center">
                   {{ closure }}
-                  <span class="badge bg-primary rounded-pill">{{ categories.length }}</span>
+                  <span class="badge bg-primary rounded-pill">{{
+                    categories.length
+                  }}</span>
                 </li>
               </ul>
             </div>
@@ -45,11 +48,21 @@
 
         <!-- Search and Content Length Filters -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
-          <div style="flex: 4; margin-right: 10px; min-width: 200px;">
-            <input type="text" class="form-control" placeholder="Search by title" v-model="searchQuery" @input="filterIdeas" />
+          <div style="flex: 4; margin-right: 10px; min-width: 200px">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search by title"
+              v-model="searchQuery"
+              @input="filterIdeas"
+            />
           </div>
-          <div style="flex: 1; margin: 0 10px; min-width: 200px;">
-            <select class="form-control form-control-sm content-length-filter" v-model="selectedContentLength" @change="filterIdeas">
+          <div style="flex: 1; margin: 0 10px; min-width: 200px">
+            <select
+              class="form-control form-control-sm content-length-filter"
+              v-model="selectedContentLength"
+              @change="filterIdeas"
+            >
               <option value="">All Lengths</option>
               <option value="short">Short (< 100 chars)</option>
               <option value="medium">Medium (100-400 chars)</option>
@@ -60,10 +73,17 @@
 
         <!-- Filters Container -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
-          <div style="flex: 1; margin-right: 10px; min-width: 200px;">
-            <select class="form-control" v-model="selectedCategory" @change="filterIdeas">
+          <!-- Category Filter -->
+          <div style="flex: 1; margin-right: 10px; min-width: 200px">
+            <select
+              class="form-control"
+              v-model="selectedCategory"
+              @change="filterIdeas"
+            >
               <option value="">All Categories</option>
-              <option v-for="category in uniqueCategories" :key="category">{{ category }}</option>
+              <option v-for="category in uniqueCategories" :key="category">
+                {{ category }}
+              </option>
             </select>
           </div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px;">
@@ -77,11 +97,23 @@
           <div style="flex: 1; margin: 0 10px; min-width: 200px;">
             <select class="form-control" v-model="selectedClosure" @change="filterIdeas">
               <option value="">All Closures</option>
-              <option v-for="closure in uniqueClosures" :key="closure.id" :value="closure.name">{{ closure.name }}</option>
+              <option
+                v-for="closure in uniqueClosures"
+                :key="closure.id"
+                :value="closure.name"
+              >
+                {{ closure.name }}
+              </option>
             </select>
           </div>
-          <div style="flex: 1; margin-left: 10px; min-width: 200px;">
-            <select class="form-control" v-model="sortOption" @change="sortIdeas">
+
+          <!-- Sorting Filter -->
+          <div style="flex: 1; margin-left: 10px; min-width: 200px">
+            <select
+              class="form-control"
+              v-model="sortOption"
+              @change="sortIdeas"
+            >
               <option value="newest">Newest to Oldest</option>
               <option value="oldest">Oldest to Newest</option>
               <option value="mostLikes">Most Likes</option>
@@ -92,7 +124,11 @@
 
         <!-- Loading Animation -->
         <div v-if="loading" class="text-center my-5">
-          <div class="spinner-border" role="status" style="width: 3rem; height: 3rem;">
+          <div
+            class="spinner-border"
+            role="status"
+            style="width: 3rem; height: 3rem"
+          >
             <span class="visually-hidden">Loading...</span>
           </div>
           <p>Loading ideas...</p>
@@ -102,26 +138,64 @@
         <ul v-else class="list-group">
           <li
             class="list-group-item"
+            @click="
+              () =>
+                $router
+                  .push({ name: 'idea_details', params: { id: idea.id } })
+                  .catch((err) => console.error(err))
+            "
             v-for="idea in paginatedIdeas"
             :key="idea.id"
-            style="box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49); margin-bottom: 20px;"
+            style="
+              box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49);
+              margin-bottom: 20px;
+            "
           >
             <div style="display: inline-block">
-              <div style="display: flex; align-items: center; justify-content: center;">
-                <i class="mdi mdi-account-circle rounded-circle" style="font-size: 40px"></i>
-                <span style="font-weight: bold; margin-left: 5px">Anonymous Participant</span>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <i
+                  class="mdi mdi-account-circle rounded-circle"
+                  style="font-size: 40px"
+                ></i>
+                <span style="font-weight: bold; margin-left: 5px"
+                  >Anonymous Participant</span
+                >
               </div>
             </div>
             <div class="d-flex justify-content-between">
               <div>
                 <p class="text-muted">
-                  <span style="background-color: #e5e5e5; border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-right: 5px;">
-                    {{ idea.categories && idea.categories.length ? `Tagged Categories: ${idea.categories.map(cat => cat.name).join(", ")}` : "No categories" }}
+                  <span
+                    style="
+                      background-color: #e5e5e5;
+                      border: 1px solid #ccc;
+                      border-radius: 5px;
+                      padding: 5px;
+                      margin-right: 5px;
+                    "
+                  >
+                    {{
+                      idea.categories && idea.categories.length
+                        ? `Tagged Categories: ${idea.categories
+                            .map((cat) => cat.name)
+                            .join(", ")}`
+                        : "No categories"
+                    }}
                   </span>
                   - -
-                  <span style="font-weight: bold">{{ idea.closure_id ? ` ${idea.closure.name}` : "No closure ID" }}</span>
+                  <span style="font-weight: bold">{{
+                    idea.closure_id ? ` ${idea.closure.name}` : "No closure ID"
+                  }}</span>
                 </p>
-                <h5 style="font-weight: bold; font-size: 20px">{{ idea.title }}</h5>
+                <h5 style="font-weight: bold; font-size: 20px">
+                  {{ idea.title }}
+                </h5>
                 <div style="font-size: 15px">
                   <p class="content-preview">
                     {{ truncateContent(idea.content) }}
@@ -208,24 +282,27 @@ const uniqueDepartments = computed(() => {
 });
 const uniqueClosures = computed(() => {
   const closures = ideas.value
-    .filter(idea => idea.closure)
-    .map(idea => ({
+    .filter((idea) => idea.closure)
+    .map((idea) => ({
       id: idea.closure_id,
       name: idea.closure.name,
-      created_at: idea.closure.created_at || idea.created_at
+      created_at: idea.closure.created_at || idea.created_at,
     }));
-  return [...new Set(closures.map(c => JSON.stringify(c)))].map(c => JSON.parse(c));
+  return [...new Set(closures.map((c) => JSON.stringify(c)))].map((c) =>
+    JSON.parse(c)
+  );
 });
 
 const ideasPerCategory = computed(() => {
   const categoryCount = {};
-  ideas.value.forEach(idea => {
+  ideas.value.forEach((idea) => {
     if (idea.categories && idea.categories.length) {
-      idea.categories.forEach(cat => {
+      idea.categories.forEach((cat) => {
         categoryCount[cat.name] = (categoryCount[cat.name] || 0) + 1;
       });
     } else {
-      categoryCount["No categories"] = (categoryCount["No categories"] || 0) + 1;
+      categoryCount["No categories"] =
+        (categoryCount["No categories"] || 0) + 1;
     }
   });
   return categoryCount;
@@ -233,11 +310,13 @@ const ideasPerCategory = computed(() => {
 
 const categoriesPerClosure = computed(() => {
   const closureCategories = {};
-  ideas.value.forEach(idea => {
+  ideas.value.forEach((idea) => {
     const closureName = idea.closure_id ? idea.closure.name : "No closure ID";
     if (!closureCategories[closureName]) closureCategories[closureName] = new Set();
     if (idea.categories && idea.categories.length) {
-      idea.categories.forEach(cat => closureCategories[closureName].add(cat.name));
+      idea.categories.forEach((cat) =>
+        closureCategories[closureName].add(cat.name)
+      );
     }
   });
   Object.keys(closureCategories).forEach(closure => {
@@ -267,8 +346,10 @@ const ideasPerDepartment = computed(() => {
 
 
 const filteredIdeas = computed(() => {
-  let result = ideas.value.filter(idea => {
-    const matchesTitle = idea.title.toLowerCase().includes(searchQuery.value.toLowerCase());
+  let result = ideas.value.filter((idea) => {
+    const matchesTitle = idea.title
+      .toLowerCase()
+      .includes(searchQuery.value.toLowerCase());
     const matchesCategory =
       selectedCategory.value === "" ||
       (idea.categories && idea.categories.some(cat => cat.name === selectedCategory.value));
@@ -286,9 +367,17 @@ console.log("Matches department:", {
     const matchesContentLength =
       selectedContentLength.value === "" ||
       (selectedContentLength.value === "short" && idea.content.length < 100) ||
-      (selectedContentLength.value === "medium" && idea.content.length >= 100 && idea.content.length <= 400) ||
+      (selectedContentLength.value === "medium" &&
+        idea.content.length >= 100 &&
+        idea.content.length <= 400) ||
       (selectedContentLength.value === "long" && idea.content.length > 400);
-    return matchesTitle && matchesCategory && matchesDepartment && matchesClosure && matchesContentLength;
+    return (
+      matchesTitle &&
+      matchesCategory &&
+      matchesDepartment &&
+      matchesClosure &&
+      matchesContentLength
+    );
   });
 
   if (sortOption.value === "newest") {
@@ -298,7 +387,9 @@ console.log("Matches department:", {
   } else if (sortOption.value === "mostLikes") {
     result.sort((a, b) => b.thumbs_up_count.likes - a.thumbs_up_count.likes);
   } else if (sortOption.value === "mostDislikes") {
-    result.sort((a, b) => b.thumbs_up_count.unlikes - a.thumbs_up_count.unlikes);
+    result.sort(
+      (a, b) => b.thumbs_up_count.unlikes - a.thumbs_up_count.unlikes
+    );
   }
 
   return result;
@@ -335,8 +426,9 @@ onMounted(async () => {
       )
     );
 
-    const newestClosure = uniqueClosures.value
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    const newestClosure = uniqueClosures.value.sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    )[0];
     if (newestClosure) {
       selectedClosure.value = newestClosure.name;
     }

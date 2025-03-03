@@ -162,7 +162,7 @@ const saveClosure = async () => {
       createToast(
         {
           title: "Success",
-          description: "Successfully Created Category!",
+          description: "Successfully Created Closure Date!",
         },
         {
           type: "success",

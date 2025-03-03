@@ -45,9 +45,6 @@
                 </template>
               </EasyDataTable>
 
-           
-            
-
               <!-- 
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -68,17 +65,14 @@ const addCategory = async () => {
   newCategory.value = '';
   // Optionally, fetch ideas again if they depend on categories
 };
-</script> --> 
+</script> -->
             </div>
           </div>
         </div>
       </div>
     </div>
-  
   </div>
 </template>
-
-
 
 <script setup>
 // for categories
@@ -87,12 +81,13 @@ import { Http } from "@/services/http-common";
 
 const categories = ref([]);
 
-const fetchCategories = async () => {
-  const response = await Http.get("/api/categories");
-  categories.value = response.data;
-};
+// const fetchCategories = async () => {
+//   const response = await Http.get("/api/categories");
+//   console.log(response);
+//   categories.value = response.data.data.data;
+// };
 
-fetchCategories();
+// fetchCategories();
 const pageLoading = ref(true);
 const loading = ref(false);
 const tableData = ref([]);
@@ -113,7 +108,4 @@ const headers = [
   { text: "Status", value: "is_active", sortable: true },
   { text: "Action", value: "action", width: "200" },
 ];
-
-
-
 </script>
