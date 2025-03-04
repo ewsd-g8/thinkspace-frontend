@@ -10,11 +10,10 @@
           </button>
         </div>
 
-        <!-- Summary Section (shown when toggled) -->
+        <!-- Summary Section -->
         <div v-if="showSummary" class="summary-section mb-4 p-3 border rounded">
           <h5>Summary Dashboard</h5>
           <div class="row">
-            <!-- Ideas per Category -->
             <div class="col-md-6">
               <h6>Ideas per Category</h6>
               <ul class="list-group">
@@ -28,7 +27,6 @@
                 </li>
               </ul>
             </div>
-            <!-- Categories per Closure -->
             <div class="col-md-6">
               <h6>Categories per Closure</h6>
               <ul class="list-group">
@@ -44,7 +42,19 @@
                 </li>
               </ul>
             </div>
-            <!-- Ideas by Selected User -->
+            <div class="col-md-6">
+              <h6>Ideas per Department</h6>
+              <ul class="list-group">
+                <li
+                  v-for="(count, department) in ideasPerDepartment"
+                  :key="department"
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  {{ department }}
+                  <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -88,8 +98,6 @@
               </option>
             </select>
           </div>
-
-          <!-- Department Filter -->
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
             <select
               class="form-control"
@@ -97,13 +105,15 @@
               @change="filterIdeas"
             >
               <option value="">All Departments</option>
-              <option v-for="department in uniqueDepartments" :key="department">
-                {{ department }}
+              <option
+                v-for="department in uniqueDepartments"
+                :key="department.id"
+                :value="department.name"
+              >
+                {{ department.name }}
               </option>
             </select>
           </div>
-
-          <!-- Closure Filter -->
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
             <select
               class="form-control"
@@ -148,7 +158,7 @@
           <p>Loading ideas...</p>
         </div>
 
-        <!-- Ideas List (shown only when not loading) -->
+        <!-- Ideas List -->
         <ul v-else class="list-group">
           <li
             class="list-group-item"
@@ -217,9 +227,8 @@
                       <router-link
                         :to="{ name: 'idea_details', params: { id: idea.id } }"
                         @click.stop
+                        >...see more</router-link
                       >
-                        ...see more
-                      </router-link>
                     </span>
                   </p>
                 </div>
@@ -227,11 +236,6 @@
             </div>
             <hr />
             <div>
-              <button class="btn btn-sm" @click="thumbUp(idea)">
-                <span v-if="idea.has_thumbs_up">1</span>
-                <i class="mdi mdi-thumb-up"></i>
-              </button>
-
               <button
                 class="btn btn-sm"
                 @click="thumbUp(idea)"
@@ -243,8 +247,7 @@
                   style="font-weight: bold; padding-right: 5px"
                   >{{ idea.thumbs_up_count.likes }}</span
                 >
-                <span v-if="!idea.has_thumbs_up">Like</span>
-                <span v-if="idea.has_thumbs_up">Liked</span>
+                <span>{{ idea.has_thumbs_up ? "Liked" : "Like" }}</span>
               </button>
               <button
                 class="btn btn-sm"
@@ -257,9 +260,9 @@
                   style="font-weight: bold; padding-right: 5px"
                   >{{ idea.thumbs_up_count.unlikes }}</span
                 >
-                <span v-if="idea.has_thumbs_down">Dislike</span>
-                <span v-if="!idea.has_thumbs_down">Unlike</span>
+                <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
               </button>
+
               <button
                 class="btn btn-sm"
                 @click="
@@ -275,7 +278,7 @@
           </li>
         </ul>
 
-        <!-- Pagination Controls (shown only when not loading) -->
+        <!-- Pagination Controls -->
         <div v-if="!loading" class="d-flex justify-content-between mt-3">
           <button
             class="btn btn-primary"
@@ -297,7 +300,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { Http } from "@/services/http-common";
@@ -306,21 +308,19 @@ import { useAuthStore } from "@/stores/auth.js";
 
 const ideas = ref([]);
 const searchQuery = ref("");
+const departments = ref([]);
 const selectedCategory = ref("");
 const selectedDepartment = ref("");
 const selectedClosure = ref("");
-
 const selectedContentLength = ref("");
 const sortOption = ref("newest");
 const currentPage = ref(1);
 const itemsPerPage = 5;
 const loading = ref(true);
-const showSummary = ref(false); // Toggle for summary section
+const showSummary = ref(false);
 const store = useAuthStore();
 const user_id = store.getAuthUser.id;
 const router = useRouter();
-
-// Assuming manager role is indicated in the auth store (adjust as per your setup)
 
 const uniqueCategories = computed(() => {
   const categories = ideas.value
@@ -331,11 +331,18 @@ const uniqueCategories = computed(() => {
   return [...new Set(categories)];
 });
 
+const getDepartments = async () => {
+  await Http.get("get-all-departments").then((res) => {
+    console.log(res);
+    departments.value = res.data.data;
+  });
+};
 const uniqueDepartments = computed(() => {
-  const departments = ideas.value.map((idea) => idea.department || "Unknown");
-  return [...new Set(departments)];
+  const validDepartments = departments.value
+    .filter((d) => d.name && d.name !== "[department]")
+    .map((d) => ({ id: d.id, name: d.name }));
+  return validDepartments.length > 0 ? validDepartments : [{ name: "Unknown" }];
 });
-
 const uniqueClosures = computed(() => {
   const closures = ideas.value
     .filter((idea) => idea.closure)
@@ -349,7 +356,6 @@ const uniqueClosures = computed(() => {
   );
 });
 
-// Compute ideas per category
 const ideasPerCategory = computed(() => {
   const categoryCount = {};
   ideas.value.forEach((idea) => {
@@ -365,25 +371,38 @@ const ideasPerCategory = computed(() => {
   return categoryCount;
 });
 
-// Compute categories per closure
 const categoriesPerClosure = computed(() => {
   const closureCategories = {};
   ideas.value.forEach((idea) => {
     const closureName = idea.closure_id ? idea.closure.name : "No closure ID";
-    if (!closureCategories[closureName]) {
+    if (!closureCategories[closureName])
       closureCategories[closureName] = new Set();
-    }
     if (idea.categories && idea.categories.length) {
       idea.categories.forEach((cat) =>
         closureCategories[closureName].add(cat.name)
       );
     }
   });
-  // Convert Sets to Arrays for display
   Object.keys(closureCategories).forEach((closure) => {
     closureCategories[closure] = Array.from(closureCategories[closure]);
   });
   return closureCategories;
+});
+
+const ideasPerDepartment = computed(() => {
+  const departmentCount = {};
+  departments.value.forEach((department) => {
+    departmentCount[department.name] = 0; // Initialize all departments
+  });
+  ideas.value.forEach((idea) => {
+    const departmentName =
+      departments.value.find((d) => d.id === idea.user?.department_id)?.name ||
+      "Unknown";
+    departmentCount[departmentName] =
+      (departmentCount[departmentName] || 0) + 1;
+  });
+  console.log("Ideas per Department:", departmentCount);
+  return departmentCount;
 });
 
 const filteredIdeas = computed(() => {
@@ -397,7 +416,15 @@ const filteredIdeas = computed(() => {
         idea.categories.some((cat) => cat.name === selectedCategory.value));
     const matchesDepartment =
       selectedDepartment.value === "" ||
-      idea.department === selectedDepartment.value;
+      (departments.value.find((d) => d.id === idea.user?.department_id)?.name ||
+        "Unknown") === selectedDepartment.value;
+    console.log("Matches department:", {
+      ideaUserDepartmentId: idea.user?.department_id,
+      departmentName: departments.value.find(
+        (d) => d.id === idea.user?.department_id
+      )?.name,
+      selectedDepartment: selectedDepartment.value,
+    });
     const matchesClosure =
       selectedClosure.value === "" ||
       (idea.closure && idea.closure.name === selectedClosure.value);
@@ -442,9 +469,9 @@ const paginatedIdeas = computed(() => {
   return filteredIdeas.value.slice(start, end);
 });
 
-// Truncate content to approximately 2 lines (~400 characters)
 const truncateContent = (content) => {
   const maxLength = 400;
+  if (!content || typeof content !== "string") return "";
   if (content.length <= maxLength) return content;
   return content.substring(0, maxLength).trim() + "...";
 };
@@ -452,7 +479,9 @@ const truncateContent = (content) => {
 onMounted(async () => {
   try {
     loading.value = true;
+    await getDepartments();
     const { data } = await Http.get("ideas");
+    console.log("Raw ideas data:", data.data.data);
     ideas.value = data.data.data;
 
     await Promise.all(
@@ -475,6 +504,30 @@ onMounted(async () => {
 });
 
 const thumbUp = async (idea) => {
+  const index = ideas.value.findIndex((i) => i.id === idea.id);
+  if (index === -1) return;
+
+  // Optimistically update UI
+  const originalIdea = { ...ideas.value[index] };
+  ideas.value = [
+    ...ideas.value.slice(0, index),
+    {
+      ...ideas.value[index],
+      has_thumbs_up: true,
+      has_thumbs_down: false,
+      thumbs_up_count: {
+        ...ideas.value[index].thumbs_up_count,
+        likes: ideas.value[index].has_thumbs_up
+          ? ideas.value[index].thumbs_up_count.likes
+          : ideas.value[index].thumbs_up_count.likes + 1,
+        unlikes: ideas.value[index].has_thumbs_down
+          ? ideas.value[index].thumbs_up_count.unlikes - 1
+          : ideas.value[index].thumbs_up_count.unlikes,
+      },
+    },
+    ...ideas.value.slice(index + 1),
+  ];
+
   try {
     const response = await Http.post(`reactions`, {
       user_id: user_id,
@@ -483,19 +536,52 @@ const thumbUp = async (idea) => {
     });
 
     const { data } = response;
-    if (data.success) {
-      const index = ideas.value.findIndex((i) => i.id === idea.id);
-      if (index !== -1) {
-        ideas.value[index].has_thumbs_up = true;
-        ideas.value[index].thumbs_up_count.likes += 1;
-      }
+    // Check for "Reaction set" instead of "success"
+    if (data.message !== "Reaction set") {
+      // Rollback on failure
+      ideas.value = [
+        ...ideas.value.slice(0, index),
+        originalIdea,
+        ...ideas.value.slice(index + 1),
+      ];
+      console.error("Thumb up failed:", data);
     }
   } catch (error) {
+    // Rollback on error
+    ideas.value = [
+      ...ideas.value.slice(0, index),
+      originalIdea,
+      ...ideas.value.slice(index + 1),
+    ];
     console.error("Error in thumbUp:", error);
   }
 };
 
 const thumbDown = async (idea) => {
+  const index = ideas.value.findIndex((i) => i.id === idea.id);
+  if (index === -1) return;
+
+  // Optimistically update UI
+  const originalIdea = { ...ideas.value[index] };
+  ideas.value = [
+    ...ideas.value.slice(0, index),
+    {
+      ...ideas.value[index],
+      has_thumbs_up: false,
+      has_thumbs_down: true,
+      thumbs_up_count: {
+        ...ideas.value[index].thumbs_up_count,
+        likes: ideas.value[index].has_thumbs_up
+          ? ideas.value[index].thumbs_up_count.likes - 1
+          : ideas.value[index].thumbs_up_count.likes,
+        unlikes: ideas.value[index].has_thumbs_down
+          ? ideas.value[index].thumbs_up_count.unlikes
+          : ideas.value[index].thumbs_up_count.unlikes + 1,
+      },
+    },
+    ...ideas.value.slice(index + 1),
+  ];
+
   try {
     const response = await Http.post(`reactions`, {
       user_id: user_id,
@@ -504,14 +590,23 @@ const thumbDown = async (idea) => {
     });
 
     const { data } = response;
-    if (data.success) {
-      const index = ideas.value.findIndex((i) => i.id === idea.id);
-      if (index !== -1) {
-        ideas.value[index].has_thumbs_down = true;
-        ideas.value[index].thumbs_up_count.unlikes += 1;
-      }
+    // Check for "Reaction set" instead of "success"
+    if (data.message !== "Reaction set") {
+      // Rollback on failure
+      ideas.value = [
+        ...ideas.value.slice(0, index),
+        originalIdea,
+        ...ideas.value.slice(index + 1),
+      ];
+      console.error("Thumb down failed:", data);
     }
   } catch (error) {
+    // Rollback on error
+    ideas.value = [
+      ...ideas.value.slice(0, index),
+      originalIdea,
+      ...ideas.value.slice(index + 1),
+    ];
     console.error("Error in thumbDown:", error);
   }
 };
@@ -585,7 +680,6 @@ ul.list-group > li:last-child {
   border-bottom: none;
 }
 
-/* Responsive adjustment for smaller screens */
 @media (max-width: 768px) {
   .d-flex.flex-wrap {
     flex-direction: column;
@@ -596,12 +690,10 @@ ul.list-group > li:last-child {
   }
 }
 
-/* Spinner styling */
 .spinner-border {
   color: #5d1010;
 }
 
-/* Content preview styling */
 .content-preview {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -626,7 +718,6 @@ ul.list-group > li:last-child {
   text-decoration: underline;
 }
 
-/* Content length filter styling */
 .content-length-filter {
   width: 150px;
   height: 30px;
@@ -634,7 +725,6 @@ ul.list-group > li:last-child {
   padding: 0 5px;
 }
 
-/* Summary section styling */
 .summary-section {
   background-color: #f8f9fa;
   border: 1px solid #dee2e6;

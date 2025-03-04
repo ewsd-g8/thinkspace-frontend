@@ -16,7 +16,6 @@
       </div>
     </div>
 
-    <!-- card --> 
     <div class="card">
       <div class="pt-3 px-3 d-flex justify-content-end bg-white">
         <div class="d-flex position-relative me-2">
@@ -77,8 +76,7 @@
                 <i class="mdi mdi-sync text-white"></i>
               </button>
             </Popper>
-
-            <Popper arrow placement="top" content="Edit" hover >
+            <Popper arrow placement="top" content="Edit" hover>
               <router-link
                 :to="{ name: 'user-edit', params: { id: data.id } }"
                 class="btn btn-sm btn-info"
@@ -86,23 +84,32 @@
                 <i class="mdi mdi-square-edit-outline"></i>
               </router-link>
             </Popper>
-            <div>
             <Popper arrow placement="top" content="Block" hover>
               <button
-                class="btn btn-sm btn-danger"
+                class="btn btn-sm btn-danger waves-effect waves-light"
+                data-bs-toggle="modal"
+                data-bs-target="#change-block-status-modal"
                 @click="blockUser(data.id)"
               >
                 <i class="mdi mdi-block-helper"></i>
               </button>
             </Popper>
-            <Popper arrow placement="top" content="Hide" hover style="padding: 5px;">
+            <Popper
+              arrow
+              placement="top"
+              content="Hide"
+              hover
+              style="padding: 5px"
+            >
               <button
                 class="btn btn-sm btn-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#change-hide-status-modal"
                 @click="HideUser(data.id)"
               >
-                <i class="mdi mdi-eye-off-outline" ></i>
+                <i class="mdi mdi-eye-off-outline"></i>
               </button>
-            </Popper></div>
+            </Popper>
           </template>
           <template #item-is_active="data">
             <Badge
@@ -110,23 +117,28 @@
               :name="data.is_active ? 'Active' : 'Inactive'"
             ></Badge>
           </template>
+          <template #item-is_blocked="data">
+            <Badge
+              :class="data.is_blocked ? 'bg-danger' : 'bg-success'"
+              :name="data.is_blocked ? 'Blocked' : 'Unblocked'"
+            ></Badge>
+          </template>
+          <template #item-is_hidden="data">
+            <Badge
+              :class="data.is_hidden ? 'bg-danger' : 'bg-success'"
+              :name="data.is_hidden ? 'not shown' : 'Hide'"
+            ></Badge>
+          </template>
         </EasyDataTable>
       </div>
     </div>
 
-
-    <!-- user cards by looking deaprtments -->
-
-
-
-    <!-- Info Alert Modal -->
     <div
       id="change-status-modal"
       class="modal fade"
       tabindex="-1"
       role="dialog"
       aria-hidden="true"
-    >
     >
       <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
@@ -156,21 +168,106 @@
                   class="btn btn-danger my-2"
                   data-bs-dismiss="modal"
                 >
-                  Cancel&nbsp;
+                  Cancel
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-dialog -->
     </div>
-    <!-- /.modal -->
+
+    <div
+      id="change-block-status-modal"
+      class="modal fade"
+      tabindex="-1"
+      role="dialog"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body py-3 px-2">
+            <div class="text-center">
+              <i
+                class="dripicons-information text-info"
+                style="font-size: 4rem"
+              ></i>
+              <h4 class="mb-3 mt-1 fs-4">Confirmation!</h4>
+              <h5 class="mt-4 fs-5">Are you sure to change block status?</h5>
+              <div class="mt-2">
+                <button
+                  type="button"
+                  class="btn btn-success my-2 me-2"
+                  @click="changeBlockUserStatus()"
+                  :disabled="loading"
+                >
+                  <span
+                    v-if="loading"
+                    class="spinner-border text-light spinner-border-sm me-1"
+                  ></span>
+                  {{ loading ? "Loading" : "Confirm" }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger my-2"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      id="change-hide-status-modal"
+      class="modal fade"
+      tabindex="-1"
+      role="dialog"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body py-3 px-2">
+            <div class="text-center">
+              <i
+                class="dripicons-information text-info"
+                style="font-size: 4rem"
+              ></i>
+              <h4 class="mb-3 mt-1 fs-4">Confirmation!</h4>
+              <h5 class="mt-4 fs-5">Are you sure to change block status?</h5>
+              <div class="mt-2">
+                <button
+                  type="button"
+                  class="btn btn-success my-2 me-2"
+                  @click="changeHideUserStatus()"
+                  :disabled="loading"
+                >
+                  <span
+                    v-if="loading"
+                    class="spinner-border text-light spinner-border-sm me-1"
+                  ></span>
+                  {{ loading ? "Loading" : "Confirm" }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger my-2"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
 <script setup>
-import { ref, onMounted, reactive, watch } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { Http } from "@/services/http-common";
 import Badge from "@/components/shared/Badge.vue";
 import Skeleton from "@/components/shared/Skeleton.vue";
@@ -178,7 +275,6 @@ import { createToast } from "mosha-vue-toastify";
 
 const loading = ref(false);
 const tableData = ref([]);
-
 const serverItemsLength = ref(0);
 const searchValue = ref("");
 const serverOptions = ref({
@@ -194,55 +290,46 @@ const headers = [
   { text: "Mobile", value: "mobile", sortable: true },
   { text: "Role", value: "roles", sortable: false },
   { text: "IsActive", value: "is_active", sortable: true },
+  { text: "IsBlocked", value: "is_blocked", sortable: true },
+  { text: "IsHidden", value: "is_hidden", sortable: true },
   { text: "Action", value: "action", width: "180" },
 ];
 
 const getResults = async () => {
   loading.value = true;
-
-  if (searchValue.value) {
-    serverOptions.value.page = 1;
-  }
-
+  if (searchValue.value) serverOptions.value.page = 1;
   await Http.get(
     `users?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
   )
     .then((res) => {
       console.log("res", res);
       tableData.value = res.data.data.data;
+      console.log("tableData:", tableData.value);
       serverItemsLength.value = res.data.data.total;
     })
     .catch((err) => {
       console.log(err);
+      createToast(
+        { title: "Error", description: "Failed to load users" },
+        { type: "danger", position: "top-right" }
+      );
     })
-    .finally(() => {
-      loading.value = false;
-    });
+    .finally(() => (loading.value = false));
 };
 
 const updateSort = (selectedSortOptions) => {
-  serverOptions.value.sortType = selectedSortOptions.sortType
-    ? selectedSortOptions.sortType
-    : "";
+  serverOptions.value.sortType = selectedSortOptions.sortType || "";
   serverOptions.value.sortBy = selectedSortOptions.sortBy;
 };
 
-watch(
-  serverOptions,
-  (value) => {
-    getResults();
-  },
-  { deep: true }
-);
+watch(serverOptions, () => getResults(), { deep: true });
 
 const timer = ref(null);
 watch(
   searchValue,
-  (value) => {
+  () => {
     clearTimeout(timer.value);
-    timer.value = setTimeout(() => {
-      getResults();
-    }, 500);
+    timer.value = setTimeout(() => getResults(), 500);
   },
   { deep: true }
 );
@@ -258,10 +345,7 @@ const changeUserStatus = () => {
     .then(() => {
       $("#change-status-modal").modal("hide");
       createToast(
-        {
-          title: "Success",
-          description: "Successfully Change Status!",
-        },
+        { title: "Success", description: "Successfully Changed Status!" },
         {
           type: "success",
           transition: "bounce",
@@ -272,13 +356,71 @@ const changeUserStatus = () => {
     })
     .catch((err) => {
       console.log(err);
+      createToast(
+        { title: "Error", description: "Failed to change status" },
+        { type: "danger", position: "top-right" }
+      );
     })
-    .finally(() => {
-      getResults();
-    });
+    .finally(() => getResults());
 };
 
-onMounted(() => {
-  getResults();
-});
+const blockUser = (id) => {
+  userId.value = id;
+};
+
+const changeBlockUserStatus = () => {
+  loading.value = true;
+  Http.get(`users/block-status/${userId.value}`)
+    .then(() => {
+      $("#change-block-status-modal").modal("hide");
+      createToast(
+        { title: "Success", description: "Successfully Changed Block Status!" },
+        {
+          type: "success",
+          transition: "bounce",
+          position: "top-right",
+          showIcon: true,
+        }
+      );
+    })
+    .catch((err) => {
+      console.log(err);
+      createToast(
+        { title: "Error", description: "Failed to change block status" },
+        { type: "danger", position: "top-right" }
+      );
+    })
+    .finally(() => getResults());
+};
+
+const HideUser = (id) => {
+  userId.value = id;
+};
+
+const changeHideUserStatus = () => {
+  loading.value = true;
+  Http.get(`users/hide-status/${userId.value}`)
+    .then(() => {
+      $("#change-hide-status-modal").modal("hide");
+      createToast(
+        { title: "Success", description: "Successfully Changed hide Status!" },
+        {
+          type: "success",
+          transition: "bounce",
+          position: "top-right",
+          showIcon: true,
+        }
+      );
+    })
+    .catch((err) => {
+      console.log(err);
+      createToast(
+        { title: "Error", description: "Failed to change hide status" },
+        { type: "danger", position: "top-right" }
+      );
+    })
+    .finally(() => getResults());
+};
+
+onMounted(() => getResults());
 </script>
