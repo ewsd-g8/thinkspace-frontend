@@ -112,29 +112,46 @@
     { text:"Active", value:"is_active", sortable: true},
     { text: "Action", value: "action", width: "200" },
   ];
-  
+  // Function to convert UTC to local timezone
+const formatToLocalTime = (utcDate) => {
+if (!utcDate) return ""; // Handle null/undefined
+const date = new Date(utcDate); // Parse UTC date string
+return date.toLocaleString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true,
+}); // e.g., "Mar 04, 2024, 10:00:00 AM"
+};
   const getResults = async () => {
     loading.value = true;
   
     if (searchValue.value) {
       serverOptions.value.page = 1;
     }
-  
-    await Http.get(
-      `departments?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
-    )
-      .then((res) => {
-        console.log("res", res);
-        tableData.value = res.data.data.data;
-        serverItemsLength.value = res.data.data.total;
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        loading.value = false;
-      });
-  };
+    try {
+  const { data } = await Http.get(
+    `departments?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
+  );
+
+  console.log("API response:", data);
+
+  // Transform UTC dates to local timezone
+  tableData.value = data.data.data.map(item => ({
+    ...item,
+    created_at: formatToLocalTime(item.created_at),
+    updated_at: formatToLocalTime(item.updated_at),
+  }));
+  serverItemsLength.value = data.data.total;
+} catch (err) {
+  console.error("Error fetching categories:", err);
+} finally {
+  loading.value = false;
+}
+};
   
   const updateSort = (selectedSortOptions) => {
     serverOptions.value.sortType = selectedSortOptions.sortType

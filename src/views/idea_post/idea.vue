@@ -4,7 +4,6 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4>Ideas</h4>
-          <!-- Summary Button (visible only to managers) -->
           <button class="btn btn-info" @click="toggleSummary">
             {{ showSummary ? "Hide Summary" : "Show Summary" }}
           </button>
@@ -28,9 +27,7 @@
               <ul class="list-group">
                 <li v-for="(categories, closure) in categoriesPerClosure" :key="closure" class="list-group-item d-flex justify-content-between align-items-center">
                   {{ closure }}
-                  <span class="badge bg-primary rounded-pill">{{
-                    categories.length
-                  }}</span>
+                  <span class="badge bg-primary rounded-pill">{{ categories.length }}</span>
                 </li>
               </ul>
             </div>
@@ -54,7 +51,7 @@
               class="form-control"
               placeholder="Search by title"
               v-model="searchQuery"
-              @input="filterIdeas"
+              @input="debouncedFilterIdeas"
             />
           </div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
@@ -73,7 +70,6 @@
 
         <!-- Filters Container -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
-          <!-- Category Filter -->
           <div style="flex: 1; margin-right: 10px; min-width: 200px">
             <select
               class="form-control"
@@ -86,16 +82,28 @@
               </option>
             </select>
           </div>
-          <div style="flex: 1; margin: 0 10px; min-width: 200px;">
-           <select class="form-control" v-model="selectedDepartment" @change="filterIdeas">
-  <option value="">All Departments</option>
-  <option v-for="department in uniqueDepartments" :key="department.id" :value="department.name">
-    {{ department.name }}
-  </option>
-</select>
+          <div style="flex: 1; margin: 0 10px; min-width: 200px">
+            <select
+              class="form-control"
+              v-model="selectedDepartment"
+              @change="filterIdeas"
+            >
+              <option value="">All Departments</option>
+              <option
+                v-for="department in uniqueDepartments"
+                :key="department.id"
+                :value="department.name"
+              >
+                {{ department.name }}
+              </option>
+            </select>
           </div>
-          <div style="flex: 1; margin: 0 10px; min-width: 200px;">
-            <select class="form-control" v-model="selectedClosure" @change="filterIdeas">
+          <div style="flex: 1; margin: 0 10px; min-width: 200px">
+            <select
+              class="form-control"
+              v-model="selectedClosure"
+              @change="filterIdeas"
+            >
               <option value="">All Closures</option>
               <option
                 v-for="closure in uniqueClosures"
@@ -106,8 +114,6 @@
               </option>
             </select>
           </div>
-
-          <!-- Sorting Filter -->
           <div style="flex: 1; margin-left: 10px; min-width: 200px">
             <select
               class="form-control"
@@ -138,13 +144,8 @@
         <ul v-else class="list-group">
           <li
             class="list-group-item"
-            @click="
-              () =>
-                $router
-                  .push({ name: 'idea_details', params: { id: idea.id } })
-                  .catch((err) => console.error(err))
-            "
-            v-for="idea in paginatedIdeas"
+          
+            v-for="idea in filteredIdeas"
             :key="idea.id"
             style="
               box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49);
@@ -199,40 +200,68 @@
                 <div style="font-size: 15px">
                   <p class="content-preview">
                     {{ truncateContent(idea.content) }}
-                    <span v-if="idea.content.length > 1000" class="see-more">
-                      <router-link :to="{ name: 'idea_details', params: { id: idea.id } }" @click.stop>...see more</router-link>
+                    <span
+                      v-if="idea.content.length > 1000"
+                      class="see-more"
+                    >
+                      <router-link
+                        :to="{
+                          name: 'idea_details',
+                          params: { id: idea.id },
+                        }"
+                        @click.stop
+                        >...see more</router-link
+                      >
                     </span>
                   </p>
                 </div>
               </div>
             </div>
             <hr />
-            <div>
-  <button class="btn btn-sm" @click="thumbUp(idea)" :disabled="idea.has_thumbs_up">
+           
+           
+                <button class="btn btn-sm" @click="thumbUp(idea)" :disabled="idea.has_thumbs_up">
     <i class="mdi mdi-thumb-up"></i>
-    <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.thumbs_up_count.likes }}</span>
-    <span>{{ idea.has_thumbs_up ? "Liked" : "Like" }}</span>
+    <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.likes }}</span>
+    <span>{{ idea.likes ? "Liked" : "Like" }}</span>
   </button>
   <button class="btn btn-sm" @click="thumbDown(idea)" :disabled="idea.has_thumbs_down">
     <i class="mdi mdi-thumb-down"></i>
-    <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.thumbs_up_count.unlikes }}</span>
-    <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
+    <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.unlikes }}</span>
+    <span>{{ idea.unlikes? "Disliked" : "Unlike" }}</span>
   </button>
 
-              <button class="btn btn-sm" @click="() => $router.push({ name: 'idea_details', params: { id: idea.id } }).catch(err => console.error(err))">
+ 
+              <button
+                class="btn btn-sm"
+                @click="
+                  () =>
+                    $router
+                      .push({ name: 'idea_details', params: { id: idea.id } })
+                      .catch((err) => console.error(err))
+                "
+              >
                 <i class="mdi mdi-comment"></i>
               </button>
-            </div>
+         
           </li>
         </ul>
 
         <!-- Pagination Controls -->
         <div v-if="!loading" class="d-flex justify-content-between mt-3">
-          <button class="btn btn-primary" @click="previousPage" :disabled="currentPage === 1">
+          <button
+            class="btn btn-primary"
+            @click="previousPage"
+            :disabled="currentPage === 1"
+          >
             Previous
           </button>
           <span>Page {{ currentPage }} of {{ totalPages }}</span>
-          <button class="btn btn-primary" @click="nextPage" :disabled="currentPage === totalPages">
+          <button
+            class="btn btn-primary"
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+          >
             Next
           </button>
         </div>
@@ -240,11 +269,21 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { Http } from "@/services/http-common";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.js";
+
+// Custom debounce function
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
 
 const ideas = ref([]);
 const searchQuery = ref("");
@@ -256,30 +295,30 @@ const selectedContentLength = ref("");
 const sortOption = ref("newest");
 const currentPage = ref(1);
 const itemsPerPage = 5;
+const totalIdeas = ref(0);
 const loading = ref(true);
 const showSummary = ref(false);
 const store = useAuthStore();
 const user_id = store.getAuthUser.id;
 const router = useRouter();
 
+// Store original ideas for client-side filtering
+const originalIdeas = ref([]);
+
 const uniqueCategories = computed(() => {
-  const categories = ideas.value.map(idea => (idea.categories ? idea.categories.map(cat => cat.name) : [])).flat();
+  const categories = ideas.value
+    .map((idea) => (idea.categories ? idea.categories.map((cat) => cat.name) : []))
+    .flat();
   return [...new Set(categories)];
 });
 
-
-const getDepartments = async () =>{
-  await Http.get("get-all-departments").then((res) => {
-    console.log(res);
-    departments.value = res.data.data;
-  });
-}
 const uniqueDepartments = computed(() => {
   const validDepartments = departments.value
-    .filter(d => d.name && d.name !== "[department]")
-    .map(d => ({ id: d.id, name: d.name }));
+    .filter((d) => d.name && d.name !== "[department]")
+    .map((d) => ({ id: d.id, name: d.name }));
   return validDepartments.length > 0 ? validDepartments : [{ name: "Unknown" }];
 });
+
 const uniqueClosures = computed(() => {
   const closures = ideas.value
     .filter((idea) => idea.closure)
@@ -288,9 +327,7 @@ const uniqueClosures = computed(() => {
       name: idea.closure.name,
       created_at: idea.closure.created_at || idea.created_at,
     }));
-  return [...new Set(closures.map((c) => JSON.stringify(c)))].map((c) =>
-    JSON.parse(c)
-  );
+  return [...new Set(closures.map((c) => JSON.stringify(c)))].map((c) => JSON.parse(c));
 });
 
 const ideasPerCategory = computed(() => {
@@ -301,8 +338,7 @@ const ideasPerCategory = computed(() => {
         categoryCount[cat.name] = (categoryCount[cat.name] || 0) + 1;
       });
     } else {
-      categoryCount["No categories"] =
-        (categoryCount["No categories"] || 0) + 1;
+      categoryCount["No categories"] = (categoryCount["No categories"] || 0) + 1;
     }
   });
   return categoryCount;
@@ -314,130 +350,155 @@ const categoriesPerClosure = computed(() => {
     const closureName = idea.closure_id ? idea.closure.name : "No closure ID";
     if (!closureCategories[closureName]) closureCategories[closureName] = new Set();
     if (idea.categories && idea.categories.length) {
-      idea.categories.forEach((cat) =>
-        closureCategories[closureName].add(cat.name)
-      );
+      idea.categories.forEach((cat) => closureCategories[closureName].add(cat.name));
     }
   });
-  Object.keys(closureCategories).forEach(closure => {
+  Object.keys(closureCategories).forEach((closure) => {
     closureCategories[closure] = Array.from(closureCategories[closure]);
   });
   return closureCategories;
 });
 
-
 const ideasPerDepartment = computed(() => {
   const departmentCount = {};
-  departments.value.forEach(department => {
-    departmentCount[department.name] = 0; // Initialize all departments
+  departments.value.forEach((department) => {
+    departmentCount[department.name] = 0;
   });
-  ideas.value.forEach(idea => {
+  ideas.value.forEach((idea) => {
     const departmentName =
-      departments.value.find(d => d.id === idea.user?.department_id)?.name || "Unknown";
+      departments.value.find((d) => d.id === idea.user?.department_id)?.name || "Unknown";
     departmentCount[departmentName] = (departmentCount[departmentName] || 0) + 1;
   });
-  console.log("Ideas per Department:", departmentCount);
   return departmentCount;
 });
 
-
-
-
-
-
-const filteredIdeas = computed(() => {
-  let result = ideas.value.filter((idea) => {
-    const matchesTitle = idea.title
-      .toLowerCase()
-      .includes(searchQuery.value.toLowerCase());
-    const matchesCategory =
-      selectedCategory.value === "" ||
-      (idea.categories && idea.categories.some(cat => cat.name === selectedCategory.value));
-      const matchesDepartment =
-  selectedDepartment.value === "" ||
-  (departments.value.find(d => d.id === idea.user?.department_id)?.name || "Unknown") === selectedDepartment.value;
-console.log("Matches department:", {
-  ideaUserDepartmentId: idea.user?.department_id,
-  departmentName: departments.value.find(d => d.id === idea.user?.department_id)?.name,
-  selectedDepartment: selectedDepartment.value
+const totalPages = computed(() => {
+  return Math.ceil(totalIdeas.value / itemsPerPage);
 });
-    const matchesClosure =
-      selectedClosure.value === "" ||
-      (idea.closure && idea.closure.name === selectedClosure.value);
-    const matchesContentLength =
-      selectedContentLength.value === "" ||
-      (selectedContentLength.value === "short" && idea.content.length < 100) ||
-      (selectedContentLength.value === "medium" &&
-        idea.content.length >= 100 &&
-        idea.content.length <= 400) ||
-      (selectedContentLength.value === "long" && idea.content.length > 400);
-    return (
-      matchesTitle &&
-      matchesCategory &&
-      matchesDepartment &&
-      matchesClosure &&
-      matchesContentLength
-    );
-  });
 
-  if (sortOption.value === "newest") {
-    result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  } else if (sortOption.value === "oldest") {
-    result.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-  } else if (sortOption.value === "mostLikes") {
-    result.sort((a, b) => b.thumbs_up_count.likes - a.thumbs_up_count.likes);
-  } else if (sortOption.value === "mostDislikes") {
-    result.sort(
-      (a, b) => b.thumbs_up_count.unlikes - a.thumbs_up_count.unlikes
+// Client-side filtered ideas
+const filteredIdeas = computed(() => {
+  let filtered = [...originalIdeas.value];
+
+  if (searchQuery.value) {
+    filtered = filtered.filter((idea) =>
+      idea.title.toLowerCase().includes(searchQuery.value.toLowerCase())
     );
   }
 
-  return result;
-});
-
-const totalPages = computed(() => {
-  return Math.ceil(filteredIdeas.value.length / itemsPerPage);
-});
-
-const paginatedIdeas = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filteredIdeas.value.slice(start, end);
-});
-
-const truncateContent = (content) => {
-  const maxLength = 400;
-  if (!content || typeof content !== "string") return "";
-  if (content.length <= maxLength) return content;
-  return content.substring(0, maxLength).trim() + "...";
-};
-
-onMounted(async () => {
-  try {
-    loading.value = true;
-    await getDepartments();
-    const { data } = await Http.get("ideas");
-    console.log("Raw ideas data:", data.data.data);
-    ideas.value = data.data.data;
-
-    await Promise.all(
-      ideas.value.map(idea =>
-        Promise.all([getUserReactionForIdea(idea), getIdeaReactionCount(idea)])
-      )
+  if (selectedCategory.value) {
+    filtered = filtered.filter((idea) =>
+      idea.categories && idea.categories.some((cat) => cat.name === selectedCategory.value)
     );
+  }
+
+  if (selectedDepartment.value) {
+    filtered = filtered.filter((idea) =>
+      departments.value.find((d) => d.id === idea.user?.department_id)?.name === selectedDepartment.value
+    );
+  }
+
+  if (selectedClosure.value) {
+    filtered = filtered.filter((idea) =>
+      idea.closure && idea.closure.name === selectedClosure.value
+    );
+  }
+
+  if (selectedContentLength.value) {
+    filtered = filtered.filter((idea) => {
+      const length = idea.content.length;
+      return (
+        (selectedContentLength.value === "short" && length < 100) ||
+        (selectedContentLength.value === "medium" && length >= 100 && length <= 400) ||
+        (selectedContentLength.value === "long" && length > 400)
+      );
+    });
+  }
+
+  if (sortOption.value === "newest") {
+    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  } else if (sortOption.value === "oldest") {
+    filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  } else if (sortOption.value === "mostLikes") {
+    filtered.sort((a, b) => b.thumbs_up_count.likes - a.thumbs_up_count.likes);
+  } else if (sortOption.value === "mostDislikes") {
+    filtered.sort((a, b) => b.thumbs_up_count.unlikes - a.thumbs_up_count.unlikes);
+  }
+
+  return filtered;
+});
+
+const fetchIdeas = async (page = currentPage.value) => {
+  loading.value = true;
+  try {
+    const url = `ideas?page=${page}&paginate=${itemsPerPage}&search=${encodeURIComponent(
+      searchQuery.value
+    )}&category=${encodeURIComponent(selectedCategory.value)}&department=${encodeURIComponent(
+      selectedDepartment.value
+    )}&closure=${encodeURIComponent(selectedClosure.value)}&contentLength=${encodeURIComponent(
+      selectedContentLength.value
+    )}&sort=${encodeURIComponent(sortOption.value)}`;
+        console.log("url",url)
+    console.log("Fetching ideas with URL:", url);
+    const { data } = await Http.get(url);
+    console.log("API response:", data);
+
+    ideas.value = data.data.data || [];
+    originalIdeas.value = [...ideas.value];
+    totalIdeas.value = data.data.total || 0;
 
     const newestClosure = uniqueClosures.value.sort(
       (a, b) => new Date(b.created_at) - new Date(a.created_at)
     )[0];
-    if (newestClosure) {
+    if (newestClosure && !selectedClosure.value) {
       selectedClosure.value = newestClosure.name;
     }
   } catch (error) {
     console.error("Failed to load ideas:", error);
+    ideas.value = [];
+    originalIdeas.value = [];
+    totalIdeas.value = 0;
   } finally {
     loading.value = false;
   }
+};
+
+onMounted(async () => {
+  try {
+   
+    await getDepartments();
+    await fetchIdeas(1);
+    
+  } catch (error) {
+    console.error("Failed to initialize:", error);
+  }
 });
+
+const debouncedFilterIdeas = debounce(() => {
+  filterIdeas();
+}, 500);
+
+const filterIdeas = () => {
+  // Client-side filtering only; no fetchIdeas call
+};
+
+const sortIdeas = () => {
+  // Client-side sorting only; no fetchIdeas call
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    fetchIdeas(currentPage.value);
+  }
+};
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchIdeas(currentPage.value);
+  }
+};
 
 const thumbUp = async (idea) => {
   const index = ideas.value.findIndex(i => i.id === idea.id);
@@ -451,15 +512,11 @@ const thumbUp = async (idea) => {
       ...ideas.value[index],
       has_thumbs_up: true,
       has_thumbs_down: false,
-      thumbs_up_count: {
-        ...ideas.value[index].thumbs_up_count,
-        likes: ideas.value[index].has_thumbs_up ? ideas.value[index].thumbs_up_count.likes : ideas.value[index].thumbs_up_count.likes + 1,
-        unlikes: ideas.value[index].has_thumbs_down ? ideas.value[index].thumbs_up_count.unlikes - 1 : ideas.value[index].thumbs_up_count.unlikes,
-      },
+      
     },
     ...ideas.value.slice(index + 1),
   ];
-
+console.log("orgi",originalIdea)
   try {
     const response = await Http.post(`reactions`, {
       user_id: user_id,
@@ -501,11 +558,7 @@ const thumbDown = async (idea) => {
       ...ideas.value[index],
       has_thumbs_up: false,
       has_thumbs_down: true,
-      thumbs_up_count: {
-        ...ideas.value[index].thumbs_up_count,
-        likes: ideas.value[index].has_thumbs_up ? ideas.value[index].thumbs_up_count.likes - 1 : ideas.value[index].thumbs_up_count.likes,
-        unlikes: ideas.value[index].has_thumbs_down ? ideas.value[index].thumbs_up_count.unlikes : ideas.value[index].thumbs_up_count.unlikes + 1,
-      },
+     
     },
     ...ideas.value.slice(index + 1),
   ];
@@ -539,56 +592,25 @@ const thumbDown = async (idea) => {
   }
 };
 
-const getUserReactionForIdea = async (idea) => {
+const getDepartments = async () => {
   try {
-    const response = await Http.get(`ideas/${idea.id}/reactions/me`);
-    const { data } = response;
-    if (data.message === "Success!") {
-      const userReactions = data.data;
-      idea.reactions = userReactions;
-      idea.has_thumbs_up = userReactions.type === "1";
-      idea.has_thumbs_down = userReactions.type === "0";
-    }
+    const res = await Http.get("get-all-departments");
+    console.log("Departments:", res.data);
+    departments.value = res.data.data;
   } catch (error) {
-    console.error("Failed to get user reaction for idea:", error);
+    console.error("Failed to fetch departments:", error);
   }
-};
-
-const getIdeaReactionCount = async (idea) => {
-  try {
-    const response = await Http.get(`ideas/${idea.id}/count-reactions`);
-    const { data } = response;
-    if (data.message === "Success!") {
-      idea.thumbs_up_count = data.data;
-    }
-  } catch (error) {
-    console.error("Failed to get reaction count for idea:", error);
-    idea.thumbs_up_count = { likes: 0, unlikes: 0 };
-  }
-};
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-};
-
-const previousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-};
-
-const filterIdeas = () => {
-  currentPage.value = 1;
-};
-
-const sortIdeas = () => {
-  currentPage.value = 1;
 };
 
 const toggleSummary = () => {
   showSummary.value = !showSummary.value;
+};
+
+const truncateContent = (content) => {
+  const maxLength = 400;
+  if (!content || typeof content !== "string") return "";
+  if (content.length <= maxLength) return content;
+  return content.substring(0, maxLength).trim() + "...";
 };
 </script>
 

@@ -92,6 +92,29 @@
               ></v-errors>
             </div>
             <div class="mb-3 col-md-6">
+              <label for="name" class="form-label"
+                > Full Name <span class="text-danger">*</span></label
+              >
+              <input
+                class="form-control"
+                type="text"
+                id="name"
+                autofocus
+                placeholder="Enter Full Name"
+                v-model="user.fullname"
+                :class="{
+                  'is-invalid': v$?.fullname?.$error || errorFor('fullname'),
+                }"
+              />
+              <v-errors
+                :serverErrors="errorFor('fullname')"
+                :vuelidateErrors="{
+                  errors: v$.name.$errors,
+                  value: 'FullName',
+                }"
+              ></v-errors>
+            </div>
+            <div class="mb-3 col-md-6">
               <label for="email" class="form-label"
                 >E-mail <span class="text-danger">*</span></label
               >
@@ -137,7 +160,24 @@
               ></v-errors>
             </div>
             <div class="mb-3 col-md-6">
-              <label for="mobile" class="form-label">Mobile</label>
+              <label class="form-label">
+                Departments <span class="text-danger">*</span>
+              </label>
+              <v-select
+                v-model="user.department_id"
+                class="style-chooser"
+                label="name"
+                :options="departments"
+                :reduce="(department) => department.id"
+                :class="{ 'vuelidate-invalid': v$?.department_id?.$error || errorFor('department_id') }"
+              ></v-select>
+              <v-errors
+                :serverErrors="errorFor('department_id')"
+                :vuelidateErrors="{ errors: v$?.department_id?.$errors, value: 'Department' }"
+              ></v-errors>
+            </div>
+            <div class="mb-3 col-md-6">
+              <label for="mobile" class="form-label">Mobile<span class="text-danger">*</span><</label>
               <input
                 v-model="user.mobile"
                 class="form-control"
@@ -195,13 +235,16 @@ const loading = ref(false);
 const profile = ref("");
 const router = useRouter();
 const route = useRoute();
-const roles = ref([]);
+const roles = ref();
+const departments=ref();
 
 const user = reactive({
   id: "",
+  fullname:"",
   name: "",
   email: "",
   roles: "",
+  department_id:"",
   mobile: "",
   profile: "",
   currentProfile: "",
@@ -231,32 +274,48 @@ const getUserDetail = async () => {
       console.log(res)
       user.id = res.data.data.id;
       user.name = res.data.data.name;
-      user.email = res.data.data.email;
-      user.currentProfile = res.data.data.profile
-        ? res.data.data.profile
-        : "/images/empty.png";
-      profile.value = res.data.data.profile
-        ? res.data.data.profile
-        : "/images/empty.png";
-      user.roles = res.data.data.roles[0]?.name;
+      user.fullname=res.data.data.full_name;
+      console.log('full name',res.data.data.full_name)
+      user.email = res.data.data.email; 
+       user.roles = res.data.data.roles[0]?.name;
+      console.log('roles',user.roles ); 
+       user.department_id=res.data.data.department.name;
+      console.log('department',user.department_id);
       user.mobile = res.data.data.mobile;
+      
+      // user.currentProfile = res.data.data.profile
+      //   ? res.data.data.profile
+      //   : "/images/empty.png";
+      // profile.value = res.data.data.profile
+      //   ? res.data.data.profile
+      //   : "/images/empty.png";
+    
+   
     })
     .catch((err) => {
-      if (err.response.status == 404) {
+      if (err.response == 404) {
         router.push({ name: "page-not-found" });
       }
     });
 
   getRoles();
+  getDepartments();
 };
 
 const getRoles = async () => {
   await Http.get("get-all-roles").then((res) => {
     roles.value = res.data.data;
+    console.log("role",roles.value)
   });
   loading.value = false;
 };
-
+const getDepartments = async () => {
+  await Http.get("get-all-departments").then((res) => {
+    departments.value = res.data.data;
+    console.log("dep",departments.value)
+  });
+  loading.value = false;
+};
 const mobileFormatValidator = helpers.withParams(
   { type: "mobileFormat" },
   (value) => /^09\d{7,9}$/.test(value)
@@ -274,6 +333,7 @@ const rules = computed(() => {
     name: { required },
     email: { required, email },
     roles: { required },
+    department_id: {required},
     mobile: {
       required,
       formatValidator: helpers.withMessage(
@@ -304,6 +364,7 @@ const updateUser = async () => {
   fd.append("roles", user.roles);
   fd.append("mobile", user.mobile);
   fd.append("profile", user.profile);
+  fd.append("department_id", user.department_id)
 
   await Http.post(`users/${route.params.id}?_method=PUT`, fd, {
     headers: {
