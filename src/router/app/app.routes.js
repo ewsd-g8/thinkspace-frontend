@@ -30,6 +30,9 @@ const departmentIndexView = () => import("@/views/departments/IndexView.vue");
 const departmentCreateView = () => import("@/views/departments/CreateView.vue");
 const departmentEditView = () => import("@/views/departments/EditView.vue");
 
+// for report
+const reportView = () => import("@/views/idea_post/idea_report.vue");
+
 // for idea
 const ideadetailsview = () => import("@/views/idea_post/ideadetails.vue");
 const appRoutes = [
@@ -131,7 +134,7 @@ const appRoutes = [
     name: "department-edit",
     component: departmentEditView,
   },
-        //  for chart
+  //  for chart
   {
     path: "chart_demo/bar",
     name: "bar",
@@ -148,12 +151,18 @@ const appRoutes = [
     component: LineChartView,
   },
 
-
-  // for idea 
+  // for idea
   {
     path: "idea/:id",
     name: "idea_details",
     component: ideadetailsview,
+  },
+
+  // for report
+  {
+    path: "report/:id",
+    name: "idea_report",
+    component: reportView,
   },
 ];
 
