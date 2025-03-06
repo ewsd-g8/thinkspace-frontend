@@ -225,6 +225,8 @@ const triggerDocumentInput = () => {
   documentInput.value.click();
 };
 
+
+
 // Handle document selection with validation
 const handleDocumentChange = (event) => {
   const files = Array.from(event.target.files);
@@ -261,14 +263,16 @@ const handleDocumentChange = (event) => {
 };
 
 onMounted(async () => {
-  await getCategory();
+  await getAllCategory();
   await getClosure();
 });
 
-const getCategory = async () => {
+const getAllCategory = async () => {
   try {
-    const response = await Http.get("categories");
-    categories.value = response.data.data.data;
+    const response = await Http.get("/get-all-categories");
+    console.log("cate", response)
+    categories.value = response.data.data;
+    console.log("cate", categories.value)
   } catch (error) {
     console.error("Failed to fetch categories", error);
   }
@@ -278,6 +282,7 @@ const getClosure = async () => {
   try {
     const response = await Http.get("closures");
     closures.value = response.data.data.data;
+    console.log("closure", closures.value)
   } catch (error) {
     console.error("Failed to fetch closures", error);
   }

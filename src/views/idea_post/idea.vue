@@ -4,77 +4,23 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4>Ideas</h4>
-          <!-- Summary Button (visible only to managers) -->
           <button class="btn btn-info" @click="toggleSummary">
             {{ showSummary ? "Hide Summary" : "Show Summary" }}
           </button>
         </div>
 
         <!-- Summary Section -->
-        <div v-if="showSummary" class="summary-section mb-4 p-3 border rounded">
-          <h5>Summary Dashboard</h5>
-          <div class="row">
-            <div class="col-md-6">
-              <h6>Ideas per Category</h6>
-              <ul class="list-group">
-                <li
-                  v-for="(count, category) in ideasPerCategory"
-                  :key="category"
-                  class="list-group-item d-flex justify-content-between align-items-center"
-                >
-                  {{ category }}
-                  <span class="badge bg-primary rounded-pill">{{ count }}</span>
-                </li>
-              </ul>
-            </div>
-            <div class="col-md-6">
-              <h6>Categories per Closure</h6>
-              <ul class="list-group">
-                <li
-                  v-for="(categories, closure) in categoriesPerClosure"
-                  :key="closure"
-                  class="list-group-item d-flex justify-content-between align-items-center"
-                >
-                  {{ closure }}
-                  <span class="badge bg-primary rounded-pill">{{
-                    categories.length
-                  }}</span>
-                </li>
-              </ul>
-            </div>
-            <div class="col-md-6">
-              <h6>Ideas per Department</h6>
-              <ul class="list-group">
-                <li
-                  v-for="(count, department) in ideasPerDepartment"
-                  :key="department"
-                  class="list-group-item d-flex justify-content-between align-items-center"
-                >
-                  {{ department }}
-                  <span class="badge bg-primary rounded-pill">{{ count }}</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+
 
         <!-- Search and Content Length Filters -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
           <div style="flex: 4; margin-right: 10px; min-width: 200px">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search by title"
-              v-model="searchQuery"
-              @input="filterIdeas"
-            />
+            <input type="text" class="form-control" placeholder="Search by title" v-model="searchQuery"
+              @input="debouncedSearchIdeas" />
           </div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
-            <select
-              class="form-control form-control-sm content-length-filter"
-              v-model="selectedContentLength"
-              @change="filterIdeas"
-            >
+            <select class="form-control form-control-sm content-length-filter" v-model="selectedContentLength"
+              @change="filterIdeas">
               <option value="">All Lengths</option>
               <option value="short">Short (< 100 chars)</option>
               <option value="medium">Medium (100-400 chars)</option>
@@ -85,74 +31,44 @@
 
         <!-- Filters Container -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
-          <!-- Category Filter -->
           <div style="flex: 1; margin-right: 10px; min-width: 200px">
-            <select
-              class="form-control"
-              v-model="selectedCategory"
-              @change="filterIdeas"
-            >
+            <select class="form-control" v-model="selectedCategory" @change="filterIdeas">
               <option value="">All Categories</option>
-              <option v-for="category in uniqueCategories" :key="category">
-                {{ category }}
+              <option v-for="category in categories" :key="category.id" :value="category.name">
+                {{ category.name }}
               </option>
             </select>
           </div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
-            <select
-              class="form-control"
-              v-model="selectedDepartment"
-              @change="filterIdeas"
-            >
+            <select class="form-control" v-model="selectedDepartment" @change="filterIdeas">
               <option value="">All Departments</option>
-              <option
-                v-for="department in uniqueDepartments"
-                :key="department.id"
-                :value="department.name"
-              >
+              <option v-for="department in departments" :key="department.id" :value="department.name">
                 {{ department.name }}
               </option>
             </select>
           </div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
-            <select
-              class="form-control"
-              v-model="selectedClosure"
-              @change="filterIdeas"
-            >
+            <select class="form-control" v-model="selectedClosure" @change="filterIdeas">
               <option value="">All Closures</option>
-              <option
-                v-for="closure in uniqueClosures"
-                :key="closure.id"
-                :value="closure.name"
-              >
+              <option v-for="closure in uniqueClosures" :key="closure.id" :value="closure.name">
                 {{ closure.name }}
               </option>
             </select>
           </div>
-
-          <!-- Sorting Filter -->
           <div style="flex: 1; margin-left: 10px; min-width: 200px">
-            <select
-              class="form-control"
-              v-model="sortOption"
-              @change="sortIdeas"
-            >
+            <select class="form-control" v-model="sortOption" @change="sortIdeas">
               <option value="newest">Newest to Oldest</option>
               <option value="oldest">Oldest to Newest</option>
               <option value="mostLikes">Most Likes</option>
               <option value="mostDislikes">Most Dislikes</option>
+              <option value="mostViews">Most Views</option> <!-- Fixed label -->
             </select>
           </div>
         </div>
 
         <!-- Loading Animation -->
         <div v-if="loading" class="text-center my-5">
-          <div
-            class="spinner-border"
-            role="status"
-            style="width: 3rem; height: 3rem"
-          >
+          <div class="spinner-border" role="status" style="width: 3rem; height: 3rem">
             <span class="visually-hidden">Loading...</span>
           </div>
           <p>Loading ideas...</p>
@@ -160,55 +76,35 @@
 
         <!-- Ideas List -->
         <ul v-else class="list-group">
-          <li
-            class="list-group-item"
-            @click="
-              () =>
-                $router
-                  .push({ name: 'idea_details', params: { id: idea.id } })
-                  .catch((err) => console.error(err))
-            "
-            v-for="idea in paginatedIdeas"
-            :key="idea.id"
-            style="
+          <li class="list-group-item" v-for="idea in filteredIdeas" :key="idea.id" style="
               box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49);
               margin-bottom: 20px;
-            "
-          >
+            ">
             <div style="display: inline-block">
-              <div
-                style="
+              <div style="
                   display: flex;
                   align-items: center;
                   justify-content: center;
-                "
-              >
-                <i
-                  class="mdi mdi-account-circle rounded-circle"
-                  style="font-size: 40px"
-                ></i>
-                <span style="font-weight: bold; margin-left: 5px"
-                  >Anonymous Participant</span
-                >
+                ">
+                <i class="mdi mdi-account-circle rounded-circle" style="font-size: 40px"></i>
+                <span style="font-weight: bold; margin-left: 5px">Anonymous Participant</span>
               </div>
             </div>
             <div class="d-flex justify-content-between">
               <div>
                 <p class="text-muted">
-                  <span
-                    style="
+                  <span style="
                       background-color: #e5e5e5;
                       border: 1px solid #ccc;
                       border-radius: 5px;
                       padding: 5px;
                       margin-right: 5px;
-                    "
-                  >
+                    ">
                     {{
                       idea.categories && idea.categories.length
                         ? `Tagged Categories: ${idea.categories
-                            .map((cat) => cat.name)
-                            .join(", ")}`
+                          .map((cat) => cat.name)
+                          .join(", ")}`
                         : "No categories"
                     }}
                   </span>
@@ -218,81 +114,52 @@
                   }}</span>
                 </p>
                 <h5 style="font-weight: bold; font-size: 20px">
-                  {{ idea.title }}
+                  {{ idea.title }} , 
                 </h5>
                 <div style="font-size: 15px">
                   <p class="content-preview">
                     {{ truncateContent(idea.content) }}
-                    <span v-if="idea.content.length > 1000" class="see-more">
-                      <router-link
-                        :to="{ name: 'idea_details', params: { id: idea.id } }"
-                        @click.stop
-                        >...see more</router-link
-                      >
+                    <span v-if="idea.content.length > 300" class="see-more">
+                      <router-link :to="{
+                        name: 'idea_details',
+                        params: { id: idea.id },
+                      }" @click.stop>...see more</router-link>
                     </span>
                   </p>
                 </div>
               </div>
             </div>
             <hr />
-            <div>
-              <button
-                class="btn btn-sm"
-                @click="thumbUp(idea)"
-                :disabled="idea.has_thumbs_up"
-              >
-                <i class="mdi mdi-thumb-up"></i>
-                <span
-                  class="ml-1"
-                  style="font-weight: bold; padding-right: 5px"
-                  >{{ idea.thumbs_up_count.likes }}</span
-                >
-                <span>{{ idea.has_thumbs_up ? "Liked" : "Like" }}</span>
-              </button>
-              <button
-                class="btn btn-sm"
-                @click="thumbDown(idea)"
-                :disabled="idea.has_thumbs_down"
-              >
-                <i class="mdi mdi-thumb-down"></i>
-                <span
-                  class="ml-1"
-                  style="font-weight: bold; padding-right: 5px"
-                  >{{ idea.thumbs_up_count.unlikes }}</span
-                >
-                <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
-              </button>
 
-              <button
-                class="btn btn-sm"
-                @click="
-                  () =>
-                    $router
-                      .push({ name: 'idea_details', params: { id: idea.id } })
-                      .catch((err) => console.error(err))
-                "
-              >
-                <i class="mdi mdi-comment"></i>
-              </button>
-            </div>
+
+            <button class="btn btn-sm" @click="thumbUp(idea)">
+              <i class="mdi mdi-thumb-up"></i>
+              <span class="ml-1" style="margin-left: 5px; font-weight: bold; padding-right: 5px">{{ idea.likes }}</span>
+              <span>{{ idea.likes ? "Liked" : "Like" }}</span>
+            </button>
+            <button class="btn btn-sm" @click="thumbDown(idea)">
+              <i class="mdi mdi-thumb-down"></i>
+              <span class="ml-1" style="margin-left: 5px; font-weight: bold; padding-right: 5px">{{ idea.unlikes }}</span>
+              <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
+            </button>
+
+
+
+            <button class="btn btn-sm" @click="viewIdeaDetails(idea.id)">
+              <i class="mdi mdi-comment"></i>  <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.comments_count }}</span> 
+              <span>Comments</span>
+            </button>
+            <span>{{ idea.views_count }} views</span>
           </li>
         </ul>
 
         <!-- Pagination Controls -->
         <div v-if="!loading" class="d-flex justify-content-between mt-3">
-          <button
-            class="btn btn-primary"
-            @click="previousPage"
-            :disabled="currentPage === 1"
-          >
+          <button class="btn btn-primary" @click="previousPage" :disabled="currentPage === 1">
             Previous
           </button>
           <span>Page {{ currentPage }} of {{ totalPages }}</span>
-          <button
-            class="btn btn-primary"
-            @click="nextPage"
-            :disabled="currentPage === totalPages"
-          >
+          <button class="btn btn-primary" @click="nextPage" :disabled="currentPage === totalPages">
             Next
           </button>
         </div>
@@ -306,9 +173,19 @@ import { Http } from "@/services/http-common";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.js";
 
+// Custom debounce function
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
 const ideas = ref([]);
 const searchQuery = ref("");
 const departments = ref([]);
+const categories = ref([]);
 const selectedCategory = ref("");
 const selectedDepartment = ref("");
 const selectedClosure = ref("");
@@ -316,33 +193,15 @@ const selectedContentLength = ref("");
 const sortOption = ref("newest");
 const currentPage = ref(1);
 const itemsPerPage = 5;
+const totalIdeas = ref(0);
 const loading = ref(true);
 const showSummary = ref(false);
 const store = useAuthStore();
 const user_id = store.getAuthUser.id;
 const router = useRouter();
 
-const uniqueCategories = computed(() => {
-  const categories = ideas.value
-    .map((idea) =>
-      idea.categories ? idea.categories.map((cat) => cat.name) : []
-    )
-    .flat();
-  return [...new Set(categories)];
-});
+const originalIdeas = ref([]);
 
-const getDepartments = async () => {
-  await Http.get("get-all-departments").then((res) => {
-    console.log(res);
-    departments.value = res.data.data;
-  });
-};
-const uniqueDepartments = computed(() => {
-  const validDepartments = departments.value
-    .filter((d) => d.name && d.name !== "[department]")
-    .map((d) => ({ id: d.id, name: d.name }));
-  return validDepartments.length > 0 ? validDepartments : [{ name: "Unknown" }];
-});
 const uniqueClosures = computed(() => {
   const closures = ideas.value
     .filter((idea) => idea.closure)
@@ -351,42 +210,11 @@ const uniqueClosures = computed(() => {
       name: idea.closure.name,
       created_at: idea.closure.created_at || idea.created_at,
     }));
-  return [...new Set(closures.map((c) => JSON.stringify(c)))].map((c) =>
-    JSON.parse(c)
-  );
+  return [...new Set(closures.map((c) => JSON.stringify(c)))].map((c) => JSON.parse(c));
 });
 
-const ideasPerCategory = computed(() => {
-  const categoryCount = {};
-  ideas.value.forEach((idea) => {
-    if (idea.categories && idea.categories.length) {
-      idea.categories.forEach((cat) => {
-        categoryCount[cat.name] = (categoryCount[cat.name] || 0) + 1;
-      });
-    } else {
-      categoryCount["No categories"] =
-        (categoryCount["No categories"] || 0) + 1;
-    }
-  });
-  return categoryCount;
-});
-
-const categoriesPerClosure = computed(() => {
-  const closureCategories = {};
-  ideas.value.forEach((idea) => {
-    const closureName = idea.closure_id ? idea.closure.name : "No closure ID";
-    if (!closureCategories[closureName])
-      closureCategories[closureName] = new Set();
-    if (idea.categories && idea.categories.length) {
-      idea.categories.forEach((cat) =>
-        closureCategories[closureName].add(cat.name)
-      );
-    }
-  });
-  Object.keys(closureCategories).forEach((closure) => {
-    closureCategories[closure] = Array.from(closureCategories[closure]);
-  });
-  return closureCategories;
+const totalPages = computed(() => {
+  return Math.ceil(totalIdeas.value / itemsPerPage) || 1;
 });
 
 const ideasPerDepartment = computed(() => {
@@ -406,68 +234,208 @@ const ideasPerDepartment = computed(() => {
 });
 
 const filteredIdeas = computed(() => {
-  let result = ideas.value.filter((idea) => {
-    const matchesTitle = idea.title
-      .toLowerCase()
-      .includes(searchQuery.value.toLowerCase());
-    const matchesCategory =
-      selectedCategory.value === "" ||
-      (idea.categories &&
-        idea.categories.some((cat) => cat.name === selectedCategory.value));
-    const matchesDepartment =
-      selectedDepartment.value === "" ||
-      (departments.value.find((d) => d.id === idea.user?.department_id)?.name ||
-        "Unknown") === selectedDepartment.value;
-    console.log("Matches department:", {
-      ideaUserDepartmentId: idea.user?.department_id,
-      departmentName: departments.value.find(
-        (d) => d.id === idea.user?.department_id
-      )?.name,
-      selectedDepartment: selectedDepartment.value,
-    });
-    const matchesClosure =
-      selectedClosure.value === "" ||
-      (idea.closure && idea.closure.name === selectedClosure.value);
-    const matchesContentLength =
-      selectedContentLength.value === "" ||
-      (selectedContentLength.value === "short" && idea.content.length < 100) ||
-      (selectedContentLength.value === "medium" &&
-        idea.content.length >= 100 &&
-        idea.content.length <= 400) ||
-      (selectedContentLength.value === "long" && idea.content.length > 400);
-    return (
-      matchesTitle &&
-      matchesCategory &&
-      matchesDepartment &&
-      matchesClosure &&
-      matchesContentLength
-    );
-  });
+  return [...ideas.value];
+});
 
-  if (sortOption.value === "newest") {
-    result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  } else if (sortOption.value === "oldest") {
-    result.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-  } else if (sortOption.value === "mostLikes") {
-    result.sort((a, b) => b.thumbs_up_count.likes - a.thumbs_up_count.likes);
-  } else if (sortOption.value === "mostDislikes") {
-    result.sort(
-      (a, b) => b.thumbs_up_count.unlikes - a.thumbs_up_count.unlikes
-    );
+const fetchIdeas = async (page = currentPage.value, search = searchQuery.value) => {
+  loading.value = true;
+  try {
+    const url = `ideas?page=${page}&paginate=${itemsPerPage}&search=${encodeURIComponent(
+      search
+    )}&category=${encodeURIComponent(selectedCategory.value)}&department=${encodeURIComponent(
+      selectedDepartment.value
+    )}&closure=${encodeURIComponent(selectedClosure.value)}&contentLength=${encodeURIComponent(
+      selectedContentLength.value
+    )}&sort=${encodeURIComponent(sortOption.value)}`;
+    console.log("Fetching ideas with URL:", url);
+    const { data } = await Http.get(url);
+    console.log("API response:", data);
+
+    ideas.value = (data.data.data || []).map(idea => ({
+      ...idea,
+      likes: idea.likes || 0,
+      unlikes: idea.unlikes || 0,
+      views_count: idea.views_count || 0,
+      comments_count:idea.comments_count || 0,
+      has_thumbs_up: idea.has_reacted && idea.user_reaction === true,
+      has_thumbs_down: idea.has_reacted && idea.user_reaction === false,
+    }));
+    originalIdeas.value = ideas.value.map(idea => ({ ...idea }));
+    totalIdeas.value = data.data.total || 0;
+  } catch (error) {
+    console.error("Failed to load ideas:", error.response?.data || error.message);
+    ideas.value = [];
+    originalIdeas.value = [];
+    totalIdeas.value = 0;
+  } finally {
+    loading.value = false;
   }
+};
 
-  return result;
+const thumbUp = async (idea) => {
+  const index = ideas.value.findIndex((i) => i.id === idea.id);
+  const originalIndex = originalIdeas.value.findIndex((i) => i.id === idea.id);
+  if (index === -1 || originalIndex === -1) return;
+
+  const currentIdea = ideas.value[index];
+  const newLikes = currentIdea.has_thumbs_up ? (currentIdea.likes || 0) - 1 : (currentIdea.likes || 0) + 1;
+  const newUnlikes = currentIdea.has_thumbs_down ? (currentIdea.unlikes || 0) - 1 : currentIdea.unlikes || 0;
+  ideas.value[index] = {
+    ...currentIdea,
+    likes: newLikes,
+    unlikes: newUnlikes,
+    has_thumbs_up: !currentIdea.has_thumbs_up,
+    has_thumbs_down: false,
+  };
+  originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+  ideas.value = [...ideas.value];
+
+  try {
+    await Http.post(`reactions`, { user_id, idea_id: idea.id, type: true });
+    const response = await Http.get(`ideas/${idea.id}`);
+    const updatedIdea = response.data.data;
+    ideas.value[index] = {
+      ...updatedIdea,
+      has_thumbs_up: updatedIdea.user_reaction === true,
+      has_thumbs_down: updatedIdea.user_reaction === false,
+    };
+    originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+    ideas.value = [...ideas.value];
+  } catch (error) {
+    await fetchIdeas(currentPage.value);
+    console.error("Error in thumbUp:", error.response?.data || error.message);
+  }
+};
+
+const thumbDown = async (idea) => {
+  const index = ideas.value.findIndex((i) => i.id === idea.id);
+  const originalIndex = originalIdeas.value.findIndex((i) => i.id === idea.id);
+  if (index === -1 || originalIndex === -1) return;
+
+  const currentIdea = ideas.value[index];
+  const newUnlikes = currentIdea.has_thumbs_down ? (currentIdea.unlikes || 0) - 1 : (currentIdea.unlikes || 0) + 1;
+  const newLikes = currentIdea.has_thumbs_up ? (currentIdea.likes || 0) - 1 : currentIdea.likes || 0;
+  ideas.value[index] = {
+    ...currentIdea,
+    likes: newLikes,
+    unlikes: newUnlikes,
+    has_thumbs_up: false,
+    has_thumbs_down: !currentIdea.has_thumbs_down,
+  };
+  originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+  ideas.value = [...ideas.value];
+
+  try {
+    await Http.post(`reactions`, { user_id, idea_id: idea.id, type: false });
+    const response = await Http.get(`ideas/${idea.id}`);
+    const updatedIdea = response.data.data;
+    ideas.value[index] = {
+      ...updatedIdea,
+      has_thumbs_up: updatedIdea.user_reaction === true,
+      has_thumbs_down: updatedIdea.user_reaction === false,
+    };
+    originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+    ideas.value = [...ideas.value];
+  } catch (error) {
+    await fetchIdeas(currentPage.value);
+    console.error("Error in thumbDown:", error.response?.data || error.message);
+  }
+};
+
+const viewIdeaDetails = async (ideaId) => {
+  try {
+    // Increment view count
+    await Http.post(`views`, { idea_id: ideaId });
+    // Fetch updated idea to reflect new view count
+    const response = await Http.get(`ideas/${ideaId}`);
+    const updatedIdea = response.data.data;
+
+    // Update the idea in the list
+    const index = ideas.value.findIndex((i) => i.id === ideaId);
+    if (index !== -1) {
+      ideas.value[index] = {
+        ...updatedIdea,
+        likes: updatedIdea.likes || 0,
+        unlikes: updatedIdea.unlikes || 0,
+        has_thumbs_up: updatedIdea.has_reacted && updatedIdea.user_reaction === true,
+        has_thumbs_down: updatedIdea.has_reacted && updatedIdea.user_reaction === false,
+      };
+      originalIdeas.value[index] = { ...ideas.value[index] };
+      ideas.value = [...ideas.value];
+    }
+
+    // Navigate to details page
+    router.push({ name: 'idea_details', params: { id: ideaId } });
+  } catch (error) {
+    console.error("Error in viewIdeaDetails:", error.response?.data || error.message);
+    // Navigate even if view increment fails
+    router.push({ name: 'idea_details', params: { id: ideaId } });
+  }
+};
+
+onMounted(async () => {
+  try {
+    await getDepartments();
+    await getCategories();
+    await fetchIdeas(1);
+  } catch (error) {
+    console.error("Failed to initialize:", error);
+  }
 });
 
-const totalPages = computed(() => {
-  return Math.ceil(filteredIdeas.value.length / itemsPerPage);
-});
+const debouncedSearchIdeas = debounce(() => {
+  currentPage.value = 1;
+  fetchIdeas(currentPage.value);
+}, 500);
 
-const paginatedIdeas = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filteredIdeas.value.slice(start, end);
-});
+const filterIdeas = () => {
+  console.log("filterIdeas triggered with:", { category: selectedCategory.value, department: selectedDepartment.value, closure: selectedClosure.value });
+  currentPage.value = 1;
+  fetchIdeas(currentPage.value);
+};
+
+const sortIdeas = () => {
+  currentPage.value = 1;
+  fetchIdeas(currentPage.value);
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    fetchIdeas(currentPage.value);
+  }
+};
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchIdeas(currentPage.value);
+  }
+};
+
+const getDepartments = async () => {
+  try {
+    const res = await Http.get("get-all-departments");
+    departments.value = res.data.data || [];
+    console.log("Departments:", departments.value);
+  } catch (error) {
+    console.error("Failed to fetch departments:", error);
+  }
+};
+
+const getCategories = async () => {
+  try {
+    const res = await Http.get("get-all-categories");
+    categories.value = res.data.data || [];
+    console.log("Categories:", categories.value);
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
+  }
+};
+
+const toggleSummary = () => {
+  showSummary.value = !showSummary.value;
+};
 
 const truncateContent = (content) => {
   const maxLength = 400;
@@ -475,194 +443,14 @@ const truncateContent = (content) => {
   if (content.length <= maxLength) return content;
   return content.substring(0, maxLength).trim() + "...";
 };
-
-onMounted(async () => {
-  try {
-    loading.value = true;
-    await getDepartments();
-    const { data } = await Http.get("ideas");
-    console.log("Raw ideas data:", data.data.data);
-    ideas.value = data.data.data;
-
-    await Promise.all(
-      ideas.value.map((idea) =>
-        Promise.all([getUserReactionForIdea(idea), getIdeaReactionCount(idea)])
-      )
-    );
-
-    const newestClosure = uniqueClosures.value.sort(
-      (a, b) => new Date(b.created_at) - new Date(a.created_at)
-    )[0];
-    if (newestClosure) {
-      selectedClosure.value = newestClosure.name;
-    }
-  } catch (error) {
-    console.error("Failed to load ideas:", error);
-  } finally {
-    loading.value = false;
-  }
-});
-
-const thumbUp = async (idea) => {
-  const index = ideas.value.findIndex((i) => i.id === idea.id);
-  if (index === -1) return;
-
-  // Optimistically update UI
-  const originalIdea = { ...ideas.value[index] };
-  ideas.value = [
-    ...ideas.value.slice(0, index),
-    {
-      ...ideas.value[index],
-      has_thumbs_up: true,
-      has_thumbs_down: false,
-      thumbs_up_count: {
-        ...ideas.value[index].thumbs_up_count,
-        likes: ideas.value[index].has_thumbs_up
-          ? ideas.value[index].thumbs_up_count.likes
-          : ideas.value[index].thumbs_up_count.likes + 1,
-        unlikes: ideas.value[index].has_thumbs_down
-          ? ideas.value[index].thumbs_up_count.unlikes - 1
-          : ideas.value[index].thumbs_up_count.unlikes,
-      },
-    },
-    ...ideas.value.slice(index + 1),
-  ];
-
-  try {
-    const response = await Http.post(`reactions`, {
-      user_id: user_id,
-      idea_id: idea.id,
-      type: true,
-    });
-
-    const { data } = response;
-    // Check for "Reaction set" instead of "success"
-    if (data.message !== "Reaction set") {
-      // Rollback on failure
-      ideas.value = [
-        ...ideas.value.slice(0, index),
-        originalIdea,
-        ...ideas.value.slice(index + 1),
-      ];
-      console.error("Thumb up failed:", data);
-    }
-  } catch (error) {
-    // Rollback on error
-    ideas.value = [
-      ...ideas.value.slice(0, index),
-      originalIdea,
-      ...ideas.value.slice(index + 1),
-    ];
-    console.error("Error in thumbUp:", error);
-  }
-};
-
-const thumbDown = async (idea) => {
-  const index = ideas.value.findIndex((i) => i.id === idea.id);
-  if (index === -1) return;
-
-  // Optimistically update UI
-  const originalIdea = { ...ideas.value[index] };
-  ideas.value = [
-    ...ideas.value.slice(0, index),
-    {
-      ...ideas.value[index],
-      has_thumbs_up: false,
-      has_thumbs_down: true,
-      thumbs_up_count: {
-        ...ideas.value[index].thumbs_up_count,
-        likes: ideas.value[index].has_thumbs_up
-          ? ideas.value[index].thumbs_up_count.likes - 1
-          : ideas.value[index].thumbs_up_count.likes,
-        unlikes: ideas.value[index].has_thumbs_down
-          ? ideas.value[index].thumbs_up_count.unlikes
-          : ideas.value[index].thumbs_up_count.unlikes + 1,
-      },
-    },
-    ...ideas.value.slice(index + 1),
-  ];
-
-  try {
-    const response = await Http.post(`reactions`, {
-      user_id: user_id,
-      idea_id: idea.id,
-      type: false,
-    });
-
-    const { data } = response;
-    // Check for "Reaction set" instead of "success"
-    if (data.message !== "Reaction set") {
-      // Rollback on failure
-      ideas.value = [
-        ...ideas.value.slice(0, index),
-        originalIdea,
-        ...ideas.value.slice(index + 1),
-      ];
-      console.error("Thumb down failed:", data);
-    }
-  } catch (error) {
-    // Rollback on error
-    ideas.value = [
-      ...ideas.value.slice(0, index),
-      originalIdea,
-      ...ideas.value.slice(index + 1),
-    ];
-    console.error("Error in thumbDown:", error);
-  }
-};
-
-const getUserReactionForIdea = async (idea) => {
-  try {
-    const response = await Http.get(`ideas/${idea.id}/reactions/me`);
-    const { data } = response;
-    if (data.message === "Success!") {
-      const userReactions = data.data;
-      idea.reactions = userReactions;
-      idea.has_thumbs_up = userReactions.type === "1";
-      idea.has_thumbs_down = userReactions.type === "0";
-    }
-  } catch (error) {
-    console.error("Failed to get user reaction for idea:", error);
-  }
-};
-
-const getIdeaReactionCount = async (idea) => {
-  try {
-    const response = await Http.get(`ideas/${idea.id}/count-reactions`);
-    const { data } = response;
-    if (data.message === "Success!") {
-      idea.thumbs_up_count = data.data;
-    }
-  } catch (error) {
-    console.error("Failed to get reaction count for idea:", error);
-    idea.thumbs_up_count = { likes: 0, unlikes: 0 };
-  }
-};
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-};
-
-const previousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-};
-
-const filterIdeas = () => {
-  currentPage.value = 1;
-};
-
-const sortIdeas = () => {
-  currentPage.value = 1;
-};
-
-const toggleSummary = () => {
-  showSummary.value = !showSummary.value;
-};
 </script>
+
+
+
+
+
+
+
 
 <style scoped>
 ul.list-group {
@@ -671,12 +459,12 @@ ul.list-group {
   margin: 0;
 }
 
-ul.list-group > li {
+ul.list-group>li {
   padding: 10px;
   border-bottom: 1px solid #ccc;
 }
 
-ul.list-group > li:last-child {
+ul.list-group>li:last-child {
   border-bottom: none;
 }
 
@@ -684,7 +472,8 @@ ul.list-group > li:last-child {
   .d-flex.flex-wrap {
     flex-direction: column;
   }
-  .d-flex.flex-wrap > div {
+
+  .d-flex.flex-wrap>div {
     margin: 0 0 10px 0 !important;
     width: 100%;
   }

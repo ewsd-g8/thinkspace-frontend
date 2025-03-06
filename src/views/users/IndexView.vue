@@ -19,44 +19,20 @@
     <div class="card">
       <div class="pt-3 px-3 d-flex justify-content-end bg-white">
         <div class="d-flex position-relative me-2">
-          <input
-            type="text"
-            class="form-control pe-4"
-            v-model="searchValue"
-            placeholder="Search..."
-            @keydown.esc="searchValue = ''"
-          />
-          <i
-            v-show="searchValue"
-            class="mdi mdi-close text-danger fs-4"
-            style="cursor: pointer"
-            @click="searchValue = ''"
-          ></i>
+          <input type="text" class="form-control pe-4" v-model="searchValue" placeholder="Search..."
+            @keydown.esc="searchValue = ''" />
+          <i v-show="searchValue" class="mdi mdi-close text-danger fs-4" style="cursor: pointer"
+            @click="searchValue = ''"></i>
         </div>
-        <router-link
-          :to="{ name: 'user-create' }"
-          class="btn btn-blue waves-effect waves-light float-end"
-        >
+        <router-link :to="{ name: 'user-create' }" class="btn btn-blue waves-effect waves-light float-end">
           <i class="mdi mdi-plus me-sm-1 text-dark"></i>Add New
         </router-link>
       </div>
       <div class="card-body">
-        <EasyDataTable
-          v-model:server-options="serverOptions"
-          :server-items-length="serverItemsLength"
-          :loading="loading"
-          :headers="headers"
-          :items="tableData"
-          show-index
-          @update-sort="updateSort"
-          :rows-items="[10, 30, 50]"
-          :search-value="searchValue"
-          table-class-name="customize-table"
-          :rows-per-page="10"
-          buttons-pagination
-          border-cell
-          theme-color="#a1dcd8"
-        >
+        <EasyDataTable v-model:server-options="serverOptions" :server-items-length="serverItemsLength"
+          :loading="loading" :headers="headers" :items="tableData" show-index @update-sort="updateSort"
+          :rows-items="[10, 30, 50]" :search-value="searchValue" table-class-name="customize-table" :rows-per-page="10"
+          buttons-pagination border-cell theme-color="#a1dcd8">
           <template #loading>
             <Loading></Loading>
           </template>
@@ -67,109 +43,56 @@
           </template>
           <template #item-action="data">
             <Popper arrow placement="top" content="Change Status" hover>
-              <button
-                class="btn btn-secondary waves-effect waves-light btn-sm me-1"
-                data-bs-toggle="modal"
-                data-bs-target="#change-status-modal"
-                @click="openChangeStatusModal(data.id)"
-              >
+              <button class="btn btn-secondary waves-effect waves-light btn-sm me-1" data-bs-toggle="modal"
+                data-bs-target="#change-status-modal" @click="openChangeStatusModal(data.id)">
                 <i class="mdi mdi-sync text-white"></i>
               </button>
             </Popper>
             <Popper arrow placement="top" content="Edit" hover>
-              <router-link
-                :to="{ name: 'user-edit', params: { id: data.id } }"
-                class="btn btn-sm btn-info"
-              >
+              <router-link :to="{ name: 'user-edit', params: { id: data.id } }" class="btn btn-sm btn-info">
                 <i class="mdi mdi-square-edit-outline"></i>
               </router-link>
             </Popper>
             <Popper arrow placement="top" content="Block" hover>
-              <button
-                class="btn btn-sm btn-danger waves-effect waves-light"
-                data-bs-toggle="modal"
-                data-bs-target="#change-block-status-modal"
-                @click="blockUser(data.id)"
-              >
+              <button class="btn btn-sm btn-danger waves-effect waves-light" data-bs-toggle="modal"
+                data-bs-target="#change-block-status-modal" @click="blockUser(data.id)">
                 <i class="mdi mdi-block-helper"></i>
               </button>
             </Popper>
-            <Popper
-              arrow
-              placement="top"
-              content="Hide"
-              hover
-              style="padding: 5px"
-            >
-              <button
-                class="btn btn-sm btn-danger"
-                data-bs-toggle="modal"
-                data-bs-target="#change-hide-status-modal"
-                @click="HideUser(data.id)"
-              >
+            <Popper arrow placement="top" content="Hide" hover style="padding: 5px;">
+              <button class="btn btn-sm btn-danger"data-bs-toggle="modal"
+              data-bs-target="#change-hide-status-modal" @click="HideUser(data.id)" >
                 <i class="mdi mdi-eye-off-outline"></i>
               </button>
             </Popper>
           </template>
           <template #item-is_active="data">
-            <Badge
-              :class="data.is_active ? 'bg-success' : 'bg-danger'"
-              :name="data.is_active ? 'Active' : 'Inactive'"
-            ></Badge>
+            <Badge :class="data.is_active ? 'bg-success' : 'bg-danger'" :name="data.is_active ? 'Active' : 'Inactive'"></Badge>
           </template>
           <template #item-is_blocked="data">
-            <Badge
-              :class="data.is_blocked ? 'bg-danger' : 'bg-success'"
-              :name="data.is_blocked ? 'Blocked' : 'Unblocked'"
-            ></Badge>
+            <Badge :class="data.is_blocked ? 'bg-danger' : 'bg-success'" :name="data.is_blocked ? 'Blocked' : 'Unblocked'"></Badge>
           </template>
           <template #item-is_hidden="data">
-            <Badge
-              :class="data.is_hidden ? 'bg-danger' : 'bg-success'"
-              :name="data.is_hidden ? 'not shown' : 'Hide'"
-            ></Badge>
+            <Badge :class="data.is_hidden ? 'bg-danger' : 'bg-success'" :name="data.is_hidden ? 'not shown' : 'Hide'"></Badge>
           </template>
         </EasyDataTable>
       </div>
     </div>
 
-    <div
-      id="change-status-modal"
-      class="modal fade"
-      tabindex="-1"
-      role="dialog"
-      aria-hidden="true"
-    >
+    <div id="change-status-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-body py-3 px-2">
             <div class="text-center">
-              <i
-                class="dripicons-information text-info"
-                style="font-size: 4rem"
-              ></i>
+              <i class="dripicons-information text-info" style="font-size: 4rem"></i>
               <h4 class="mb-3 mt-1 fs-4">Confirmation!</h4>
               <h5 class="mt-4 fs-5">Are you sure to change status?</h5>
               <div class="mt-2">
-                <button
-                  type="button"
-                  class="btn btn-success my-2 me-2"
-                  @click="changeUserStatus()"
-                  :disabled="loading"
-                >
-                  <span
-                    v-if="loading"
-                    class="spinner-border text-light spinner-border-sm me-1"
-                  ></span>
+                <button type="button" class="btn btn-success my-2 me-2" @click="changeUserStatus()" :disabled="loading">
+                  <span v-if="loading" class="spinner-border text-light spinner-border-sm me-1"></span>
                   {{ loading ? "Loading" : "Confirm" }}
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-danger my-2"
-                  data-bs-dismiss="modal"
-                >
-                  Cancel
-                </button>
+                <button type="button" class="btn btn-danger my-2" data-bs-dismiss="modal">Cancel</button>
               </div>
             </div>
           </div>
@@ -177,93 +100,46 @@
       </div>
     </div>
 
-    <div
-      id="change-block-status-modal"
-      class="modal fade"
-      tabindex="-1"
-      role="dialog"
-      aria-hidden="true"
-    >
+    <div id="change-block-status-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-body py-3 px-2">
             <div class="text-center">
-              <i
-                class="dripicons-information text-info"
-                style="font-size: 4rem"
-              ></i>
+              <i class="dripicons-information text-info" style="font-size: 4rem"></i>
               <h4 class="mb-3 mt-1 fs-4">Confirmation!</h4>
               <h5 class="mt-4 fs-5">Are you sure to change block status?</h5>
               <div class="mt-2">
-                <button
-                  type="button"
-                  class="btn btn-success my-2 me-2"
-                  @click="changeBlockUserStatus()"
-                  :disabled="loading"
-                >
-                  <span
-                    v-if="loading"
-                    class="spinner-border text-light spinner-border-sm me-1"
-                  ></span>
+                <button type="button" class="btn btn-success my-2 me-2" @click="changeBlockUserStatus()" :disabled="loading">
+                  <span v-if="loading" class="spinner-border text-light spinner-border-sm me-1"></span>
                   {{ loading ? "Loading" : "Confirm" }}
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-danger my-2"
-                  data-bs-dismiss="modal"
-                >
-                  Cancel
-                </button>
+                <button type="button" class="btn btn-danger my-2" data-bs-dismiss="modal">Cancel</button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div
-      id="change-hide-status-modal"
-      class="modal fade"
-      tabindex="-1"
-      role="dialog"
-      aria-hidden="true"
-    >
+ <div id="change-hide-status-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-body py-3 px-2">
             <div class="text-center">
-              <i
-                class="dripicons-information text-info"
-                style="font-size: 4rem"
-              ></i>
+              <i class="dripicons-information text-info" style="font-size: 4rem"></i>
               <h4 class="mb-3 mt-1 fs-4">Confirmation!</h4>
               <h5 class="mt-4 fs-5">Are you sure to change block status?</h5>
               <div class="mt-2">
-                <button
-                  type="button"
-                  class="btn btn-success my-2 me-2"
-                  @click="changeHideUserStatus()"
-                  :disabled="loading"
-                >
-                  <span
-                    v-if="loading"
-                    class="spinner-border text-light spinner-border-sm me-1"
-                  ></span>
+                <button type="button" class="btn btn-success my-2 me-2" @click="changeHideUserStatus()" :disabled="loading">
+                  <span v-if="loading" class="spinner-border text-light spinner-border-sm me-1"></span>
                   {{ loading ? "Loading" : "Confirm" }}
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-danger my-2"
-                  data-bs-dismiss="modal"
-                >
-                  Cancel
-                </button>
+                <button type="button" class="btn btn-danger my-2" data-bs-dismiss="modal">Cancel</button>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </div> </div>
 </template>
 
 <script setup>
@@ -291,31 +167,49 @@ const headers = [
   { text: "Role", value: "roles", sortable: false },
   { text: "IsActive", value: "is_active", sortable: true },
   { text: "IsBlocked", value: "is_blocked", sortable: true },
-  { text: "IsHidden", value: "is_hidden", sortable: true },
+  {text:"IsHidden", value:"is_hidden", sortable:true},
+  {text:"Created_at", value:"created_at", sortable:true},
+  {text:"Updated_at", value:"updated_at", sortable:true},
   { text: "Action", value: "action", width: "180" },
 ];
-
+// Function to convert UTC to local timezone
+const formatToLocalTime = (utcDate) => {
+if (!utcDate) return ""; // Handle null/undefined
+const date = new Date(utcDate); // Parse UTC date string
+return date.toLocaleString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true,
+}); // e.g., "Mar 04, 2024, 10:00:00 AM"
+};
 const getResults = async () => {
   loading.value = true;
   if (searchValue.value) serverOptions.value.page = 1;
-  await Http.get(
+  try {
+  const { data } = await Http.get(
     `users?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
-  )
-    .then((res) => {
-      console.log("res", res);
-      tableData.value = res.data.data.data;
-      console.log("tableData:", tableData.value);
-      serverItemsLength.value = res.data.data.total;
-    })
-    .catch((err) => {
-      console.log(err);
-      createToast(
-        { title: "Error", description: "Failed to load users" },
-        { type: "danger", position: "top-right" }
-      );
-    })
-    .finally(() => (loading.value = false));
+  );
+
+  console.log("API response:", data);
+
+  // Transform UTC dates to local timezone
+  tableData.value = data.data.data.map(item => ({
+    ...item,
+    created_at: formatToLocalTime(item.created_at),
+    updated_at: formatToLocalTime(item.updated_at),
+  }));
+  serverItemsLength.value = data.data.total;
+} catch (err) {
+  console.error("Error fetching users:", err);
+} finally {
+  loading.value = false;
+}
 };
+
 
 const updateSort = (selectedSortOptions) => {
   serverOptions.value.sortType = selectedSortOptions.sortType || "";
@@ -325,14 +219,10 @@ const updateSort = (selectedSortOptions) => {
 watch(serverOptions, () => getResults(), { deep: true });
 
 const timer = ref(null);
-watch(
-  searchValue,
-  () => {
-    clearTimeout(timer.value);
-    timer.value = setTimeout(() => getResults(), 500);
-  },
-  { deep: true }
-);
+watch(searchValue, () => {
+  clearTimeout(timer.value);
+  timer.value = setTimeout(() => getResults(), 500);
+}, { deep: true });
 
 const userId = ref("");
 const openChangeStatusModal = (id) => {
@@ -346,12 +236,7 @@ const changeUserStatus = () => {
       $("#change-status-modal").modal("hide");
       createToast(
         { title: "Success", description: "Successfully Changed Status!" },
-        {
-          type: "success",
-          transition: "bounce",
-          position: "top-right",
-          showIcon: true,
-        }
+        { type: "success", transition: "bounce", position: "top-right", showIcon: true }
       );
     })
     .catch((err) => {
@@ -375,12 +260,7 @@ const changeBlockUserStatus = () => {
       $("#change-block-status-modal").modal("hide");
       createToast(
         { title: "Success", description: "Successfully Changed Block Status!" },
-        {
-          type: "success",
-          transition: "bounce",
-          position: "top-right",
-          showIcon: true,
-        }
+        { type: "success", transition: "bounce", position: "top-right", showIcon: true }
       );
     })
     .catch((err) => {
@@ -404,12 +284,7 @@ const changeHideUserStatus = () => {
       $("#change-hide-status-modal").modal("hide");
       createToast(
         { title: "Success", description: "Successfully Changed hide Status!" },
-        {
-          type: "success",
-          transition: "bounce",
-          position: "top-right",
-          showIcon: true,
-        }
+        { type: "success", transition: "bounce", position: "top-right", showIcon: true }
       );
     })
     .catch((err) => {
