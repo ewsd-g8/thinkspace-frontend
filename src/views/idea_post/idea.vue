@@ -45,43 +45,39 @@
 
         <!-- Search and Content Length Filters -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
-          <div style="flex: 4; margin-right: 10px; min-width: 200px">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search by title"
-              v-model="searchQuery"
-              @input="debouncedFilterIdeas"
-            />
-          </div>
-          <div style="flex: 1; margin: 0 10px; min-width: 200px">
-            <select
-              class="form-control form-control-sm content-length-filter"
-              v-model="selectedContentLength"
-              @change="filterIdeas"
-            >
-              <option value="">All Lengths</option>
-              <option value="short">Short (< 100 chars)</option>
-              <option value="medium">Medium (100-400 chars)</option>
-              <option value="long">Long (> 400 chars)</option>
-            </select>
-          </div>
-        </div>
+  <div style="flex: 4; margin-right: 10px; min-width: 200px">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search by title"
+      v-model="searchQuery"
+      @input="debouncedSearchIdeas"
+    />
+  </div>
+  <div style="flex: 1; margin: 0 10px; min-width: 200px">
+    <select
+      class="form-control form-control-sm content-length-filter"
+      v-model="selectedContentLength"
+      @change="filterIdeas"
+    >
+      <option value="">All Lengths</option>
+      <option value="short">Short (< 100 chars)</option>
+      <option value="medium">Medium (100-400 chars)</option>
+      <option value="long">Long (> 400 chars)</option>
+    </select>
+  </div>
+</div>
 
         <!-- Filters Container -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
           <div style="flex: 1; margin-right: 10px; min-width: 200px">
-            <select
-              class="form-control"
-              v-model="selectedCategory"
-              @change="filterIdeas"
-            >
-              <option value="">All Categories</option>
-              <option v-for="category in uniqueCategories" :key="category">
-                {{ category }}
-              </option>
-            </select>
-          </div>
+  <select class="form-control" v-model="selectedCategory" @change="filterIdeas">
+    <option value="">All Categories</option>
+    <option v-for="category in categories" :key="category.id" :value="category.name">
+      {{ category.name }}
+    </option>
+  </select>
+</div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
             <select
               class="form-control"
@@ -90,7 +86,7 @@
             >
               <option value="">All Departments</option>
               <option
-                v-for="department in uniqueDepartments"
+                v-for="department in departments"
                 :key="department.id"
                 :value="department.name"
               >
@@ -220,16 +216,17 @@
             <hr />
            
            
-                <button class="btn btn-sm" @click="thumbUp(idea)" :disabled="idea.has_thumbs_up">
+            <button class="btn btn-sm" @click="thumbUp(idea)">
     <i class="mdi mdi-thumb-up"></i>
     <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.likes }}</span>
     <span>{{ idea.likes ? "Liked" : "Like" }}</span>
   </button>
-  <button class="btn btn-sm" @click="thumbDown(idea)" :disabled="idea.has_thumbs_down">
+  <button class="btn btn-sm" @click="thumbDown(idea)">
     <i class="mdi mdi-thumb-down"></i>
     <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.unlikes }}</span>
-    <span>{{ idea.unlikes? "Disliked" : "Unlike" }}</span>
+    <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
   </button>
+  
 
  
               <button
@@ -288,6 +285,7 @@ const debounce = (func, wait) => {
 const ideas = ref([]);
 const searchQuery = ref("");
 const departments = ref([]);
+const categories = ref([]);
 const selectedCategory = ref("");
 const selectedDepartment = ref("");
 const selectedClosure = ref("");
@@ -302,22 +300,7 @@ const store = useAuthStore();
 const user_id = store.getAuthUser.id;
 const router = useRouter();
 
-// Store original ideas for client-side filtering
 const originalIdeas = ref([]);
-
-const uniqueCategories = computed(() => {
-  const categories = ideas.value
-    .map((idea) => (idea.categories ? idea.categories.map((cat) => cat.name) : []))
-    .flat();
-  return [...new Set(categories)];
-});
-
-const uniqueDepartments = computed(() => {
-  const validDepartments = departments.value
-    .filter((d) => d.name && d.name !== "[department]")
-    .map((d) => ({ id: d.id, name: d.name }));
-  return validDepartments.length > 0 ? validDepartments : [{ name: "Unknown" }];
-});
 
 const uniqueClosures = computed(() => {
   const closures = ideas.value
@@ -330,131 +313,39 @@ const uniqueClosures = computed(() => {
   return [...new Set(closures.map((c) => JSON.stringify(c)))].map((c) => JSON.parse(c));
 });
 
-const ideasPerCategory = computed(() => {
-  const categoryCount = {};
-  ideas.value.forEach((idea) => {
-    if (idea.categories && idea.categories.length) {
-      idea.categories.forEach((cat) => {
-        categoryCount[cat.name] = (categoryCount[cat.name] || 0) + 1;
-      });
-    } else {
-      categoryCount["No categories"] = (categoryCount["No categories"] || 0) + 1;
-    }
-  });
-  return categoryCount;
-});
-
-const categoriesPerClosure = computed(() => {
-  const closureCategories = {};
-  ideas.value.forEach((idea) => {
-    const closureName = idea.closure_id ? idea.closure.name : "No closure ID";
-    if (!closureCategories[closureName]) closureCategories[closureName] = new Set();
-    if (idea.categories && idea.categories.length) {
-      idea.categories.forEach((cat) => closureCategories[closureName].add(cat.name));
-    }
-  });
-  Object.keys(closureCategories).forEach((closure) => {
-    closureCategories[closure] = Array.from(closureCategories[closure]);
-  });
-  return closureCategories;
-});
-
-const ideasPerDepartment = computed(() => {
-  const departmentCount = {};
-  departments.value.forEach((department) => {
-    departmentCount[department.name] = 0;
-  });
-  ideas.value.forEach((idea) => {
-    const departmentName =
-      departments.value.find((d) => d.id === idea.user?.department_id)?.name || "Unknown";
-    departmentCount[departmentName] = (departmentCount[departmentName] || 0) + 1;
-  });
-  return departmentCount;
-});
-
 const totalPages = computed(() => {
-  return Math.ceil(totalIdeas.value / itemsPerPage);
+  return Math.ceil(totalIdeas.value / itemsPerPage) || 1; // Ensure at least 1 page
 });
 
-// Client-side filtered ideas
 const filteredIdeas = computed(() => {
-  let filtered = [...originalIdeas.value];
-
-  if (searchQuery.value) {
-    filtered = filtered.filter((idea) =>
-      idea.title.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
-  }
-
-  if (selectedCategory.value) {
-    filtered = filtered.filter((idea) =>
-      idea.categories && idea.categories.some((cat) => cat.name === selectedCategory.value)
-    );
-  }
-
-  if (selectedDepartment.value) {
-    filtered = filtered.filter((idea) =>
-      departments.value.find((d) => d.id === idea.user?.department_id)?.name === selectedDepartment.value
-    );
-  }
-
-  if (selectedClosure.value) {
-    filtered = filtered.filter((idea) =>
-      idea.closure && idea.closure.name === selectedClosure.value
-    );
-  }
-
-  if (selectedContentLength.value) {
-    filtered = filtered.filter((idea) => {
-      const length = idea.content.length;
-      return (
-        (selectedContentLength.value === "short" && length < 100) ||
-        (selectedContentLength.value === "medium" && length >= 100 && length <= 400) ||
-        (selectedContentLength.value === "long" && length > 400)
-      );
-    });
-  }
-
-  if (sortOption.value === "newest") {
-    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  } else if (sortOption.value === "oldest") {
-    filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-  } else if (sortOption.value === "mostLikes") {
-    filtered.sort((a, b) => b.thumbs_up_count.likes - a.thumbs_up_count.likes);
-  } else if (sortOption.value === "mostDislikes") {
-    filtered.sort((a, b) => b.thumbs_up_count.unlikes - a.thumbs_up_count.unlikes);
-  }
-
-  return filtered;
+  return [...ideas.value]; // Display paginated ideas directly from backend
 });
 
-const fetchIdeas = async (page = currentPage.value) => {
+const fetchIdeas = async (page = currentPage.value, search = searchQuery.value) => {
   loading.value = true;
   try {
     const url = `ideas?page=${page}&paginate=${itemsPerPage}&search=${encodeURIComponent(
-      searchQuery.value
+      search
     )}&category=${encodeURIComponent(selectedCategory.value)}&department=${encodeURIComponent(
       selectedDepartment.value
     )}&closure=${encodeURIComponent(selectedClosure.value)}&contentLength=${encodeURIComponent(
       selectedContentLength.value
     )}&sort=${encodeURIComponent(sortOption.value)}`;
-        console.log("url",url)
     console.log("Fetching ideas with URL:", url);
     const { data } = await Http.get(url);
     console.log("API response:", data);
 
-    ideas.value = data.data.data || [];
-    originalIdeas.value = [...ideas.value];
+    ideas.value = (data.data.data || []).map(idea => ({
+      ...idea,
+      likes: idea.likes || 0,
+      unlikes: idea.unlikes || 0,
+      has_thumbs_up: idea.has_reacted && idea.user_reaction === true, // Adjusted for boolean
+      has_thumbs_down: idea.has_reacted && idea.user_reaction === false, // Adjusted for boolean
+    }));
+    originalIdeas.value = ideas.value.map(idea => ({ ...idea }));
     totalIdeas.value = data.data.total || 0;
-
-    const newestClosure = uniqueClosures.value.sort(
-      (a, b) => new Date(b.created_at) - new Date(a.created_at)
-    )[0];
-    if (newestClosure && !selectedClosure.value) {
-      selectedClosure.value = newestClosure.name;
-    }
   } catch (error) {
-    console.error("Failed to load ideas:", error);
+    console.error("Failed to load ideas:", error.response?.data || error.message);
     ideas.value = [];
     originalIdeas.value = [];
     totalIdeas.value = 0;
@@ -463,27 +354,100 @@ const fetchIdeas = async (page = currentPage.value) => {
   }
 };
 
+const thumbUp = async (idea) => {
+  const index = ideas.value.findIndex((i) => i.id === idea.id);
+  const originalIndex = originalIdeas.value.findIndex((i) => i.id === idea.id);
+  if (index === -1 || originalIndex === -1) return;
+
+  const currentIdea = ideas.value[index];
+  const newLikes = currentIdea.has_thumbs_up ? (currentIdea.likes || 0) - 1 : (currentIdea.likes || 0) + 1;
+  const newUnlikes = currentIdea.has_thumbs_down ? (currentIdea.unlikes || 0) - 1 : currentIdea.unlikes || 0;
+  ideas.value[index] = {
+    ...currentIdea,
+    likes: newLikes,
+    unlikes: newUnlikes,
+    has_thumbs_up: !currentIdea.has_thumbs_up,
+    has_thumbs_down: false,
+  };
+  originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+  ideas.value = [...ideas.value];
+
+  try {
+    await Http.post(`reactions`, { user_id, idea_id: idea.id, type: true });
+    const response = await Http.get(`ideas/${idea.id}`);
+    const updatedIdea = response.data.data;
+    ideas.value[index] = {
+      ...updatedIdea,
+      has_thumbs_up: updatedIdea.user_reaction === true,
+      has_thumbs_down: updatedIdea.user_reaction === false,
+    };
+    originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+    ideas.value = [...ideas.value];
+  } catch (error) {
+    await fetchIdeas(currentPage.value);
+    console.error("Error in thumbUp:", error.response?.data || error.message);
+  }
+};
+
+const thumbDown = async (idea) => {
+  const index = ideas.value.findIndex((i) => i.id === idea.id);
+  const originalIndex = originalIdeas.value.findIndex((i) => i.id === idea.id);
+  if (index === -1 || originalIndex === -1) return;
+
+  const currentIdea = ideas.value[index];
+  const newUnlikes = currentIdea.has_thumbs_down ? (currentIdea.unlikes || 0) - 1 : (currentIdea.unlikes || 0) + 1;
+  const newLikes = currentIdea.has_thumbs_up ? (currentIdea.likes || 0) - 1 : currentIdea.likes || 0;
+  ideas.value[index] = {
+    ...currentIdea,
+    likes: newLikes,
+    unlikes: newUnlikes,
+    has_thumbs_up: false,
+    has_thumbs_down: !currentIdea.has_thumbs_down,
+  };
+  originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+  ideas.value = [...ideas.value];
+
+  try {
+    await Http.post(`reactions`, { user_id, idea_id: idea.id, type: false });
+    const response = await Http.get(`ideas/${idea.id}`);
+    const updatedIdea = response.data.data;
+    ideas.value[index] = {
+      ...updatedIdea,
+      has_thumbs_up: updatedIdea.user_reaction === true,
+      has_thumbs_down: updatedIdea.user_reaction === false,
+    };
+    originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+    ideas.value = [...ideas.value];
+  } catch (error) {
+    await fetchIdeas(currentPage.value);
+    console.error("Error in thumbDown:", error.response?.data || error.message);
+  }
+};
+
 onMounted(async () => {
   try {
-   
     await getDepartments();
+    await getCategories();
     await fetchIdeas(1);
-    
   } catch (error) {
     console.error("Failed to initialize:", error);
   }
 });
 
-const debouncedFilterIdeas = debounce(() => {
-  filterIdeas();
+const debouncedSearchIdeas = debounce(() => {
+  currentPage.value = 1;
+  fetchIdeas(currentPage.value);
 }, 500);
 
 const filterIdeas = () => {
-  // Client-side filtering only; no fetchIdeas call
+  console.log("filterIdeas triggered with:", { category: selectedCategory.value, department: selectedDepartment.value, closure: selectedClosure.value });
+  currentPage.value = 1;
+  fetchIdeas(currentPage.value);
 };
 
 const sortIdeas = () => {
-  // Client-side sorting only; no fetchIdeas call
+  currentPage.value = 1;
+  fetchIdeas(currentPage.value);
 };
 
 const nextPage = () => {
@@ -500,105 +464,23 @@ const previousPage = () => {
   }
 };
 
-const thumbUp = async (idea) => {
-  const index = ideas.value.findIndex(i => i.id === idea.id);
-  if (index === -1) return;
-
-  // Optimistically update UI
-  const originalIdea = { ...ideas.value[index] };
-  ideas.value = [
-    ...ideas.value.slice(0, index),
-    {
-      ...ideas.value[index],
-      has_thumbs_up: true,
-      has_thumbs_down: false,
-      
-    },
-    ...ideas.value.slice(index + 1),
-  ];
-console.log("orgi",originalIdea)
-  try {
-    const response = await Http.post(`reactions`, {
-      user_id: user_id,
-      idea_id: idea.id,
-      type: true,
-    });
-
-    const { data } = response;
-    // Check for "Reaction set" instead of "success"
-    if (data.message !== "Reaction set") {
-      // Rollback on failure
-      ideas.value = [
-        ...ideas.value.slice(0, index),
-        originalIdea,
-        ...ideas.value.slice(index + 1),
-      ];
-      console.error("Thumb up failed:", data);
-    }
-  } catch (error) {
-    // Rollback on error
-    ideas.value = [
-      ...ideas.value.slice(0, index),
-      originalIdea,
-      ...ideas.value.slice(index + 1),
-    ];
-    console.error("Error in thumbUp:", error);
-  }
-};
-
-const thumbDown = async (idea) => {
-  const index = ideas.value.findIndex(i => i.id === idea.id);
-  if (index === -1) return;
-
-  // Optimistically update UI
-  const originalIdea = { ...ideas.value[index] };
-  ideas.value = [
-    ...ideas.value.slice(0, index),
-    {
-      ...ideas.value[index],
-      has_thumbs_up: false,
-      has_thumbs_down: true,
-     
-    },
-    ...ideas.value.slice(index + 1),
-  ];
-
-  try {
-    const response = await Http.post(`reactions`, {
-      user_id: user_id,
-      idea_id: idea.id,
-      type: false,
-    });
-
-    const { data } = response;
-    // Check for "Reaction set" instead of "success"
-    if (data.message !== "Reaction set") {
-      // Rollback on failure
-      ideas.value = [
-        ...ideas.value.slice(0, index),
-        originalIdea,
-        ...ideas.value.slice(index + 1),
-      ];
-      console.error("Thumb down failed:", data);
-    }
-  } catch (error) {
-    // Rollback on error
-    ideas.value = [
-      ...ideas.value.slice(0, index),
-      originalIdea,
-      ...ideas.value.slice(index + 1),
-    ];
-    console.error("Error in thumbDown:", error);
-  }
-};
-
 const getDepartments = async () => {
   try {
     const res = await Http.get("get-all-departments");
-    console.log("Departments:", res.data);
-    departments.value = res.data.data;
+    departments.value = res.data.data || [];
+    console.log("Departments:", departments.value);
   } catch (error) {
     console.error("Failed to fetch departments:", error);
+  }
+};
+
+const getCategories = async () => {
+  try {
+    const res = await Http.get("get-all-categories");
+    categories.value = res.data.data || [];
+    console.log("Categories:", categories.value);
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
   }
 };
 
@@ -613,6 +495,13 @@ const truncateContent = (content) => {
   return content.substring(0, maxLength).trim() + "...";
 };
 </script>
+
+
+
+
+
+
+
 
 <style scoped>
 ul.list-group {
