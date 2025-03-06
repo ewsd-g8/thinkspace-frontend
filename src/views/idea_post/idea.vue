@@ -45,6 +45,7 @@
 
         <!-- Search and Content Length Filters -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
+<<<<<<< Updated upstream
   <div style="flex: 4; margin-right: 10px; min-width: 200px">
     <input
       type="text"
@@ -67,6 +68,30 @@
     </select>
   </div>
 </div>
+=======
+          <div style="flex: 4; margin-right: 10px; min-width: 200px">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search by title"
+              v-model="searchQuery"
+              @input="debouncedFilterIdeas"
+            />
+          </div>
+          <div style="flex: 1; margin: 0 10px; min-width: 200px">
+            <select
+              class="form-control form-control-sm content-length-filter"
+              v-model="selectedContentLength"
+              @change="filterIdeas"
+            >
+              <option value="">All Lengths</option>
+              <option value="short">Short (< 100 chars)</option>
+              <option value="medium">Medium (100-400 chars)</option>
+              <option value="long">Long (> 400 chars)</option>
+            </select>
+          </div>
+        </div>
+>>>>>>> Stashed changes
 
         <!-- Filters Container -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
@@ -97,6 +122,25 @@
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
             <select
               class="form-control"
+<<<<<<< Updated upstream
+=======
+              v-model="selectedDepartment"
+              @change="filterIdeas"
+            >
+              <option value="">All Departments</option>
+              <option
+                v-for="department in uniqueDepartments"
+                :key="department.id"
+                :value="department.name"
+              >
+                {{ department.name }}
+              </option>
+            </select>
+          </div>
+          <div style="flex: 1; margin: 0 10px; min-width: 200px">
+            <select
+              class="form-control"
+>>>>>>> Stashed changes
               v-model="selectedClosure"
               @change="filterIdeas"
             >
@@ -215,12 +259,18 @@
             </div>
             <hr />
            
+<<<<<<< Updated upstream
            
             <button class="btn btn-sm" @click="thumbUp(idea)">
+=======
+              <div>
+  <button class="btn btn-sm" @click="thumbUp(idea)" :disabled="idea.likes">
+>>>>>>> Stashed changes
     <i class="mdi mdi-thumb-up"></i>
     <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.likes }}</span>
     <span>{{ idea.likes ? "Liked" : "Like" }}</span>
   </button>
+<<<<<<< Updated upstream
   <button class="btn btn-sm" @click="thumbDown(idea)">
     <i class="mdi mdi-thumb-down"></i>
     <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.unlikes }}</span>
@@ -228,6 +278,13 @@
   </button>
   
 
+=======
+  <button class="btn btn-sm" @click="thumbDown(idea)" :disabled="idea.unlikes">
+    <i class="mdi mdi-thumb-down"></i>
+    <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.unlikes }}</span>
+    <span>{{ idea.unlikes ? "Disliked" : "Unlike" }}</span>
+  </button>
+>>>>>>> Stashed changes
  
               <button
                 class="btn btn-sm"
@@ -300,8 +357,28 @@ const store = useAuthStore();
 const user_id = store.getAuthUser.id;
 const router = useRouter();
 
+<<<<<<< Updated upstream
 const originalIdeas = ref([]);
 
+=======
+// Store original ideas for client-side filtering
+const originalIdeas = ref([]);
+
+const uniqueCategories = computed(() => {
+  const categories = ideas.value
+    .map((idea) => (idea.categories ? idea.categories.map((cat) => cat.name) : []))
+    .flat();
+  return [...new Set(categories)];
+});
+
+const uniqueDepartments = computed(() => {
+  const validDepartments = departments.value
+    .filter((d) => d.name && d.name !== "[department]")
+    .map((d) => ({ id: d.id, name: d.name }));
+  return validDepartments.length > 0 ? validDepartments : [{ name: "Unknown" }];
+});
+
+>>>>>>> Stashed changes
 const uniqueClosures = computed(() => {
   const closures = ideas.value
     .filter((idea) => idea.closure)
@@ -313,6 +390,7 @@ const uniqueClosures = computed(() => {
   return [...new Set(closures.map((c) => JSON.stringify(c)))].map((c) => JSON.parse(c));
 });
 
+<<<<<<< Updated upstream
 const totalPages = computed(() => {
   return Math.ceil(totalIdeas.value / itemsPerPage) || 1; // Ensure at least 1 page
 });
@@ -331,10 +409,116 @@ const fetchIdeas = async (page = currentPage.value, search = searchQuery.value) 
     )}&closure=${encodeURIComponent(selectedClosure.value)}&contentLength=${encodeURIComponent(
       selectedContentLength.value
     )}&sort=${encodeURIComponent(sortOption.value)}`;
+=======
+const ideasPerCategory = computed(() => {
+  const categoryCount = {};
+  ideas.value.forEach((idea) => {
+    if (idea.categories && idea.categories.length) {
+      idea.categories.forEach((cat) => {
+        categoryCount[cat.name] = (categoryCount[cat.name] || 0) + 1;
+      });
+    } else {
+      categoryCount["No categories"] = (categoryCount["No categories"] || 0) + 1;
+    }
+  });
+  return categoryCount;
+});
+
+const categoriesPerClosure = computed(() => {
+  const closureCategories = {};
+  ideas.value.forEach((idea) => {
+    const closureName = idea.closure_id ? idea.closure.name : "No closure ID";
+    if (!closureCategories[closureName]) closureCategories[closureName] = new Set();
+    if (idea.categories && idea.categories.length) {
+      idea.categories.forEach((cat) => closureCategories[closureName].add(cat.name));
+    }
+  });
+  Object.keys(closureCategories).forEach((closure) => {
+    closureCategories[closure] = Array.from(closureCategories[closure]);
+  });
+  return closureCategories;
+});
+
+const ideasPerDepartment = computed(() => {
+  const departmentCount = {};
+  departments.value.forEach((department) => {
+    departmentCount[department.name] = 0;
+  });
+  ideas.value.forEach((idea) => {
+    const departmentName =
+      departments.value.find((d) => d.id === idea.user?.department_id)?.name || "Unknown";
+    departmentCount[departmentName] = (departmentCount[departmentName] || 0) + 1;
+  });
+  return departmentCount;
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(totalIdeas.value / itemsPerPage);
+});
+
+// Client-side filtered ideas
+const filteredIdeas = computed(() => {
+  let filtered = [...originalIdeas.value];
+
+  if (searchQuery.value) {
+    filtered = filtered.filter((idea) =>
+      idea.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
+  }
+
+  if (selectedCategory.value) {
+    filtered = filtered.filter((idea) =>
+      idea.categories && idea.categories.some((cat) => cat.name === selectedCategory.value)
+    );
+  }
+
+  if (selectedDepartment.value) {
+    filtered = filtered.filter((idea) =>
+      departments.value.find((d) => d.id === idea.user?.department_id)?.name === selectedDepartment.value
+    );
+  }
+
+  if (selectedClosure.value) {
+    filtered = filtered.filter((idea) =>
+      idea.closure && idea.closure.name === selectedClosure.value
+    );
+  }
+
+  if (selectedContentLength.value) {
+    filtered = filtered.filter((idea) => {
+      const length = idea.content.length;
+      return (
+        (selectedContentLength.value === "short" && length < 100) ||
+        (selectedContentLength.value === "medium" && length >= 100 && length <= 400) ||
+        (selectedContentLength.value === "long" && length > 400)
+      );
+    });
+  }
+
+  if (sortOption.value === "newest") {
+    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  } else if (sortOption.value === "oldest") {
+    filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  } else if (sortOption.value === "mostLikes") {
+    filtered.sort((a, b) => b.thumbs_up_count.likes - a.thumbs_up_count.likes);
+  } else if (sortOption.value === "mostDislikes") {
+    filtered.sort((a, b) => b.thumbs_up_count.unlikes - a.thumbs_up_count.unlikes);
+  }
+
+  return filtered;
+});
+
+const fetchIdeas = async (page = currentPage.value) => {
+  loading.value = true;
+  try {
+    const url = `ideas`;
+        console.log("url",url)
+>>>>>>> Stashed changes
     console.log("Fetching ideas with URL:", url);
     const { data } = await Http.get(url);
     console.log("API response:", data);
 
+<<<<<<< Updated upstream
     ideas.value = (data.data.data || []).map(idea => ({
       ...idea,
       likes: idea.likes || 0,
@@ -346,6 +530,21 @@ const fetchIdeas = async (page = currentPage.value, search = searchQuery.value) 
     totalIdeas.value = data.data.total || 0;
   } catch (error) {
     console.error("Failed to load ideas:", error.response?.data || error.message);
+=======
+    ideas.value = data.data.data || [];
+    console.log("ideas.value:", ideas.value);
+    originalIdeas.value = [...ideas.value];
+    totalIdeas.value = data.data.total || 0;
+
+    const newestClosure = uniqueClosures.value.sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    )[0];
+    if (newestClosure && !selectedClosure.value) {
+      selectedClosure.value = newestClosure.name;
+    }
+  } catch (error) {
+    console.error("Failed to load ideas:", error);
+>>>>>>> Stashed changes
     ideas.value = [];
     originalIdeas.value = [];
     totalIdeas.value = 0;
@@ -354,6 +553,7 @@ const fetchIdeas = async (page = currentPage.value, search = searchQuery.value) 
   }
 };
 
+<<<<<<< Updated upstream
 const thumbUp = async (idea) => {
   const index = ideas.value.findIndex((i) => i.id === idea.id);
   const originalIndex = originalIdeas.value.findIndex((i) => i.id === idea.id);
@@ -429,11 +629,26 @@ onMounted(async () => {
     await getDepartments();
     await getCategories();
     await fetchIdeas(1);
+=======
+onMounted(async () => {
+  try {
+   
+    await getDepartments();
+    await fetchIdeas(1);
+    await Promise.all(
+      ideas.value.map(idea =>
+        Promise.all([getUserReactionForIdea(idea),
+        getIdeaReactionCount(idea),
+        ])
+      )
+    );
+>>>>>>> Stashed changes
   } catch (error) {
     console.error("Failed to initialize:", error);
   }
 });
 
+<<<<<<< Updated upstream
 const debouncedSearchIdeas = debounce(() => {
   currentPage.value = 1;
   fetchIdeas(currentPage.value);
@@ -448,6 +663,18 @@ const filterIdeas = () => {
 const sortIdeas = () => {
   currentPage.value = 1;
   fetchIdeas(currentPage.value);
+=======
+const debouncedFilterIdeas = debounce(() => {
+  filterIdeas();
+}, 500);
+
+const filterIdeas = () => {
+  // Client-side filtering only; no fetchIdeas call
+};
+
+const sortIdeas = () => {
+  // Client-side sorting only; no fetchIdeas call
+>>>>>>> Stashed changes
 };
 
 const nextPage = () => {
@@ -463,6 +690,7 @@ const previousPage = () => {
     fetchIdeas(currentPage.value);
   }
 };
+<<<<<<< Updated upstream
 
 const getDepartments = async () => {
   try {
@@ -481,6 +709,45 @@ const getCategories = async () => {
     console.log("Categories:", categories.value);
   } catch (error) {
     console.error("Failed to fetch categories:", error);
+=======
+const getUserReactionForIdea = async (idea) => {
+  try {
+    const response = await Http.get(`ideas/${idea.id}`);
+    const { data } = response;
+    if (data.message === "Success!") {
+      const userReactions = data.data;
+      idea.reactions = userReactions;
+      idea.has_thumbs_up = userReactions.type === "1";
+      idea.has_thumbs_down = userReactions.type === "0";
+    }
+  } catch (error) {
+    console.error("Failed to get user reaction for idea:", error);
+  }
+};
+
+const getIdeaReactionCount = async (idea) => {
+  try {
+    const response = await Http.get(`ideas/${idea.id}`);
+    const { data } = response;
+    if (data.message === "Success!") {
+
+      idea.thumbs_up_count = data.data;
+      console.log(idea.thumbs_up_count)
+    }
+  } catch (error) {
+    console.error("Failed to get reaction count for idea:", error);
+    idea.likes = {likes: 0} ;
+    idea.unlikes = {unlike : 0}
+  }
+};
+const getDepartments = async () => {
+  try {
+    const res = await Http.get("get-all-departments");
+    console.log("Departments:", res.data);
+    departments.value = res.data.data;
+  } catch (error) {
+    console.error("Failed to fetch departments:", error);
+>>>>>>> Stashed changes
   }
 };
 
