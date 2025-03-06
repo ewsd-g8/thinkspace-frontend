@@ -10,127 +10,65 @@
         </div>
 
         <!-- Summary Section -->
-        <div v-if="showSummary" class="summary-section mb-4 p-3 border rounded">
-          <h5>Summary Dashboard</h5>
-          <div class="row">
-            <div class="col-md-6">
-              <h6>Ideas per Category</h6>
-              <ul class="list-group">
-                <li v-for="(count, category) in ideasPerCategory" :key="category" class="list-group-item d-flex justify-content-between align-items-center">
-                  {{ category }}
-                  <span class="badge bg-primary rounded-pill">{{ count }}</span>
-                </li>
-              </ul>
-            </div>
-            <div class="col-md-6">
-              <h6>Categories per Closure</h6>
-              <ul class="list-group">
-                <li v-for="(categories, closure) in categoriesPerClosure" :key="closure" class="list-group-item d-flex justify-content-between align-items-center">
-                  {{ closure }}
-                  <span class="badge bg-primary rounded-pill">{{ categories.length }}</span>
-                </li>
-              </ul>
-            </div>
-            <div class="col-md-6">
-              <h6>Ideas per Department</h6>
-              <ul class="list-group">
-                <li v-for="(count, department) in ideasPerDepartment" :key="department" class="list-group-item d-flex justify-content-between align-items-center">
-                  {{ department }}
-                  <span class="badge bg-primary rounded-pill">{{ count }}</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+
 
         <!-- Search and Content Length Filters -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
-  <div style="flex: 4; margin-right: 10px; min-width: 200px">
-    <input
-      type="text"
-      class="form-control"
-      placeholder="Search by title"
-      v-model="searchQuery"
-      @input="debouncedSearchIdeas"
-    />
-  </div>
-  <div style="flex: 1; margin: 0 10px; min-width: 200px">
-    <select
-      class="form-control form-control-sm content-length-filter"
-      v-model="selectedContentLength"
-      @change="filterIdeas"
-    >
-      <option value="">All Lengths</option>
-      <option value="short">Short (< 100 chars)</option>
-      <option value="medium">Medium (100-400 chars)</option>
-      <option value="long">Long (> 400 chars)</option>
-    </select>
-  </div>
-</div>
+          <div style="flex: 4; margin-right: 10px; min-width: 200px">
+            <input type="text" class="form-control" placeholder="Search by title" v-model="searchQuery"
+              @input="debouncedSearchIdeas" />
+          </div>
+          <div style="flex: 1; margin: 0 10px; min-width: 200px">
+            <select class="form-control form-control-sm content-length-filter" v-model="selectedContentLength"
+              @change="filterIdeas">
+              <option value="">All Lengths</option>
+              <option value="short">Short (< 100 chars)</option>
+              <option value="medium">Medium (100-400 chars)</option>
+              <option value="long">Long (> 400 chars)</option>
+            </select>
+          </div>
+        </div>
 
         <!-- Filters Container -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
           <div style="flex: 1; margin-right: 10px; min-width: 200px">
-  <select class="form-control" v-model="selectedCategory" @change="filterIdeas">
-    <option value="">All Categories</option>
-    <option v-for="category in categories" :key="category.id" :value="category.name">
-      {{ category.name }}
-    </option>
-  </select>
-</div>
+            <select class="form-control" v-model="selectedCategory" @change="filterIdeas">
+              <option value="">All Categories</option>
+              <option v-for="category in categories" :key="category.id" :value="category.name">
+                {{ category.name }}
+              </option>
+            </select>
+          </div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
-            <select
-              class="form-control"
-              v-model="selectedDepartment"
-              @change="filterIdeas"
-            >
+            <select class="form-control" v-model="selectedDepartment" @change="filterIdeas">
               <option value="">All Departments</option>
-              <option
-                v-for="department in departments"
-                :key="department.id"
-                :value="department.name"
-              >
+              <option v-for="department in departments" :key="department.id" :value="department.name">
                 {{ department.name }}
               </option>
             </select>
           </div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
-            <select
-              class="form-control"
-              v-model="selectedClosure"
-              @change="filterIdeas"
-            >
+            <select class="form-control" v-model="selectedClosure" @change="filterIdeas">
               <option value="">All Closures</option>
-              <option
-                v-for="closure in uniqueClosures"
-                :key="closure.id"
-                :value="closure.name"
-              >
+              <option v-for="closure in uniqueClosures" :key="closure.id" :value="closure.name">
                 {{ closure.name }}
               </option>
             </select>
           </div>
           <div style="flex: 1; margin-left: 10px; min-width: 200px">
-            <select
-              class="form-control"
-              v-model="sortOption"
-              @change="sortIdeas"
-            >
+            <select class="form-control" v-model="sortOption" @change="sortIdeas">
               <option value="newest">Newest to Oldest</option>
               <option value="oldest">Oldest to Newest</option>
               <option value="mostLikes">Most Likes</option>
               <option value="mostDislikes">Most Dislikes</option>
+              <option value="mostViews">Most Views</option> <!-- Fixed label -->
             </select>
           </div>
         </div>
 
         <!-- Loading Animation -->
         <div v-if="loading" class="text-center my-5">
-          <div
-            class="spinner-border"
-            role="status"
-            style="width: 3rem; height: 3rem"
-          >
+          <div class="spinner-border" role="status" style="width: 3rem; height: 3rem">
             <span class="visually-hidden">Loading...</span>
           </div>
           <p>Loading ideas...</p>
@@ -138,50 +76,35 @@
 
         <!-- Ideas List -->
         <ul v-else class="list-group">
-          <li
-            class="list-group-item"
-          
-            v-for="idea in filteredIdeas"
-            :key="idea.id"
-            style="
+          <li class="list-group-item" v-for="idea in filteredIdeas" :key="idea.id" style="
               box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49);
               margin-bottom: 20px;
-            "
-          >
+            ">
             <div style="display: inline-block">
-              <div
-                style="
+              <div style="
                   display: flex;
                   align-items: center;
                   justify-content: center;
-                "
-              >
-                <i
-                  class="mdi mdi-account-circle rounded-circle"
-                  style="font-size: 40px"
-                ></i>
-                <span style="font-weight: bold; margin-left: 5px"
-                  >Anonymous Participant</span
-                >
+                ">
+                <i class="mdi mdi-account-circle rounded-circle" style="font-size: 40px"></i>
+                <span style="font-weight: bold; margin-left: 5px">Anonymous Participant</span>
               </div>
             </div>
             <div class="d-flex justify-content-between">
               <div>
                 <p class="text-muted">
-                  <span
-                    style="
+                  <span style="
                       background-color: #e5e5e5;
                       border: 1px solid #ccc;
                       border-radius: 5px;
                       padding: 5px;
                       margin-right: 5px;
-                    "
-                  >
+                    ">
                     {{
                       idea.categories && idea.categories.length
                         ? `Tagged Categories: ${idea.categories
-                            .map((cat) => cat.name)
-                            .join(", ")}`
+                          .map((cat) => cat.name)
+                          .join(", ")}`
                         : "No categories"
                     }}
                   </span>
@@ -191,74 +114,52 @@
                   }}</span>
                 </p>
                 <h5 style="font-weight: bold; font-size: 20px">
-                  {{ idea.title }}
+                  {{ idea.title }} , 
                 </h5>
                 <div style="font-size: 15px">
                   <p class="content-preview">
                     {{ truncateContent(idea.content) }}
-                    <span
-                      v-if="idea.content.length > 1000"
-                      class="see-more"
-                    >
-                      <router-link
-                        :to="{
-                          name: 'idea_details',
-                          params: { id: idea.id },
-                        }"
-                        @click.stop
-                        >...see more</router-link
-                      >
+                    <span v-if="idea.content.length > 300" class="see-more">
+                      <router-link :to="{
+                        name: 'idea_details',
+                        params: { id: idea.id },
+                      }" @click.stop>...see more</router-link>
                     </span>
                   </p>
                 </div>
               </div>
             </div>
             <hr />
-           
-           
-            <button class="btn btn-sm" @click="thumbUp(idea)">
-    <i class="mdi mdi-thumb-up"></i>
-    <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.likes }}</span>
-    <span>{{ idea.likes ? "Liked" : "Like" }}</span>
-  </button>
-  <button class="btn btn-sm" @click="thumbDown(idea)">
-    <i class="mdi mdi-thumb-down"></i>
-    <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.unlikes }}</span>
-    <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
-  </button>
-  
 
- 
-              <button
-                class="btn btn-sm"
-                @click="
-                  () =>
-                    $router
-                      .push({ name: 'idea_details', params: { id: idea.id } })
-                      .catch((err) => console.error(err))
-                "
-              >
-                <i class="mdi mdi-comment"></i>
-              </button>
-         
+
+            <button class="btn btn-sm" @click="thumbUp(idea)">
+              <i class="mdi mdi-thumb-up"></i>
+              <span class="ml-1" style="margin-left: 5px; font-weight: bold; padding-right: 5px">{{ idea.likes }}</span>
+              <span>{{ idea.likes ? "Liked" : "Like" }}</span>
+            </button>
+            <button class="btn btn-sm" @click="thumbDown(idea)">
+              <i class="mdi mdi-thumb-down"></i>
+              <span class="ml-1" style="margin-left: 5px; font-weight: bold; padding-right: 5px">{{ idea.unlikes }}</span>
+              <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
+            </button>
+
+
+
+            <button class="btn btn-sm" @click="viewIdeaDetails(idea.id)">
+              <i class="mdi mdi-comment"></i>  <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.comments_count }}</span> 
+              <span>Comments</span>
+            </button>
+            <span>{{ idea.views_count }} views</span>
           </li>
         </ul>
 
         <!-- Pagination Controls -->
         <div v-if="!loading" class="d-flex justify-content-between mt-3">
-          <button
-            class="btn btn-primary"
-            @click="previousPage"
-            :disabled="currentPage === 1"
-          >
+          <button class="btn btn-primary" @click="previousPage" :disabled="currentPage === 1">
             Previous
           </button>
           <span>Page {{ currentPage }} of {{ totalPages }}</span>
-          <button
-            class="btn btn-primary"
-            @click="nextPage"
-            :disabled="currentPage === totalPages"
-          >
+          <button class="btn btn-primary" @click="nextPage" :disabled="currentPage === totalPages">
             Next
           </button>
         </div>
@@ -314,11 +215,11 @@ const uniqueClosures = computed(() => {
 });
 
 const totalPages = computed(() => {
-  return Math.ceil(totalIdeas.value / itemsPerPage) || 1; // Ensure at least 1 page
+  return Math.ceil(totalIdeas.value / itemsPerPage) || 1;
 });
 
 const filteredIdeas = computed(() => {
-  return [...ideas.value]; // Display paginated ideas directly from backend
+  return [...ideas.value];
 });
 
 const fetchIdeas = async (page = currentPage.value, search = searchQuery.value) => {
@@ -339,8 +240,10 @@ const fetchIdeas = async (page = currentPage.value, search = searchQuery.value) 
       ...idea,
       likes: idea.likes || 0,
       unlikes: idea.unlikes || 0,
-      has_thumbs_up: idea.has_reacted && idea.user_reaction === true, // Adjusted for boolean
-      has_thumbs_down: idea.has_reacted && idea.user_reaction === false, // Adjusted for boolean
+      views_count: idea.views_count || 0,
+      comments_count:idea.comments_count || 0,
+      has_thumbs_up: idea.has_reacted && idea.user_reaction === true,
+      has_thumbs_down: idea.has_reacted && idea.user_reaction === false,
     }));
     originalIdeas.value = ideas.value.map(idea => ({ ...idea }));
     totalIdeas.value = data.data.total || 0;
@@ -421,6 +324,37 @@ const thumbDown = async (idea) => {
   } catch (error) {
     await fetchIdeas(currentPage.value);
     console.error("Error in thumbDown:", error.response?.data || error.message);
+  }
+};
+
+const viewIdeaDetails = async (ideaId) => {
+  try {
+    // Increment view count
+    await Http.post(`views`, { idea_id: ideaId });
+    // Fetch updated idea to reflect new view count
+    const response = await Http.get(`ideas/${ideaId}`);
+    const updatedIdea = response.data.data;
+
+    // Update the idea in the list
+    const index = ideas.value.findIndex((i) => i.id === ideaId);
+    if (index !== -1) {
+      ideas.value[index] = {
+        ...updatedIdea,
+        likes: updatedIdea.likes || 0,
+        unlikes: updatedIdea.unlikes || 0,
+        has_thumbs_up: updatedIdea.has_reacted && updatedIdea.user_reaction === true,
+        has_thumbs_down: updatedIdea.has_reacted && updatedIdea.user_reaction === false,
+      };
+      originalIdeas.value[index] = { ...ideas.value[index] };
+      ideas.value = [...ideas.value];
+    }
+
+    // Navigate to details page
+    router.push({ name: 'idea_details', params: { id: ideaId } });
+  } catch (error) {
+    console.error("Error in viewIdeaDetails:", error.response?.data || error.message);
+    // Navigate even if view increment fails
+    router.push({ name: 'idea_details', params: { id: ideaId } });
   }
 };
 
@@ -510,12 +444,12 @@ ul.list-group {
   margin: 0;
 }
 
-ul.list-group > li {
+ul.list-group>li {
   padding: 10px;
   border-bottom: 1px solid #ccc;
 }
 
-ul.list-group > li:last-child {
+ul.list-group>li:last-child {
   border-bottom: none;
 }
 
@@ -523,7 +457,8 @@ ul.list-group > li:last-child {
   .d-flex.flex-wrap {
     flex-direction: column;
   }
-  .d-flex.flex-wrap > div {
+
+  .d-flex.flex-wrap>div {
     margin: 0 0 10px 0 !important;
     width: 100%;
   }
