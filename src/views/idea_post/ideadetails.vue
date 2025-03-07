@@ -61,99 +61,92 @@
               <h5 style="font-weight: bold; font-size: 20px">
                 {{ ideas.title }}
               </h5>
-              <div style="font-size: 15px" class="border-bottom">
+              <div style="font-size: 15px">
                 <p style="text-align: justify">{{ ideas.content }}</p>
               </div>
-              <!-- <div class="d-flex justify-content-between">
-                <div>
-                  <img
-                    v-if="isImage(doc.file_path)"
-                    :src="doc.file_path"
-                    class="w-50"
-                    alt="Document Image"
-                  />
-                  <iframe
-                    v-else-if="isPDF(doc.file_path)"
-                    :src="doc.file_path"
-                    class="w-50"
-                  ></iframe>
-                </div>
-              </div> -->
             </div>
           </div>
-          <div
-            id="carouselExampleIndicators"
-            class="carousel slide"
-            style="background-color: red"
-          >
-            <div class="carousel-indicators">
-              <button
-                type="button"
-                data-bs-target="#carouselExampleIndicators"
-                data-bs-slide-to="0"
-                class="active"
-                aria-current="true"
-                aria-label="Slide 1"
-              ></button>
-              <button
-                type="button"
-                data-bs-target="#carouselExampleIndicators"
-                data-bs-slide-to="1"
-                aria-label="Slide 2"
-              ></button>
-              <button
-                type="button"
-                data-bs-target="#carouselExampleIndicators"
-                data-bs-slide-to="2"
-                aria-label="Slide 3"
-              ></button>
-            </div>
-            <div class="carousel-inner" style="background-color: yellow">
-              <div
-                class="carousel-item active"
-                v-for="doc in ideas.document"
-                :key="doc.id"
-              >
-                <img
-                  v-if="isImage(doc.file_path)"
-                  :src="doc.file_path"
-                  class="d-block w-100"
-                  alt="..."
-                />
-                <iframe
-                  v-else-if="isPDF(doc.file_path)"
-                  :src="doc.file_path"
-                  class="d-block w-100"
-                ></iframe>
-              </div>
-            </div>
-            <button
-              class="carousel-control-prev"
-              type="button"
-              data-bs-target="#carouselExampleIndicators"
-              data-bs-slide="prev"
+          <hr />
+          <hr />
+          <div>
+            <!-- <button
+              class="btn btn-sm"
+              @click="thumbUp(idea)"
+              :disabled="idea.has_thumbs_up"
             >
+              <i class="mdi mdi-thumb-up"></i>
               <span
-                class="carousel-control-prev-icon"
-                aria-hidden="true"
-              ></span>
-              <span class="visually-hidden">Previous</span>
+                class="ml-1"
+                style="font-weight: bold; padding-right: 5px"
+                >{{ idea.thumbs_up_count.likes }}</span
+              >
+              <span>{{ idea.has_thumbs_up ? "Liked" : "Like" }}</span>
             </button>
             <button
-              class="carousel-control-next"
-              type="button"
-              data-bs-target="#carouselExampleIndicators"
-              data-bs-slide="next"
+              class="btn btn-sm"
+              @click="thumbDown(idea)"
+              :disabled="idea.has_thumbs_down"
             >
+              <i class="mdi mdi-thumb-down"></i>
               <span
-                class="carousel-control-next-icon"
-                aria-hidden="true"
-              ></span>
-              <span class="visually-hidden">Next</span>
+                class="ml-1"
+                style="font-weight: bold; padding-right: 5px"
+                >{{ idea.thumbs_up_count.unlikes }}</span
+              >
+              <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
+            </button> -->
+            <button
+              type="button"
+              class="btn btn-sm position-relative"
+              @click="focusCommentBox"
+            >
+              <i class="mdi mdi-comment"></i>
+              <span
+                class="position-absolute top-0 start-110 translate-middle badge rounded-pill"
+                style="background-color: #670e10; text-align: center"
+              >
+                {{ ideas.comments_count }}
+                <span class="visually-hidden">unread messages</span>
+              </span>
+            </button>
+            <button
+              class="btn btn-sm"
+              @click="
+                () =>
+                  $router
+                    .push({
+                      name: 'idea_report',
+                      params: { id: route.params.id },
+                    })
+                    .catch((err) => console.error(err))
+              "
+            >
+              <i class="mdi mdi-message-alert"></i>
             </button>
           </div>
           <hr />
-          <div class="mb-3">
+          <div class="grid w-100">
+            <div
+              v-for="doc in ideas.document"
+              :key="doc.id"
+              class="g-col-6 g-col-md-4 d-flex justify-content-center align-items-center mb-3"
+            >
+              <img
+                v-if="isImage(doc.file_path)"
+                :src="doc.file_path"
+                class="img-fluid w-50 h-50 shadow-lg p-3bg-body-tertiary rounded"
+                alt="..."
+              />
+              <iframe
+                v-else-if="isPDF(doc.file_path)"
+                :src="doc.file_path"
+                class="w-50 shadow-lg p-3 bg-body-tertiary rounded"
+                style="height: 500px"
+              ></iframe>
+            </div>
+          </div>
+          <hr />
+          <div class="mb-3" ref="commentBox">
             <form @submit.prevent="sendComment()">
               <div class="form-floating mb-2">
                 <textarea
@@ -170,10 +163,17 @@
                   class="btn btn-primary me-md-2"
                   type="submit"
                   v-if="showBtn"
+                  style="background-color: #670e10"
                 >
                   Send
                 </button>
-                <button class="btn btn-primary" type="button" v-if="showBtn">
+                <button
+                  class="btn btn-primary"
+                  type="button"
+                  v-if="showBtn"
+                  style="background-color: #670e10"
+                  @click="cancelComment"
+                >
                   Cancel
                 </button>
               </div>
@@ -184,6 +184,8 @@
             <li
               class="list-group-item list-group-item-action"
               aria-current="true"
+              v-for="com in ideas.comments"
+              :key="com.id"
             >
               <div
                 class="d-flex w-100 justify-content-between border-bottom"
@@ -201,7 +203,9 @@
                 </div>
                 <small>3 days ago</small>
               </div>
-              <p class="mb-1">{{ comments.content }}</p>
+              <p class="mb-1">
+                {{ com.content }}
+              </p>
               <small>And some small print.</small>
             </li>
           </ul>
@@ -238,6 +242,8 @@ const ideas = reactive({
   closurename: "",
   categories: "",
   document: "",
+  comments: "",
+  comments_count: "",
 });
 
 const getIdeaDetail = async () => {
@@ -250,6 +256,8 @@ const getIdeaDetail = async () => {
       ideas.categories = res.data.data.categories;
       ideas.closurename = res.data.data.closure.name;
       ideas.document = res.data.data.documents;
+      ideas.comments = res.data.data.comments;
+      ideas.comments_count = res.data.data.comments_count;
       console.log(res.data.data.documents);
       loading.value = false;
     })
@@ -274,6 +282,18 @@ const isPDF = (filePath) => {
   return filePath && /\.pdf$/i.test(filePath);
 };
 //>>>>> Comment Posting
+const focusCommentBox = () => {
+  const textarea = document.querySelector("#floatingTextarea");
+  if (textarea) {
+    textarea.focus(); // Focus the textarea, which also triggers toggleBtn
+  }
+};
+
+// Cancel Comment
+const cancelComment = () => {
+  comment.content = ""; // Clear input
+  showBtn.value = false; // Hide buttons
+};
 
 const comment = reactive({
   content: "",
@@ -323,31 +343,8 @@ const sendComment = async () => {
     });
 };
 
-// // Comment Showing
-
-const comments = reactive({
-  content: "",
-});
-
-const getComment = async () => {
-  loading.value = true;
-  await Http.get(`comments`)
-    .then((res) => {
-      console.log("res", res);
-      console.log(res.data.data.data.id);
-      comments.content = res.data.data.data.content;
-      loading.value = false;
-    })
-    .catch((err) => {
-      if (err.response.status == 404) {
-        router.push({ name: "page-not-found" });
-      }
-    });
-};
-
 onMounted(async () => {
   getIdeaDetail();
-  getComment();
 });
 </script>
 

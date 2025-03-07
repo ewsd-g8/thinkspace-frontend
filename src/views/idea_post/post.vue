@@ -6,11 +6,25 @@
         <form @submit.prevent="postIdea()">
           <div class="mb-3">
             <label for="userId" class="form-label" hidden>User ID</label>
-            <input type="text" class="form-control" id="userId" v-model="form.userId" readonly hidden />
+            <input
+              type="text"
+              class="form-control"
+              id="userId"
+              v-model="form.userId"
+              readonly
+              hidden
+            />
           </div>
           <div class="mb-3">
             <label for="title" class="form-label" required>Title</label>
-            <input type="text" class="form-control" id="title" v-model="form.title" autofocus required />
+            <input
+              type="text"
+              class="form-control"
+              id="title"
+              v-model="form.title"
+              autofocus
+              required
+            />
           </div>
           <div class="mb-3">
             <label for="content" class="form-label">Idea Content</label>
@@ -26,13 +40,33 @@
             ></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">Category <span class="text-danger">*</span></label>
+            <label class="form-label"
+              >Category <span class="text-danger">*</span></label
+            >
             <p>
               Suggested Categories:
-              <span v-if="categories.length > 0" style="background-color: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-right: 5px">
+              <span
+                v-if="categories.length > 0"
+                style="
+                  background-color: #fff;
+                  border: 1px solid #ccc;
+                  border-radius: 5px;
+                  padding: 5px;
+                  margin-right: 5px;
+                "
+              >
                 {{ categories[categories.length - 1].name }}
               </span>
-              <span v-if="categories.length > 1" style="background-color: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-right: 5px">
+              <span
+                v-if="categories.length > 1"
+                style="
+                  background-color: #fff;
+                  border: 1px solid #ccc;
+                  border-radius: 5px;
+                  padding: 5px;
+                  margin-right: 5px;
+                "
+              >
                 {{ categories[categories.length - 2].name }}
               </span>
             </p>
@@ -49,7 +83,9 @@
 
           <!-- Document Upload -->
           <div class="mb-3">
-            <label class="form-label">Documents (Max 3, JPG/JPEG/PNG/PDF, 5MB each)</label>
+            <label class="form-label"
+              >Documents (Max 3, JPG/JPEG/PNG/PDF, 5MB each)</label
+            >
             <input
               type="file"
               ref="documentInput"
@@ -58,7 +94,11 @@
               accept=".jpg,.jpeg,.png,.pdf"
               @change="handleDocumentChange"
             />
-            <button type="button" class="btn btn-primary" @click="triggerDocumentInput">
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="triggerDocumentInput"
+            >
               <svg
                 aria-hidden="true"
                 stroke="currentColor"
@@ -86,35 +126,64 @@
               Add Documents and photos
             </button>
             <ul v-if="selectedDocuments.length" class="mt-3">
-              <li v-for="(file, index) in selectedDocuments" :key="index">{{ file.name }} ({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</li>
+              <li v-for="(file, index) in selectedDocuments" :key="index">
+                {{ file.name }} ({{ (file.size / 1024 / 1024).toFixed(2) }} MB)
+              </li>
             </ul>
             <p v-if="documentError" class="text-danger">{{ documentError }}</p>
           </div>
 
-        
-          
-
           <!-- Closure Information -->
           <div class="mb-3">
             <p v-if="closures.length > 0 && closures[0]">
-              This closure is <span style="font-weight: bold;">{{ closures[0].name }}</span> and opened on
-              <span style="font-weight: bold;">{{ closures[0].date }}</span> and will be closed on
-              <span style="font-weight: bold;">{{ closures[0].final_date }}</span>. After submission, your idea will be reviewed by the QA manager and closed within
-              <span style="font-weight: bold;">{{ Math.ceil(Math.abs(new Date(closures[0]?.final_date) - new Date(closures[0]?.date)) / (1000 * 60 * 60 * 24)) }} days</span>.
+              This closure is
+              <span style="font-weight: bold">{{ closures[0].name }}</span> and
+              opened on
+              <span style="font-weight: bold">{{ closures[0].date }}</span> and
+              will be closed on
+              <span style="font-weight: bold">{{ closures[0].final_date }}</span
+              >. After submission, your idea will be reviewed by the QA manager
+              and closed within
+              <span style="font-weight: bold"
+                >{{
+                  Math.ceil(
+                    Math.abs(
+                      new Date(closures[0]?.final_date) -
+                        new Date(closures[0]?.date)
+                    ) /
+                      (1000 * 60 * 60 * 24)
+                  )
+                }}
+                days</span
+              >.
             </p>
           </div>
 
           <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="terms" v-model="form.agreeTerms" required />
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="terms"
+              v-model="form.agreeTerms"
+              required
+            />
             <label class="form-check-label" for="terms">
-              I agree to the <router-link :to="{ name: 'term_and_condition' }">terms and conditions</router-link>
+              I agree to the
+              <router-link :to="{ name: 'term_and_condition' }"
+                >terms and conditions</router-link
+              >
             </label>
           </div>
 
           <button
             type="submit"
             class="btn btn-primary"
-            style="background-color: #5d1010; width: 300px; border-radius: 10px; text-align: center;"
+            style="
+              background-color: #5d1010;
+              width: 300px;
+              border-radius: 10px;
+              text-align: center;
+            "
           >
             Post
           </button>
@@ -161,7 +230,12 @@ const triggerDocumentInput = () => {
 // Handle document selection with validation
 const handleDocumentChange = (event) => {
   const files = Array.from(event.target.files);
-  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+  const allowedTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "application/pdf",
+  ];
   const maxSize = 5 * 1024 * 1024; // 5MB in bytes
 
   // Reset error
@@ -188,16 +262,17 @@ const handleDocumentChange = (event) => {
   console.log("Selected documents:", selectedDocuments.value);
 };
 
-
 onMounted(async () => {
-  await getCategory();
+  await getAllCategory();
   await getClosure();
 });
 
-const getCategory = async () => {
+const getAllCategory = async () => {
   try {
-    const response = await Http.get("categories");
-    categories.value = response.data.data.data;
+    const response = await Http.get("/get-all-categories");
+    console.log("cate", response)
+    categories.value = response.data.data;
+    console.log("cate", categories.value)
   } catch (error) {
     console.error("Failed to fetch categories", error);
   }
@@ -207,6 +282,7 @@ const getClosure = async () => {
   try {
     const response = await Http.get("closures");
     closures.value = response.data.data.data;
+    console.log("closure", closures.value)
   } catch (error) {
     console.error("Failed to fetch closures", error);
   }
@@ -215,8 +291,16 @@ const getClosure = async () => {
 const postIdea = async () => {
   if (!form.agreeTerms) {
     createToast(
-      { title: "Error", description: "You must agree to the terms and conditions." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        title: "Error",
+        description: "You must agree to the terms and conditions.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
@@ -224,7 +308,12 @@ const postIdea = async () => {
   if (form.category_id.length === 0) {
     createToast(
       { title: "Error", description: "You must choose at least one category." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
@@ -232,7 +321,12 @@ const postIdea = async () => {
   if (documentError.value) {
     createToast(
       { title: "Error", description: documentError.value },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
@@ -245,14 +339,19 @@ const postIdea = async () => {
   } else {
     createToast(
       { title: "Error", description: "No closure available." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
   fd.append("user_id", form.userId);
 
   // Append categories as an array
-  form.category_id.forEach(categoryId => {
+  form.category_id.forEach((categoryId) => {
     fd.append("categories[]", categoryId);
   });
 
@@ -260,9 +359,6 @@ const postIdea = async () => {
   selectedDocuments.value.forEach((file, index) => {
     fd.append(`documents[${index}]`, file);
   });
-
-
-  
 
   try {
     await Http.post("ideas", fd, {
@@ -273,13 +369,26 @@ const postIdea = async () => {
     router.push({ name: "category-index" });
     createToast(
       { title: "Success", description: "Successfully Created Post!" },
-      { type: "success", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "success",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
   } catch (error) {
     console.error("Failed to create post", error);
     createToast(
-      { title: "Error", description: error.response?.data?.message || "Failed to post idea." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        title: "Error",
+        description: error.response?.data?.message || "Failed to post idea.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
   }
 };

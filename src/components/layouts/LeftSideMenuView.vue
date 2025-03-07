@@ -28,7 +28,12 @@
               <span> Department </span>
             </router-link>
           </li>
-
+          <li>
+            <router-link :to="{ name: 'reportType-index' }">
+              <i class="icon-flag"></i>
+              <span> Report Type </span>
+            </router-link>
+          </li>
           <!-- <<<<<<< HEAD -->
           <!-- idea_post post and idea -->
           <li>

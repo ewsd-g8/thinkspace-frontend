@@ -5,10 +5,10 @@
         <div class="page-title-box">
           <div class="page-title-right">
             <ol class="breadcrumb m-0">
-              <li class="breadcrumb-item active">Closure</li>
+              <li class="breadcrumb-item active">Report Type</li>
             </ol>
           </div>
-          <h4 class="page-title">Closure</h4>
+          <h4 class="page-title">Report Type</h4>
         </div>
       </div>
     </div>
@@ -30,7 +30,7 @@
           ></i>
         </div>
         <router-link
-          :to="{ name: 'closure-create' }"
+          :to="{ name: 'reportType-create' }"
           class="btn btn-blue waves-effect waves-light float-end"
         >
           <i class="mdi mdi-plus me-sm-1 text-white"></i>Add New
@@ -60,11 +60,17 @@
             <Popper arrow placement="right" content="Edit" hover>
               <router-link
                 class="btn btn-sm btn-info"
-                :to="{ name: 'closure-update', params: { id: data.id } }"
+                :to="{ name: 'reportType-edit', params: { id: data.id } }"
               >
                 <i class="mdi mdi-square-edit-outline"></i>
               </router-link>
             </Popper>
+          </template>
+          <template #item-is_active="data">
+            <Badge
+              :class="data.is_active ? 'bg-success' : 'bg-danger'"
+              :name="data.is_active ? 'Active' : 'Inactive'"
+            ></Badge>
           </template>
         </EasyDataTable>
       </div>
@@ -73,14 +79,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, watch } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { Http } from "@/services/http-common";
 import Badge from "@/components/shared/Badge.vue";
 
 const pageLoading = ref(true);
 const loading = ref(false);
 const tableData = ref([]);
-
 const serverItemsLength = ref(0);
 const searchValue = ref("");
 const serverOptions = ref({
@@ -92,26 +97,27 @@ const serverOptions = ref({
 
 const headers = [
   { text: "Name", value: "name", sortable: true },
-  { text: "Date", value: "date", sortable: true },
-  { text: "Final Date", value: "final_date", sortable: true },
+  { text: "Description", value: "description", sortable: true },
   { text: "Created At", value: "created_at", sortable: true },
   { text: "Updated At", value: "updated_at", sortable: true },
   { text: "Action", value: "action", width: "200" },
 ];
+
 // Function to convert UTC to local timezone
 const formatToLocalTime = (utcDate) => {
-if (!utcDate) return ""; // Handle null/undefined
-const date = new Date(utcDate); // Parse UTC date string
-return date.toLocaleString("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hour12: true,
-}); // e.g., "Mar 04, 2024, 10:00:00 AM"
+  if (!utcDate) return ""; // Handle null/undefined
+  const date = new Date(utcDate); // Parse UTC date string
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }); // e.g., "Mar 04, 2024, 10:00:00 AM"
 };
+
 const getResults = async () => {
   loading.value = true;
 
@@ -120,43 +126,43 @@ const getResults = async () => {
   }
 
   try {
-  const { data } = await Http.get(
-    `closures?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
-  );
+    const { data } = await Http.get(
+      `report-types?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
+    );
 
-  console.log("API response:", data);
+    console.log("API response:", data);
 
-  // Transform UTC dates to local timezone
-  tableData.value = data.data.data.map(item => ({
-    ...item,
-    created_at: formatToLocalTime(item.created_at),
-    updated_at: formatToLocalTime(item.updated_at),
-  }));
-  serverItemsLength.value = data.data.total;
-} catch (err) {
-  console.error("Error fetching Closures:", err);
-} finally {
-  loading.value = false;
-}
+    // Transform UTC dates to local timezone
+    tableData.value = data.data.data.map((item) => ({
+      ...item,
+      created_at: formatToLocalTime(item.created_at),
+      updated_at: formatToLocalTime(item.updated_at),
+    }));
+    serverItemsLength.value = data.data.total;
+  } catch (err) {
+    console.error("Error fetching categories:", err);
+  } finally {
+    loading.value = false;
+  }
 };
+
 const updateSort = (selectedSortOptions) => {
-  serverOptions.value.sortType = selectedSortOptions.sortType
-    ? selectedSortOptions.sortType
-    : "";
+  serverOptions.value.sortType = selectedSortOptions.sortType || "";
   serverOptions.value.sortBy = selectedSortOptions.sortBy;
 };
 
 watch(
   serverOptions,
-  (value) => {
+  () => {
     getResults();
   },
   { deep: true }
 );
+
 const timer = ref(null);
 watch(
   searchValue,
-  (value) => {
+  () => {
     clearTimeout(timer.value);
     timer.value = setTimeout(() => {
       getResults();
