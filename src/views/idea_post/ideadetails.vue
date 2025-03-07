@@ -95,16 +95,20 @@
               >
               <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
             </button> -->
-
-            <button class="btn btn-sm" @click="focusCommentBox">
+            <button
+              type="button"
+              class="btn btn-sm position-relative"
+              @click="focusCommentBox"
+            >
               <i class="mdi mdi-comment"></i>
               <span
-                class="ml-1"
-                style="font-weight: bold; padding-right: 5px"
-                >{{ ideas.comments_count }}</span
+                class="position-absolute top-0 start-110 translate-middle badge rounded-pill"
+                style="background-color: #670e10; text-align: center"
               >
+                {{ ideas.comments_count }}
+                <span class="visually-hidden">unread messages</span>
+              </span>
             </button>
-
             <button
               class="btn btn-sm"
               @click="
@@ -159,7 +163,7 @@
                   class="btn btn-primary me-md-2"
                   type="submit"
                   v-if="showBtn"
-                  style="color: #670e10; text-transform: uppercase"
+                  style="background-color: #670e10"
                 >
                   Send
                 </button>
@@ -167,7 +171,7 @@
                   class="btn btn-primary"
                   type="button"
                   v-if="showBtn"
-                  style="color: #670e10; text-transform: uppercase"
+                  style="background-color: #670e10"
                   @click="cancelComment"
                 >
                   Cancel
@@ -339,7 +343,6 @@ const sendComment = async () => {
     });
 };
 
-// Reaction
 onMounted(async () => {
   getIdeaDetail();
 });

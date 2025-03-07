@@ -30,8 +30,14 @@ const departmentIndexView = () => import("@/views/departments/IndexView.vue");
 const departmentCreateView = () => import("@/views/departments/CreateView.vue");
 const departmentEditView = () => import("@/views/departments/EditView.vue");
 
+// for category
+const ReportTypeIndexView = () => import("@/views/report_type/IndexView.vue");
+const ReportTypeCreateView = () => import("@/views/report_type/CreateView.vue");
+const ReportTypeEditView = () => import("@/views/report_type/EditView.vue");
+
 // for report
 const reportView = () => import("@/views/idea_post/idea_report.vue");
+const reportDetail = () => import("@/views/idea_post/report_detail.vue");
 
 // for idea
 const ideadetailsview = () => import("@/views/idea_post/ideadetails.vue");
@@ -158,11 +164,35 @@ const appRoutes = [
     component: ideadetailsview,
   },
 
+  // for report type
+  {
+    path: "reportType",
+    name: "reportType-index",
+    component: ReportTypeIndexView,
+  },
+  {
+    path: "reportType/create",
+    name: "reportType-create",
+    component: ReportTypeCreateView,
+  },
+  {
+    path: "reportType/:id/edit",
+    name: "reportType-edit",
+    component: ReportTypeEditView,
+  },
+
   // for report
   {
     path: "report/:id",
     name: "idea_report",
     component: reportView,
+  },
+
+  //for report reason
+  {
+    path: "report_detail/:id/:ideaid",
+    name: "report_detail",
+    component: reportDetail,
   },
 ];
 
