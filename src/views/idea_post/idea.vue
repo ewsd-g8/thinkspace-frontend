@@ -168,7 +168,7 @@
                   }}</span>
                 </p>
                 <h5 style="font-weight: bold; font-size: 20px">
-                  {{ idea.title }} ,
+                  {{ idea.title }}
                 </h5>
                 <div style="font-size: 15px">
                   <p class="content-preview">
