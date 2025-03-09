@@ -3,7 +3,7 @@
     <div class="card">
       <div class="card-body">
         <h4>Post Idea</h4>
-        <form @submit.prevent="postIdea()">
+        <form @submit.prevent="postIdea()" >
           <div class="mb-3">
             <label for="userId" class="form-label" hidden>User ID</label>
             <input type="text" class="form-control" id="userId" v-model="form.userId" readonly hidden />
@@ -113,11 +113,13 @@
 
           <button
             type="submit"
-            class="btn btn-primary"
+            class="btn post-btn btn-primary"  :disabled="isBlocked"
+  :title="isBlocked ? 'You are blocked and cannot react' : ''"
             style="background-color: #5d1010; width: 300px; border-radius: 10px; text-align: center;"
           >
             Post
           </button>
+          
         </form>
       </div>
     </div>
@@ -133,7 +135,8 @@ import { useAuthStore } from "@/stores/auth";
 const authStore = useAuthStore();
 const getUserID = computed(() => authStore.getUserId);
 const router = useRouter();
-
+// Add isBlocked ref to track user's blocked status
+const isblocked = ref(false);
 const categories = ref([]);
 const closures = ref([]);
 const form = reactive({
@@ -189,9 +192,23 @@ const handleDocumentChange = (event) => {
 };
 
 
+  const fetchUserDetails = async () => {
+  try {
+    const response = await Http.get(`/auth-user`); 
+    console.log("user",response)
+    isblocked.value = response.data.data.is_blocked || false; 
+  } catch (error) {
+    console.error("Failed to fetch user details:", error);
+    createToast(
+      { title: "Error", description: "Could not verify user status." },
+      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+    );
+  }
+};
 onMounted(async () => {
   await getAllCategory();
   await getClosure();
+  await fetchUserDetails();
 });
 
 const getAllCategory = async () => {
@@ -216,6 +233,13 @@ const getClosure = async () => {
 };
 
 const postIdea = async () => {
+  if (isblocked.value) {
+    createToast(
+      { title: "Blocked", description: "You are blocked and cannot post ideas.Contact with your adminstrator ." },
+      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+    );
+    return;
+  }
   if (!form.agreeTerms) {
     createToast(
       { title: "Error", description: "You must agree to the terms and conditions." },
@@ -265,7 +289,6 @@ const postIdea = async () => {
   });
 
 
-  
 
   try {
     await Http.post("ideas", fd, {
@@ -313,5 +336,10 @@ li {
 .text-danger {
   font-size: 14px;
   margin-top: 5px;
+}
+.post-btn:disabled,
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

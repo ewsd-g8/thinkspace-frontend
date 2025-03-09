@@ -87,9 +87,9 @@
                   justify-content: center;
                 ">
                 <i class="mdi mdi-account-circle rounded-circle" style="font-size: 40px"></i>
-                <span style="font-weight: bold; margin-left: 5px">Anonymous Participant</span>
+                <span style="font-weight: bold; margin-left: 5px">Anonymous Participant</span> 
               </div>
-            </div>
+            </div><span style="opacity: 0.5; float: right;">{{ idea.views_count }} views</span>
             <div class="d-flex justify-content-between">
               <div>
                 <p class="text-muted">
@@ -132,12 +132,18 @@
             <hr />
 
 
-            <button class="btn btn-sm" @click="thumbUp(idea)">
+            <button class="btn btn-sm":class="{ 'liked': idea.has_thumbs_up }"
+  @click="thumbUp(idea)"
+  :disabled="isBlocked"
+  :title="isBlocked ? 'You are blocked and cannot react' : ''">
               <i class="mdi mdi-thumb-up"></i>
               <span class="ml-1" style="margin-left: 5px; font-weight: bold; padding-right: 5px">{{ idea.likes }}</span>
               <span>{{ idea.likes ? "Liked" : "Like" }}</span>
             </button>
-            <button class="btn btn-sm" @click="thumbDown(idea)">
+            <button class="btn btn-sm" :class="{ 'unliked': idea.has_thumbs_down }"
+  @click="thumbDown(idea)"
+  :disabled="isBlocked"
+  :title="isBlocked ? 'You are blocked and cannot react' : ''">
               <i class="mdi mdi-thumb-down"></i>
               <span class="ml-1" style="margin-left: 5px; font-weight: bold; padding-right: 5px">{{ idea.unlikes }}</span>
               <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
@@ -145,11 +151,13 @@
 
 
 
-            <button class="btn btn-sm" @click="viewIdeaDetails(idea.id)">
+            <button class="btn btn-sm" @click="viewIdeaDetails(idea.id)"
+  :disabled="isBlocked"
+  :title="isBlocked ? 'You are blocked and cannot comment' : ''">
               <i class="mdi mdi-comment"></i>  <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.comments_count }}</span> 
               <span>Comments</span>
             </button>
-            <span>{{ idea.views_count }} views</span>
+           
           </li>
         </ul>
 
@@ -200,9 +208,16 @@ const showSummary = ref(false);
 const store = useAuthStore();
 const user_id = store.getAuthUser.id;
 const router = useRouter();
-
+const isBlocked = ref(false);
 const originalIdeas = ref([]);
-
+const fetchUserDetails = async () => {
+  try {
+    const response = await Http.get("/auth-user");
+    isBlocked.value = response.data.data.is_blocked || false;
+  } catch (error) {
+    console.error("Failed to fetch user details:", error);
+  }
+};
 const uniqueClosures = computed(() => {
   const closures = ideas.value
     .filter((idea) => idea.closure)
@@ -359,10 +374,12 @@ const viewIdeaDetails = async (ideaId) => {
 };
 
 onMounted(async () => {
-  try {
+  try { 
+    await fetchUserDetails();
     await getDepartments();
     await getCategories();
     await fetchIdeas(1);
+   
   } catch (error) {
     console.error("Failed to initialize:", error);
   }
@@ -467,7 +484,11 @@ ul.list-group>li:last-child {
 .spinner-border {
   color: #5d1010;
 }
-
+.reaction-btn:disabled,
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .content-preview {
   display: -webkit-box;
   -webkit-line-clamp: 2;
