@@ -342,9 +342,11 @@ const fetchIdeas = async (
       unlikes: idea.unlikes || 0,
       views_count: idea.views_count || 0,
       comments_count: idea.comments_count || 0,
-      has_thumbs_up: idea.has_reacted && idea.user_reaction === true,
-      has_thumbs_down: idea.has_reacted && idea.user_reaction === false,
+      has_thumbs_up: idea.user_reaction === true,
+      has_thumbs_down: idea.user_reaction === false,
     }));
+
+    console.log(ideas.value);
     originalIdeas.value = ideas.value.map((idea) => ({ ...idea }));
     totalIdeas.value = data.data.total || 0;
   } catch (error) {

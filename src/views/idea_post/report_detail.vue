@@ -23,12 +23,12 @@
       </p>
       <form @submit.prevent="sendReport()">
         <div class="mb-3">
-          <label for="content" class="form-label" style="color: black"
-            >Give your Reason</label
+          <label for="reason" class="form-label" style="color: black"
+            >Give your Reason <span class="text-danger">*</span></label
           >
           <textarea
             class="form-control"
-            id="content"
+            id="reason"
             rows="4"
             v-model="reports.reason"
             autofocus
@@ -36,6 +36,13 @@
             style="min-height: 300px"
             spellcheck="true"
           ></textarea>
+          <v-errors
+            :serverErrors="errorFor('reason')"
+            :vuelidateErrors="{
+              errors: v$?.reason?.$errors,
+              value: 'Reason',
+            }"
+          ></v-errors>
           <small class="form-text text-muted">
             {{ wordCount }} / {{ maxWords }} words
             <span v-if="wordCount > maxWords" class="text-danger">
@@ -127,6 +134,7 @@ const sendReport = async () => {
     },
   })
     .then(() => {
+      router.push({ name: "idea_post_idea" });
       createToast(
         {
           title: "Success",
