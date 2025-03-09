@@ -75,8 +75,6 @@
             </div>
           </div>
           <form @submit.prevent="saveUser()">
-
-
             <div class="row">
               <div class="mb-3 col-md-6">
                 <label for="name" class="form-label"
@@ -104,28 +102,28 @@
 
               <!-- full name -->
               <div class="mb-3 col-md-6">
-                <label for="name" class="form-label"
-                  >Full Name <span class="text-danger">*</span></label
-                >
+                <label for="fullname" class="form-label">
+                  Full Name <span class="text-danger">*</span>
+                </label>
                 <input
                   class="form-control"
                   type="text"
-                  id="name"
+                  id="fullname"
                   autofocus
                   placeholder="Enter Full Name"
                   v-model="user.fullname"
                   :class="{
-                    'is-invalid': v$?.fullname?.$error || errorFor('fullname'),
+                    'is-invalid': v$.fullname.$error || errorFor('fullname'),
                   }"
                 />
                 <v-errors
                   :serverErrors="errorFor('fullname')"
                   :vuelidateErrors="{
-                    errors: v$?.fullname?.$errors,
-                    value: 'Name',
+                    errors: v$.fullname.$errors,
+                    value: 'Full Name',
                   }"
                 ></v-errors>
-              </div> 
+              </div>
               <div class="mb-3 col-md-6">
                 <label for="email" class="form-label"
                   >E-mail <span class="text-danger">*</span></label
@@ -173,7 +171,9 @@
                 ></v-errors>
               </div>
               <div class="mb-3 col-md-6">
-                <label for="mobile" class="form-label">Password Confirm</label>
+                <label for="mobile" class="form-label"
+                  >Password Confirm <span class="text-danger">*</span></label
+                >
                 <input
                   class="form-control"
                   type="password"
@@ -220,9 +220,9 @@
               </div>
 
               <div class="mb-3 col-md-6">
-                <label class="form-label"
-                  >Department <span class="text-danger">*</span></label
-                >
+                <label class="form-label">
+                  Department <span class="text-danger">*</span>
+                </label>
                 <v-select
                   v-model="user.departments"
                   class="style-chooser"
@@ -232,13 +232,13 @@
                   :reduce="(department) => department.id"
                   :class="{
                     'vuelidate-invalid':
-                    v$?.departments?.$error || errorFor('departments'),
+                      v$.departments.$error || errorFor('departments'),
                   }"
                 ></v-select>
                 <v-errors
                   :serverErrors="errorFor('departments')"
                   :vuelidateErrors="{
-                    errors: v$?.departments?.$errors,
+                    errors: v$.departments.$errors,
                     value: 'Department',
                   }"
                 ></v-errors>
@@ -268,7 +268,9 @@
                 ></v-errors>
               </div> -->
               <div class="mb-3 col-md-6">
-                <label for="mobile" class="form-label">Mobile</label>
+                <label for="mobile" class="form-label"
+                  >Mobile <span class="text-danger">*</span></label
+                >
                 <input
                   v-model="user.mobile"
                   class="form-control"
@@ -388,6 +390,7 @@ const fileSizeValidator = helpers.withParams({ type: "fileSize" }, (value) => {
 const rules = computed(() => {
   return {
     name: { required },
+    fullname: { required },
     email: { required, email },
     password: { required, minLength: minLength(6) },
     password_confirmation: {
@@ -398,6 +401,7 @@ const rules = computed(() => {
       ),
     },
     roles: { required },
+    departments: { required },
     mobile: {
       required,
       formatValidator: helpers.withMessage(
@@ -433,7 +437,6 @@ const rules = computed(() => {
       ),
     },
   };
-
 });
 const v$ = useVuelidate(rules, user);
 
@@ -454,7 +457,7 @@ const saveUser = async () => {
   fd.append("mobile", user.mobile);
   fd.append("profile", user.profile);
   fd.append("department_id", user.departments);
-console.log(user.departments);
+  console.log(user.departments);
   await Http.post("users", fd, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -487,5 +490,4 @@ onMounted(() => {
   getRoles();
   getDepartments();
 });
-
 </script>
