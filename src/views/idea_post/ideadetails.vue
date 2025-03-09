@@ -67,82 +67,108 @@
             </div>
           </div>
           <hr />
-          <hr />
-          <div>
-            <!-- <button
-              class="btn btn-sm"
-              @click="thumbUp(idea)"
-              :disabled="idea.has_thumbs_up"
-            >
-              <i class="mdi mdi-thumb-up"></i>
-              <span
-                class="ml-1"
-                style="font-weight: bold; padding-right: 5px"
-                >{{ idea.thumbs_up_count.likes }}</span
+          <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-start w-50">
+              <button class="btn btn-sm" @click="thumbsUp()">
+                <i class="mdi mdi-thumb-up"></i>
+                <span
+                  class="ml-1"
+                  style="
+                    margin-left: 5px;
+                    font-weight: bold;
+                    padding-right: 5px;
+                  "
+                  >{{ ideas.likes }}</span
+                >
+                <span>{{ ideas.likes ? "Liked" : "Like" }}</span>
+              </button>
+              <button class="btn btn-sm" @click="thumbsDown()">
+                <i class="mdi mdi-thumb-down"></i>
+                <span
+                  class="ml-1"
+                  style="
+                    margin-left: 5px;
+                    font-weight: bold;
+                    padding-right: 5px;
+                  "
+                  >{{ ideas.unlikes }}</span
+                >
+                <span>{{ ideas.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm position-relative"
+                @click="focusCommentBox"
               >
-              <span>{{ idea.has_thumbs_up ? "Liked" : "Like" }}</span>
-            </button>
-            <button
-              class="btn btn-sm"
-              @click="thumbDown(idea)"
-              :disabled="idea.has_thumbs_down"
-            >
-              <i class="mdi mdi-thumb-down"></i>
-              <span
-                class="ml-1"
-                style="font-weight: bold; padding-right: 5px"
-                >{{ idea.thumbs_up_count.unlikes }}</span
+                <i class="mdi mdi-comment"></i>
+                <span
+                  class="ml-1"
+                  style="
+                    margin-left: 5px;
+                    font-weight: bold;
+                    padding-right: 5px;
+                  "
+                  >{{ ideas.comments_count }}</span
+                >
+                <span>{{
+                  ideas.comments_count ? "Commented" : "Comment"
+                }}</span>
+              </button>
+              <button
+                class="btn btn-sm"
+                @click="
+                  () =>
+                    $router
+                      .push({
+                        name: 'idea_report',
+                        params: { id: route.params.id },
+                      })
+                      .catch((err) => console.error(err))
+                "
               >
-              <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
-            </button> -->
-            <button
-              type="button"
-              class="btn btn-sm position-relative"
-              @click="focusCommentBox"
-            >
-              <i class="mdi mdi-comment"></i>
-              <span
-                class="position-absolute top-0 start-110 translate-middle badge rounded-pill"
-                style="background-color: #670e10; text-align: center"
+                <i class="mdi mdi-message-alert"></i>
+                <span class="ml-1" style="margin-left: 5px; padding-right: 5px"
+                  >Report</span
+                >
+              </button>
+            </div>
+            <div class="d-flex justify-content-end align-items-center w-50">
+              <span style="margin-right: 20px"
+                >{{ ideas.views_count }} views</span
               >
-                {{ ideas.comments_count }}
-                <span class="visually-hidden">unread messages</span>
-              </span>
-            </button>
-            <button
-              class="btn btn-sm"
-              @click="
-                () =>
-                  $router
-                    .push({
-                      name: 'idea_report',
-                      params: { id: route.params.id },
-                    })
-                    .catch((err) => console.error(err))
-              "
-            >
-              <i class="mdi mdi-message-alert"></i>
-            </button>
+              <button
+                class="btn btn-primary me-md-2 ml-3"
+                type="submit"
+                style="background-color: #670e10"
+                @click="showDocToggle()"
+                :disabled="ideas.document.length === 0"
+              >
+                Documents
+              </button>
+            </div>
           </div>
           <hr />
-          <div class="grid w-100">
-            <div
-              v-for="doc in ideas.document"
-              :key="doc.id"
-              class="g-col-6 g-col-md-4 d-flex justify-content-center align-items-center mb-3"
-            >
-              <img
-                v-if="isImage(doc.file_path)"
-                :src="doc.file_path"
-                class="img-fluid w-50 h-50 shadow-lg p-3bg-body-tertiary rounded"
-                alt="..."
-              />
-              <iframe
-                v-else-if="isPDF(doc.file_path)"
-                :src="doc.file_path"
-                class="w-50 shadow-lg p-3 bg-body-tertiary rounded"
-                style="height: 500px"
-              ></iframe>
+          <div>
+            <div class="grid w-100" v-if="showDocument">
+              <div
+                v-for="doc in ideas.document"
+                :key="doc.id"
+                class="g-col-6 g-col-md-4 mb-3"
+              >
+                <img
+                  v-if="isImage(doc.file_path)"
+                  :src="doc.file_path"
+                  class="img-fluid w-25 h-50 shadow-lg p-3bg-body-tertiary rounded float-start"
+                  alt="..."
+                />
+
+                <iframe
+                  v-else-if="isPDF(doc.file_path)"
+                  :src="doc.file_path"
+                  class="w-100 shadow-lg p-3 bg-body-tertiary rounded"
+                  style="height: 600px"
+                ></iframe>
+              </div>
             </div>
           </div>
           <hr />
@@ -236,6 +262,9 @@ const getUserID = computed(() => authStore.getUserId);
 const router = useRouter();
 const route = useRoute();
 
+console.log(getUserID);
+console.log(route.params.id);
+
 const ideas = reactive({
   content: "",
   title: "",
@@ -244,6 +273,12 @@ const ideas = reactive({
   document: "",
   comments: "",
   comments_count: "",
+  user_reaction: "",
+  likes: "",
+  unlikes: "",
+  views_count: "",
+  has_thumbs_up: "",
+  has_thumbs_down: "",
 });
 
 const getIdeaDetail = async () => {
@@ -258,6 +293,14 @@ const getIdeaDetail = async () => {
       ideas.document = res.data.data.documents;
       ideas.comments = res.data.data.comments;
       ideas.comments_count = res.data.data.comments_count;
+      ideas.user_reaction = res.data.data.user_reaction;
+      ideas.likes = res.data.data.likes;
+      ideas.unlikes = res.data.data.unlikes;
+      ideas.views_count = res.data.data.views_count;
+      ideas.has_thumbs_up = ideas.user_reaction === true;
+      ideas.has_thumbs_down = ideas.user_reaction === false;
+      console.log(ideas.has_thumbs_up);
+      console.log(ideas.has_thumbs_down);
       console.log(res.data.data.documents);
       loading.value = false;
     })
@@ -268,10 +311,87 @@ const getIdeaDetail = async () => {
     });
 };
 
+// Reaction
+const updatedIdea = reactive({
+  content: "",
+  title: "",
+  closurename: "",
+  categories: "",
+  document: "",
+  comments: "",
+  comments_count: "",
+  user_reaction: "",
+  likes: "",
+  unlikes: "",
+  views_count: "",
+});
+
+const thumbsUp = async () => {
+  const newLikes = ideas.has_thumbs_up
+    ? (ideas.likes || 0) - 1
+    : (ideas.likes || 0) + 1;
+  const newUnlikes = ideas.has_thumbs_down
+    ? (ideas.unlikes || 0) - 1
+    : ideas.unlikes || 0;
+
+  ideas.likes = newLikes;
+  ideas.unlikes = newUnlikes;
+  ideas.has_thumbs_up = !ideas.has_thumbs_up;
+  ideas.has_thumbs_down = false;
+
+  try {
+    await Http.post(`reactions`, {
+      idea_id: route.params.id,
+      type: true,
+    });
+    const response = await Http.get(`ideas/${route.params.id}`);
+    console.log(response);
+    updatedIdea.user_reaction = response.data.data.user_reaction;
+    console.log(updatedIdea.user_reaction);
+    ideas.has_thumbs_up = updatedIdea.user_reaction === true;
+    ideas.has_thumbs_down = updatedIdea.user_reaction === false;
+  } catch (error) {
+    console.error("Error in thumbUp:", error.response?.data || error.message);
+  }
+};
+
+const thumbsDown = async () => {
+  const newUnlikes = ideas.has_thumbs_down
+    ? (ideas.unlikes || 0) - 1
+    : (ideas.unlikes || 0) + 1;
+  const newLikes = ideas.has_thumbs_up
+    ? (ideas.likes || 0) - 1
+    : ideas.likes || 0;
+
+  ideas.likes = newLikes;
+  ideas.unlikes = newUnlikes;
+  ideas.has_thumbs_up = false;
+  ideas.has_thumbs_down = !ideas.has_thumbs_down;
+
+  try {
+    await Http.post(`reactions`, {
+      idea_id: route.params.id,
+      type: false,
+    });
+    const response = await Http.get(`ideas/${route.params.id}`);
+    console.log(response);
+    updatedIdea.user_reaction = response.data.data.user_reaction;
+    console.log(updatedIdea.user_reaction);
+    ideas.has_thumbs_up = updatedIdea.user_reaction === true;
+    ideas.has_thumbs_down = updatedIdea.user_reaction === false;
+  } catch (error) {
+    console.error("Error in thumbDown:", error.response?.data || error.message);
+  }
+};
+
 const showBtn = ref(false);
+const showDocument = ref(false);
 
 const toggleBtn = () => {
   showBtn.value = !showBtn.value;
+};
+const showDocToggle = () => {
+  showDocument.value = !showDocument.value;
 };
 
 const isImage = (filePath) => {
@@ -315,12 +435,22 @@ const sendComment = async () => {
   fd.append("user_id", comment.user_id);
   fd.append("idea_id", comment.idea_id);
 
+  const commentDetail = async () => {
+    const ideares = await Http.get(`ideas/${route.params.id}`);
+    console.log(ideares);
+    updatedIdea.comments = ideares.data.data.comments;
+    updatedIdea.comments_count = ideares.data.data.comments_count;
+    ideas.comments = updatedIdea.comments;
+    ideas.comments_count = updatedIdea.comments_count;
+  };
+
   await Http.post("comments", fd, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   })
     .then(() => {
+      commentDetail();
       createToast(
         {
           title: "Success",
@@ -340,6 +470,8 @@ const sendComment = async () => {
     })
     .finally(() => {
       loading.value = false;
+      comment.content = ""; // Clear input
+      showBtn.value = false; // Hide buttons
     });
 };
 
