@@ -128,7 +128,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
-import { useRouter } from "vue-router";
+
 import { createToast } from "mosha-vue-toastify";
 import { Http } from "@/services/http-common";
 import { useAuthStore } from "@/stores/auth";
@@ -224,9 +224,6 @@ const getAllCategory = async () => {
   }
 };
 
-const getClosure = async () => {
-  try {
-};
 
 const getClosure = async () => {
   try {
