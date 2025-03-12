@@ -11,16 +11,23 @@
 
         <!-- Summary Section -->
 
-
         <!-- Search and Content Length Filters -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
           <div style="flex: 4; margin-right: 10px; min-width: 200px">
-            <input type="text" class="form-control" placeholder="Search by title" v-model="searchQuery"
-              @input="debouncedSearchIdeas" />
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search by title"
+              v-model="searchQuery"
+              @input="debouncedSearchIdeas"
+            />
           </div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
-            <select class="form-control form-control-sm content-length-filter" v-model="selectedContentLength"
-              @change="filterIdeas">
+            <select
+              class="form-control form-control-sm content-length-filter"
+              v-model="selectedContentLength"
+              @change="filterIdeas"
+            >
               <option value="">All Lengths</option>
               <option value="short">Short (< 100 chars)</option>
               <option value="medium">Medium (100-400 chars)</option>
@@ -32,43 +39,76 @@
         <!-- Filters Container -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
           <div style="flex: 1; margin-right: 10px; min-width: 200px">
-            <select class="form-control" v-model="selectedCategory" @change="filterIdeas">
+            <select
+              class="form-control"
+              v-model="selectedCategory"
+              @change="filterIdeas"
+            >
               <option value="">All Categories</option>
-              <option v-for="category in categories" :key="category.id" :value="category.name">
+              <option
+                v-for="category in categories"
+                :key="category.id"
+                :value="category.name"
+              >
                 {{ category.name }}
               </option>
             </select>
           </div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
-            <select class="form-control" v-model="selectedDepartment" @change="filterIdeas">
+            <select
+              class="form-control"
+              v-model="selectedDepartment"
+              @change="filterIdeas"
+            >
               <option value="">All Departments</option>
-              <option v-for="department in departments" :key="department.id" :value="department.name">
+              <option
+                v-for="department in departments"
+                :key="department.id"
+                :value="department.name"
+              >
                 {{ department.name }}
               </option>
             </select>
           </div>
           <div style="flex: 1; margin: 0 10px; min-width: 200px">
-            <select class="form-control" v-model="selectedClosure" @change="filterIdeas">
+            <select
+              class="form-control"
+              v-model="selectedClosure"
+              @change="filterIdeas"
+            >
               <option value="">All Closures</option>
-              <option v-for="closure in uniqueClosures" :key="closure.id" :value="closure.name">
+              <option
+                v-for="closure in uniqueClosures"
+                :key="closure.id"
+                :value="closure.name"
+              >
                 {{ closure.name }}
               </option>
             </select>
           </div>
           <div style="flex: 1; margin-left: 10px; min-width: 200px">
-            <select class="form-control" v-model="sortOption" @change="sortIdeas">
+            <select
+              class="form-control"
+              v-model="sortOption"
+              @change="sortIdeas"
+            >
               <option value="newest">Newest to Oldest</option>
               <option value="oldest">Oldest to Newest</option>
               <option value="mostLikes">Most Likes</option>
               <option value="mostDislikes">Most Dislikes</option>
-              <option value="mostViews">Most Views</option> <!-- Fixed label -->
+              <option value="mostViews">Most Views</option>
+              <!-- Fixed label -->
             </select>
           </div>
         </div>
 
         <!-- Loading Animation -->
         <div v-if="loading" class="text-center my-5">
-          <div class="spinner-border" role="status" style="width: 3rem; height: 3rem">
+          <div
+            class="spinner-border"
+            role="status"
+            style="width: 3rem; height: 3rem"
+          >
             <span class="visually-hidden">Loading...</span>
           </div>
           <p>Loading ideas...</p>
@@ -76,35 +116,66 @@
 
         <!-- Ideas List -->
         <ul v-else class="list-group">
-          <li class="list-group-item" v-for="idea in filteredIdeas" :key="idea.id" style="
+          <li
+            class="list-group-item"
+            v-for="idea in filteredIdeas"
+            :key="idea.id"
+            style="
               box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49);
               margin-bottom: 20px;
-            ">
+            "
+          >
             <div style="display: inline-block">
-              <div style="
+              <div
+                style="
                   display: flex;
                   align-items: center;
                   justify-content: center;
-                ">
-                <i class="mdi mdi-account-circle rounded-circle" style="font-size: 40px"></i>
-                <span style="font-weight: bold; margin-left: 5px">Anonymous Participant</span> 
+                "
+                @mouseover="showPopup(idea)"
+                @mouseleave="hidePopup()"
+                @click="togglePopup(idea)"
+              >
+                <img
+                  :src="
+                    idea.is_anonymous
+                      ? '/images/users/anonymous.jpg' // Default for anonymous
+                      : idea.user?.profile || '/images/users/anonymous.jpg' // User's profile or fallback
+                  "
+                  class="rounded-circle"
+                  style="width: 40px; height: 40px; object-fit: cover"
+                  alt="User Profile"
+                />
+                <span style="font-weight: bold; margin-left: 5px">
+                  {{
+                    idea.is_anonymous
+                      ? "Anonymous Participant"
+                      : idea.user?.name || "Unknown User"
+                  }}
+                </span>
               </div>
-            </div><span style="opacity: 0.5; float: right;">{{ idea.views_count }} views</span>
+            </div>
+
+            <span style="opacity: 0.5; float: right"
+              >{{ idea.views_count }} views</span
+            >
             <div class="d-flex justify-content-between">
-              <div>
+              <div @click="viewIdeaDetails(idea.id)" style="cursor: pointer">
                 <p class="text-muted">
-                  <span style="
+                  <span
+                    style="
                       background-color: #e5e5e5;
                       border: 1px solid #ccc;
                       border-radius: 5px;
                       padding: 5px;
                       margin-right: 5px;
-                    ">
+                    "
+                  >
                     {{
                       idea.categories && idea.categories.length
                         ? `Tagged Categories: ${idea.categories
-                          .map((cat) => cat.name)
-                          .join(", ")}`
+                            .map((cat) => cat.name)
+                            .join(", ")}`
                         : "No categories"
                     }}
                   </span>
@@ -114,62 +185,132 @@
                   }}</span>
                 </p>
                 <h5 style="font-weight: bold; font-size: 20px">
-
                   {{ idea.title }}
-
                 </h5>
                 <div style="font-size: 15px">
                   <p class="content-preview">
                     {{ truncateContent(idea.content) }}
-                    <span v-if="idea.content.length > 300" class="see-more">
-                      <router-link :to="{
-                        name: 'idea_details',
-                        params: { id: idea.id },
-                      }" @click.stop>...see more</router-link>
+                    <span v-if="idea.content.length > 100" class="see-more">
+                      <router-link
+                        :to="{
+                          name: 'idea_details',
+                          params: { id: idea.id },
+                        }"
+                        @click.stop
+                        >...see more</router-link
+                      >
                     </span>
                   </p>
                 </div>
               </div>
             </div>
+            <div
+              v-if="currentIdea && currentIdea.id === idea.id && popupVisible"
+              class="idea-popup"
+            >
+              <img
+                :src="
+                  idea.is_anonymous
+                    ? '/images/users/anonymous.jpg'
+                    : idea.user?.profile || '/images/users/anonymous.jpg'
+                "
+                style="
+                  width: 200px;
+                  height: auto;
+                  object-fit: cover;
+                  border-radius: 8px;
+                "
+                alt="Profile Picture"
+              />
+              <h5>{{ idea.title }}</h5>
+              <p>
+                <strong>Full Name:</strong>
+                {{
+                  idea.is_anonymous
+                    ? "Anonymous"
+                    : idea.user?.full_name || "Unknown"
+                }}
+              </p>
+              <p>
+                <strong>Department:</strong>
+                {{
+                  idea.is_anonymous
+                    ? "Anonymous"
+                    : idea.user?.department?.name || "Not specified"
+                }}
+              </p>
+              <p><strong>Idea view:</strong> {{ idea.views_count || "0" }}</p>
+              <p>
+                <strong>Closure:</strong>
+                {{ idea.closure?.name || "No closure" }}
+              </p>
+             
+            </div>
             <hr />
 
-
-            <button class="btn btn-sm":class="{ 'liked': idea.has_thumbs_up }"
-  @click="thumbUp(idea)"
-  :disabled="isBlocked"
-  :title="isBlocked ? 'You are blocked and cannot react' : ''">
+            <button
+              class="btn btn-sm"
+              :class="{ liked: idea.has_thumbs_up }"
+              @click="thumbUp(idea)"
+              :disabled="isBlocked"
+              :title="isBlocked ? 'You are blocked and cannot react' : ''"
+            >
               <i class="mdi mdi-thumb-up"></i>
-              <span class="ml-1" style="margin-left: 5px; font-weight: bold; padding-right: 5px">{{ idea.likes }}</span>
+              <span
+                class="ml-1"
+                style="margin-left: 5px; font-weight: bold; padding-right: 5px"
+                >{{ idea.likes }}</span
+              >
               <span>{{ idea.likes ? "Liked" : "Like" }}</span>
             </button>
-            <button class="btn btn-sm" :class="{ 'unliked': idea.has_thumbs_down }"
-  @click="thumbDown(idea)"
-  :disabled="isBlocked"
-  :title="isBlocked ? 'You are blocked and cannot react' : ''">
+            <button
+              class="btn btn-sm"
+              :class="{ unliked: idea.has_thumbs_down }"
+              @click="thumbDown(idea)"
+              :disabled="isBlocked"
+              :title="isBlocked ? 'You are blocked and cannot react' : ''"
+            >
               <i class="mdi mdi-thumb-down"></i>
-              <span class="ml-1" style="margin-left: 5px; font-weight: bold; padding-right: 5px">{{ idea.unlikes }}</span>
+              <span
+                class="ml-1"
+                style="margin-left: 5px; font-weight: bold; padding-right: 5px"
+                >{{ idea.unlikes }}</span
+              >
               <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
             </button>
 
-
-
-            <button class="btn btn-sm" @click="viewIdeaDetails(idea.id)"
-  :disabled="isBlocked"
-  :title="isBlocked ? 'You are blocked and cannot comment' : ''">
-              <i class="mdi mdi-comment"></i>  <span class="ml-1" style="font-weight: bold; padding-right: 5px">{{ idea.comments_count }}</span> 
+            <button
+              class="btn btn-sm"
+              :disabled="isBlocked"
+              @click="viewIdeaDetails(idea.id)"
+              :title="isBlocked ? 'You are blocked and cannot comment' : ''"
+            >
+              <i class="mdi mdi-comment"></i>
+              <span
+                class="ml-1"
+                style="font-weight: bold; padding-right: 5px"
+                >{{ idea.comments_count }}</span
+              >
               <span>Comments</span>
             </button>
-           
           </li>
         </ul>
 
         <!-- Pagination Controls -->
         <div v-if="!loading" class="d-flex justify-content-between mt-3">
-          <button class="btn btn-primary" @click="previousPage" :disabled="currentPage === 1">
+          <button
+            class="btn btn-primary"
+            @click="previousPage"
+            :disabled="currentPage === 1"
+          >
             Previous
           </button>
           <span>Page {{ currentPage }} of {{ totalPages }}</span>
-          <button class="btn btn-primary" @click="nextPage" :disabled="currentPage === totalPages">
+          <button
+            class="btn btn-primary"
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+          >
             Next
           </button>
         </div>
@@ -212,6 +353,9 @@ const user_id = store.getAuthUser.id;
 const router = useRouter();
 const isBlocked = ref(false);
 const originalIdeas = ref([]);
+const popupVisible = ref(false); // Pop-up visibility state
+const currentIdea = ref(null);
+
 const fetchUserDetails = async () => {
   try {
     const response = await Http.get("/auth-user");
@@ -228,7 +372,9 @@ const uniqueClosures = computed(() => {
       name: idea.closure.name,
       created_at: idea.closure.created_at || idea.created_at,
     }));
-  return [...new Set(closures.map((c) => JSON.stringify(c)))].map((c) => JSON.parse(c));
+  return [...new Set(closures.map((c) => JSON.stringify(c)))].map((c) =>
+    JSON.parse(c)
+  );
 });
 
 const totalPages = computed(() => {
@@ -239,38 +385,66 @@ const filteredIdeas = computed(() => {
   return [...ideas.value];
 });
 
-const fetchIdeas = async (page = currentPage.value, search = searchQuery.value) => {
+const fetchIdeas = async (
+  page = currentPage.value,
+  search = searchQuery.value
+) => {
   loading.value = true;
   try {
     const url = `ideas?page=${page}&paginate=${itemsPerPage}&search=${encodeURIComponent(
       search
-    )}&category=${encodeURIComponent(selectedCategory.value)}&department=${encodeURIComponent(
+    )}&category=${encodeURIComponent(
+      selectedCategory.value
+    )}&department=${encodeURIComponent(
       selectedDepartment.value
-    )}&closure=${encodeURIComponent(selectedClosure.value)}&contentLength=${encodeURIComponent(
+    )}&closure=${encodeURIComponent(
+      selectedClosure.value
+    )}&contentLength=${encodeURIComponent(
       selectedContentLength.value
     )}&sort=${encodeURIComponent(sortOption.value)}`;
     console.log("Fetching ideas with URL:", url);
     const { data } = await Http.get(url);
     console.log("API response:", data);
 
-    ideas.value = (data.data.data || []).map(idea => ({
+    ideas.value = (data.data.data || []).map((idea) => ({
       ...idea,
       likes: idea.likes || 0,
       unlikes: idea.unlikes || 0,
       views_count: idea.views_count || 0,
-      comments_count:idea.comments_count || 0,
+      comments_count: idea.comments_count || 0,
       has_thumbs_up: idea.has_reacted && idea.user_reaction === true,
       has_thumbs_down: idea.has_reacted && idea.user_reaction === false,
     }));
-    originalIdeas.value = ideas.value.map(idea => ({ ...idea }));
+    originalIdeas.value = ideas.value.map((idea) => ({ ...idea }));
     totalIdeas.value = data.data.total || 0;
   } catch (error) {
-    console.error("Failed to load ideas:", error.response?.data || error.message);
+    console.error(
+      "Failed to load ideas:",
+      error.response?.data || error.message
+    );
     ideas.value = [];
     originalIdeas.value = [];
     totalIdeas.value = 0;
   } finally {
     loading.value = false;
+  }
+};
+// Pop-up control functions
+const showPopup = (idea) => {
+  currentIdea.value = idea;
+  popupVisible.value = true;
+};
+
+const hidePopup = () => {
+  popupVisible.value = false;
+  currentIdea.value = null;
+};
+
+const togglePopup = (idea) => {
+  if (currentIdea.value && currentIdea.value.id === idea.id) {
+    hidePopup();
+  } else {
+    showPopup(idea);
   }
 };
 
@@ -280,8 +454,12 @@ const thumbUp = async (idea) => {
   if (index === -1 || originalIndex === -1) return;
 
   const currentIdea = ideas.value[index];
-  const newLikes = currentIdea.has_thumbs_up ? (currentIdea.likes || 0) - 1 : (currentIdea.likes || 0) + 1;
-  const newUnlikes = currentIdea.has_thumbs_down ? (currentIdea.unlikes || 0) - 1 : currentIdea.unlikes || 0;
+  const newLikes = currentIdea.has_thumbs_up
+    ? (currentIdea.likes || 0) - 1
+    : (currentIdea.likes || 0) + 1;
+  const newUnlikes = currentIdea.has_thumbs_down
+    ? (currentIdea.unlikes || 0) - 1
+    : currentIdea.unlikes || 0;
   ideas.value[index] = {
     ...currentIdea,
     likes: newLikes,
@@ -315,8 +493,12 @@ const thumbDown = async (idea) => {
   if (index === -1 || originalIndex === -1) return;
 
   const currentIdea = ideas.value[index];
-  const newUnlikes = currentIdea.has_thumbs_down ? (currentIdea.unlikes || 0) - 1 : (currentIdea.unlikes || 0) + 1;
-  const newLikes = currentIdea.has_thumbs_up ? (currentIdea.likes || 0) - 1 : currentIdea.likes || 0;
+  const newUnlikes = currentIdea.has_thumbs_down
+    ? (currentIdea.unlikes || 0) - 1
+    : (currentIdea.unlikes || 0) + 1;
+  const newLikes = currentIdea.has_thumbs_up
+    ? (currentIdea.likes || 0) - 1
+    : currentIdea.likes || 0;
   ideas.value[index] = {
     ...currentIdea,
     likes: newLikes,
@@ -359,29 +541,34 @@ const viewIdeaDetails = async (ideaId) => {
         ...updatedIdea,
         likes: updatedIdea.likes || 0,
         unlikes: updatedIdea.unlikes || 0,
-        has_thumbs_up: updatedIdea.has_reacted && updatedIdea.user_reaction === true,
-        has_thumbs_down: updatedIdea.has_reacted && updatedIdea.user_reaction === false,
+        has_thumbs_up:
+          updatedIdea.has_reacted && updatedIdea.user_reaction === true,
+        has_thumbs_down:
+          updatedIdea.has_reacted && updatedIdea.user_reaction === false,
       };
       originalIdeas.value[index] = { ...ideas.value[index] };
       ideas.value = [...ideas.value];
     }
 
     // Navigate to details page
-    router.push({ name: 'idea_details', params: { id: ideaId } });
+    router.push({ name: "idea_details", params: { id: ideaId } });
   } catch (error) {
-    console.error("Error in viewIdeaDetails:", error.response?.data || error.message);
+    console.error(
+      "Error in viewIdeaDetails:",
+      error.response?.data || error.message
+    );
     // Navigate even if view increment fails
-    router.push({ name: 'idea_details', params: { id: ideaId } });
+    router.push({ name: "idea_details", params: { id: ideaId } });
   }
 };
 
 onMounted(async () => {
-  try { 
+  try {
     await fetchUserDetails();
     await getDepartments();
     await getCategories();
+
     await fetchIdeas(1);
-   
   } catch (error) {
     console.error("Failed to initialize:", error);
   }
@@ -393,7 +580,11 @@ const debouncedSearchIdeas = debounce(() => {
 }, 500);
 
 const filterIdeas = () => {
-  console.log("filterIdeas triggered with:", { category: selectedCategory.value, department: selectedDepartment.value, closure: selectedClosure.value });
+  console.log("filterIdeas triggered with:", {
+    category: selectedCategory.value,
+    department: selectedDepartment.value,
+    closure: selectedClosure.value,
+  });
   currentPage.value = 1;
   fetchIdeas(currentPage.value);
 };
@@ -442,19 +633,12 @@ const toggleSummary = () => {
 };
 
 const truncateContent = (content) => {
-  const maxLength = 400;
+  const maxLength = 200;
   if (!content || typeof content !== "string") return "";
   if (content.length <= maxLength) return content;
   return content.substring(0, maxLength).trim() + "...";
 };
 </script>
-
-
-
-
-
-
-
 
 <style scoped>
 ul.list-group {
@@ -462,13 +646,48 @@ ul.list-group {
   padding: 0;
   margin: 0;
 }
+.idea-popup {
+  position: absolute;
+  top: 0%;
+  left: 0;
+  z-index: 1000;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 650px;
+  max-height: 400px;
+  width: 100%;
+}
 
-ul.list-group>li {
+.idea-popup h5 {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.idea-popup p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .idea-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+  }
+}
+ul.list-group > li {
   padding: 10px;
   border-bottom: 1px solid #ccc;
 }
 
-ul.list-group>li:last-child {
+ul.list-group > li:last-child {
   border-bottom: none;
 }
 
@@ -477,7 +696,7 @@ ul.list-group>li:last-child {
     flex-direction: column;
   }
 
-  .d-flex.flex-wrap>div {
+  .d-flex.flex-wrap > div {
     margin: 0 0 10px 0 !important;
     width: 100%;
   }
