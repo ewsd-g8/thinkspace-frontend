@@ -3,7 +3,7 @@
     <div class="card">
       <div class="card-body">
         <h4>Post Idea</h4>
-        <form @submit.prevent="postIdea()" >
+        <form @submit.prevent="postIdea()">
           <div class="mb-3">
             <label for="userId" class="form-label" hidden>User ID</label>
             <input type="text" class="form-control" id="userId" v-model="form.userId" readonly hidden />
@@ -91,8 +91,21 @@
             <p v-if="documentError" class="text-danger">{{ documentError }}</p>
           </div>
 
-        
-          
+          <!-- Anonymous Switch -->
+          <div class="mb-3">
+            <label class="form-label">Post Anonymously</label>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="isAnonymous"
+                v-model="form.isAnonymous"
+              />
+              <label class="form-check-label" for="isAnonymous">
+                {{ form.isAnonymous ? 'Post as Anonymous' : 'Post with Username' }}
+              </label>
+            </div>
+          </div>
 
           <!-- Closure Information -->
           <div class="mb-3">
@@ -113,32 +126,31 @@
 
           <button
             type="submit"
-            class="btn post-btn btn-primary"  :disabled="isBlocked"
-  :title="isBlocked ? 'You are blocked and cannot react' : ''"
+            class="btn post-btn btn-primary"
+            :disabled="isBlocked"
+            :title="isBlocked ? 'You are blocked and cannot react' : ''"
             style="background-color: #5d1010; width: 300px; border-radius: 10px; text-align: center;"
           >
             Post
           </button>
-          
         </form>
       </div>
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
-
 import { createToast } from "mosha-vue-toastify";
 import { Http } from "@/services/http-common";
 import { useAuthStore } from "@/stores/auth";
 
-
 const authStore = useAuthStore();
 const getUserID = computed(() => authStore.getUserId);
 const router = useRouter();
-// Add isBlocked ref to track user's blocked status
-const isblocked = ref(false);
+
+const isBlocked = ref(false); // Fixed typo: `isblocked` to `isBlocked`
 const categories = ref([]);
 const closures = ref([]);
 const form = reactive({
@@ -147,13 +159,12 @@ const form = reactive({
   closure_id: "",
   userId: getUserID,
   category_id: [],
+  isAnonymous: false, // Added isAnonymous field, defaulting to false
   agreeTerms: false,
 });
 
 const documentInput = ref(null);
-
 const selectedDocuments = ref([]);
-
 const documentError = ref("");
 
 // Trigger document input
@@ -161,18 +172,14 @@ const triggerDocumentInput = () => {
   documentInput.value.click();
 };
 
-
-
 // Handle document selection with validation
 const handleDocumentChange = (event) => {
   const files = Array.from(event.target.files);
   const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
   const maxSize = 5 * 1024 * 1024; // 5MB in bytes
 
-  // Reset error
   documentError.value = "";
 
-  // Validate files
   if (files.length > 3) {
     documentError.value = "Maximum of 3 documents allowed.";
     return;
@@ -193,12 +200,11 @@ const handleDocumentChange = (event) => {
   console.log("Selected documents:", selectedDocuments.value);
 };
 
-
-  const fetchUserDetails = async () => {
+const fetchUserDetails = async () => {
   try {
-    const response = await Http.get(`/auth-user`); 
-    console.log("user",response)
-    isblocked.value = response.data.data.is_blocked || false; 
+    const response = await Http.get(`/auth-user`);
+    console.log("user", response);
+    isBlocked.value = response.data.data.is_blocked || false;
   } catch (error) {
     console.error("Failed to fetch user details:", error);
     createToast(
@@ -207,6 +213,7 @@ const handleDocumentChange = (event) => {
     );
   }
 };
+
 onMounted(async () => {
   await getAllCategory();
   await getClosure();
@@ -216,31 +223,28 @@ onMounted(async () => {
 const getAllCategory = async () => {
   try {
     const response = await Http.get("/get-all-categories");
-    console.log("cate", response)
+    console.log("cate", response);
     categories.value = response.data.data;
-    console.log("cate", categories.value)
+    console.log("cate", categories.value);
   } catch (error) {
     console.error("Failed to fetch categories", error);
   }
 };
 
-
 const getClosure = async () => {
   try {
     const response = await Http.get("closures");
     closures.value = response.data.data.data;
-    console.log("closure", closures.value)
-    closures.value = response.data.data.data;
-    console.log("closure", closures.value)
+    console.log("closure", closures.value);
   } catch (error) {
     console.error("Failed to fetch closures", error);
   }
 };
 
 const postIdea = async () => {
-  if (isblocked.value) {
+  if (isBlocked.value) {
     createToast(
-      { title: "Blocked", description: "You are blocked and cannot post ideas.Contact with your adminstrator ." },
+      { title: "Blocked", description: "You are blocked and cannot post ideas. Contact your administrator." },
       { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
     );
     return;
@@ -282,6 +286,7 @@ const postIdea = async () => {
     return;
   }
   fd.append("user_id", form.userId);
+  fd.append("is_anonymous", form.isAnonymous ? 1 : 0); // Send as 1 or 0 for backend compatibility
 
   // Append categories as an array
   form.category_id.forEach(categoryId => {
@@ -292,8 +297,6 @@ const postIdea = async () => {
   selectedDocuments.value.forEach((file, index) => {
     fd.append(`documents[${index}]`, file);
   });
-
-
 
   try {
     await Http.post("ideas", fd, {
@@ -315,6 +318,7 @@ const postIdea = async () => {
   }
 };
 </script>
+
 <style scoped>
 .btn {
   display: flex;
@@ -342,9 +346,21 @@ li {
   font-size: 14px;
   margin-top: 5px;
 }
+
 .post-btn:disabled,
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Style for the switch */
+.form-switch .form-check-input {
+  width: 2em;
+  height: 1em;
+  margin-top: 0.25em;
+}
+
+.form-switch .form-check-label {
+  margin-left: 0.5em;
 }
 </style>
