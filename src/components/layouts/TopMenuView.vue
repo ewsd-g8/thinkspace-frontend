@@ -27,7 +27,7 @@
               :src="
                 store.getAuthUser.profile
                   ? store.getAuthUser.profile
-                  : '/images/users/user-1.jpg'
+                  : '/images/users/user-1.png'
               "
               class="rounded-circle"
             />
@@ -91,7 +91,6 @@
               alt=""
               class="img-fluid"
               height="10"
-              
             />
           </span>
         </a>

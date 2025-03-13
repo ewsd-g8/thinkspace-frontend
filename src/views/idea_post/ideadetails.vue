@@ -12,20 +12,31 @@
             margin-bottom: 20px;
           "
         >
-          <div style="display: inline-block">
-            <div
-              style="
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              "
-            >
-              <i
-                class="mdi mdi-account-circle rounded-circle"
-                style="font-size: 40px"
-              ></i>
-              <span style="font-weight: bold; margin-left: 5px"
-                >Anonymous Participant</span
+          <div class="d-flex justify-content-between border-bottom mb-2">
+            <div class="d-flex justify-content-start align-items-center mb-1">
+              <img
+                v-if="!ideas.is_anonymous"
+                :src="
+                  ideas.user.profile
+                    ? ideas.user.profile
+                    : '/images/users/user-1.png'
+                "
+                class="rounded-circle object-fit-cover"
+                style="width: 35px; height: 35px"
+              />
+              <img
+                v-if="ideas.is_anonymous"
+                :src="'/images/users/user-1.png'"
+                class="rounded-circle object-fit-cover"
+                style="width: 35px; height: 35px"
+              />
+              <span style="font-weight: bold; margin-left: 10px">{{
+                !ideas.is_anonymous ? ideas.user.name : "Anonymous Participant"
+              }}</span>
+            </div>
+            <div class="d-flex justify-content-end">
+              <span style="margin-right: 20px"
+                >{{ ideas.views_count }} views</span
               >
             </div>
           </div>
@@ -133,9 +144,6 @@
               </button>
             </div>
             <div class="d-flex justify-content-end align-items-center w-50">
-              <span style="margin-right: 20px"
-                >{{ ideas.views_count }} views</span
-              >
               <button
                 class="btn btn-primary me-md-2 ml-3"
                 type="submit"
@@ -184,24 +192,36 @@
                 ></textarea>
                 <label for="floatingTextarea">Comments</label>
               </div>
-              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button
-                  class="btn btn-primary me-md-2"
-                  type="submit"
-                  v-if="showBtn"
-                  style="background-color: #670e10"
-                >
-                  Send
-                </button>
-                <button
-                  class="btn btn-primary"
-                  type="button"
-                  v-if="showBtn"
-                  style="background-color: #670e10"
-                  @click="cancelComment"
-                >
-                  Cancel
-                </button>
+              <div class="d-flex justify-content-between" v-if="showBtn">
+                <div class="form-check justify-content-md-start">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    value="1"
+                    id="anonymous"
+                    v-model="comment.is_anonymous"
+                  />
+                  <label class="form-check-label" for="anonymous">
+                    Comment Anonymously
+                  </label>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <button
+                    class="btn btn-primary me-md-2"
+                    type="submit"
+                    style="background-color: #670e10"
+                  >
+                    Send
+                  </button>
+                  <button
+                    class="btn btn-primary"
+                    type="button"
+                    style="background-color: #670e10"
+                    @click="cancelComment"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -279,6 +299,8 @@ const ideas = reactive({
   views_count: "",
   has_thumbs_up: "",
   has_thumbs_down: "",
+  user: "",
+  is_anonymous: "",
 });
 
 const getIdeaDetail = async () => {
@@ -299,9 +321,8 @@ const getIdeaDetail = async () => {
       ideas.views_count = res.data.data.views_count;
       ideas.has_thumbs_up = ideas.user_reaction === true;
       ideas.has_thumbs_down = ideas.user_reaction === false;
-      console.log(ideas.has_thumbs_up);
-      console.log(ideas.has_thumbs_down);
-      console.log(res.data.data.documents);
+      ideas.user = res.data.data.user;
+      ideas.is_anonymous = res.data.data.is_anonymous;
       loading.value = false;
     })
     .catch((err) => {
@@ -419,6 +440,7 @@ const comment = reactive({
   content: "",
   idea_id: route.params.id,
   user_id: getUserID,
+  is_anonymous: "",
 });
 
 const v$ = useVuelidate(comment);
@@ -434,6 +456,7 @@ const sendComment = async () => {
   fd.append("content", comment.content);
   fd.append("user_id", comment.user_id);
   fd.append("idea_id", comment.idea_id);
+  fd.append("idea_id", comment.is_anonymous);
 
   const commentDetail = async () => {
     const ideares = await Http.get(`ideas/${route.params.id}`);
