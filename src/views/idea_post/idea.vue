@@ -97,6 +97,7 @@
               <option value="mostLikes">Most Likes</option>
               <option value="mostDislikes">Most Dislikes</option>
               <option value="mostViews">Most Views</option>
+              <option value="noComments">No Comments</option>
               <!-- Fixed label -->
             </select>
           </div>
@@ -244,7 +245,6 @@
                 <strong>Closure:</strong>
                 {{ idea.closure?.name || "No closure" }}
               </p>
-             
             </div>
             <hr />
 
