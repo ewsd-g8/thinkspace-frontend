@@ -46,11 +46,27 @@
               </EasyDataTable>
 
               <div class="mb-3">
-                <button @click="downloadFile(1)" class="btn btn-primary" :disabled="exportBtnLoading.value">
-                  {{ exportBtnLoading.value ? 'Downloading...' : 'Download Ideas as Excel' }}
+                <button
+                  @click="downloadFile(1)"
+                  class="btn btn-primary"
+                  :disabled="exportBtnLoading.value"
+                >
+                  {{
+                    exportBtnLoading.value
+                      ? "Downloading..."
+                      : "Download Ideas as Excel"
+                  }}
                 </button>
-                <button @click="downloadDocumentsAsZip" class="btn btn-primary" :disabled="zipBtnLoading.value">
-                  {{ zipBtnLoading.value ? 'Downloading...' : 'Download Documents as ZIP' }}
+                <button
+                  @click="downloadDocumentsAsZip"
+                  class="btn btn-primary"
+                  :disabled="zipBtnLoading.value"
+                >
+                  {{
+                    zipBtnLoading.value
+                      ? "Downloading..."
+                      : "Download Documents as ZIP"
+                  }}
                 </button>
               </div>
             </div>
@@ -114,7 +130,12 @@ const fetchTableData = async () => {
     console.error("Failed to fetch categories:", error);
     createToast(
       { title: "Error", description: "Failed to load categories." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
   } finally {
     loading.value = false;
@@ -138,39 +159,59 @@ const getClosure = async () => {
     console.error("Failed to fetch closures", error);
     createToast(
       { title: "Error", description: "Failed to load closures." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
   }
 };
 
 // Download ideas as Excel (still using downloadUrl)
-const downloadFile = async (type) => {
+const downloadFile = async () => {
   if (!closures.value.length) {
     createToast(
       { title: "Error", description: "No closure available to export ideas." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
 
   exportBtnLoading.value = true;
   const closureId = closures.value[0]?.id;
-  let url = `/export-ideas/${closureId}?export-type=${type}&sortType=${serverOptions.value.sortBy}&search=${searchValue.value}`;
+  let url = `/export-ideas/${closureId}?sortType=${serverOptions.value.sortBy}&search=${searchValue.value}`;
   let name = "-ideas-export";
-  let extension = type === 1 ? ".xlsx" : ".csv";
+  let extension = ".csv";
 
   try {
     await downloadUrl(url, name, extension);
     createToast(
       { title: "Success", description: "Ideas downloaded successfully!" },
-      { type: "success", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "success",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
   } catch (error) {
     console.error("Failed to download ideas:", error);
     const errorMessage = error.message || "Failed to download ideas.";
     createToast(
       { title: "Error", description: errorMessage },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
   } finally {
     exportBtnLoading.value = false;
@@ -181,8 +222,16 @@ const downloadFile = async (type) => {
 const downloadDocumentsAsZip = async () => {
   if (!closures.value.length) {
     createToast(
-      { title: "Error", description: "No closure available to export documents." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        title: "Error",
+        description: "No closure available to export documents.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
@@ -231,14 +280,25 @@ const downloadDocumentsAsZip = async () => {
 
     createToast(
       { title: "Success", description: "Documents downloaded as ZIP!" },
-      { type: "success", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "success",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
   } catch (error) {
     console.error("Failed to download documents:", error);
-    const errorMessage = error.message || "Failed to download documents as ZIP.";
+    const errorMessage =
+      error.message || "Failed to download documents as ZIP.";
     createToast(
       { title: "Error", description: errorMessage },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
   } finally {
     zipBtnLoading.value = false;
