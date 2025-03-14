@@ -293,6 +293,21 @@
               >
               <span>Comments</span>
             </button>
+            <router-link
+              
+              :to="{ name: 'report_idea_details', params: { id: idea.id } }"
+            >
+              <button class="btn btn-sm">
+                <i class="mdi mdi-message-alert"></i>
+                <span
+                  class="ml-1"
+                  style="font-weight: bold; padding-right: 5px"
+                  >{{ idea.reports_count }}</span
+                >
+                <span>Report</span>
+              </button>
+             
+            </router-link>
           </li>
         </ul>
 
