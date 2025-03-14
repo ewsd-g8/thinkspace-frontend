@@ -68,6 +68,27 @@
                       : "Download Documents as ZIP"
                   }}
                 </button>
+                <div class="showcard">
+                  <h2>Ideas in each Department</h2>
+                  <div v-if="loadingStats" class="text-center">
+                    <p>Loading department statistics...</p>
+                  </div>
+                  <div v-else-if="departmentStats.length === 0" class="text-center">
+                    <p>No department statistics available.</p>
+                  </div>
+                  <div v-else class="card-container">
+                    <div
+                      v-for="stat in departmentStats"
+                      :key="stat.department_id"
+                      class="Card"
+                    >
+                      <div class="name">{{ stat.department_name }}</div>
+                      <div class="cardcontent">
+                        Number of Ideas: <div class="count">{{ stat.ideas_count }}</div> 
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -76,10 +97,9 @@
     </div>
   </div>
 </template>
-
 <script setup>
 // Imports for categories
-import { ref, reactive, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { createToast } from "mosha-vue-toastify";
 import { Http } from "@/services/http-common";
@@ -99,6 +119,8 @@ const serverOptions = ref({
 const exportBtnLoading = ref(false); // Loading state for Excel download
 const zipBtnLoading = ref(false); // Loading state for ZIP download
 const closures = ref([]); // Added closures ref
+const departmentStats = ref([]); // New ref for department statistics
+const loadingStats = ref(false); // Loading state for department stats
 
 const headers = [
   { text: "Name", value: "name", sortable: true },
@@ -124,8 +146,8 @@ const fetchTableData = async () => {
         search: searchValue.value,
       },
     });
-    tableData.value = response.data.data; // Adjust based on your API response structure
-    serverItemsLength.value = response.data.total; // Adjust based on your API response structure
+    tableData.value = response.data.data;
+    serverItemsLength.value = response.data.total;
   } catch (error) {
     console.error("Failed to fetch categories:", error);
     createToast(
@@ -169,7 +191,32 @@ const getClosure = async () => {
   }
 };
 
-// Download ideas as Excel (still using downloadUrl)
+// Fetch department statistics
+const fetchDepartmentStats = async () => {
+  loadingStats.value = true;
+  try {
+    const response = await Http.get("/stats/ideas-per-department");
+    console.log("d", response)
+    departmentStats.value = response.data; // Adjust based on your API response structure
+    console.log("Department Stats:", departmentStats.value);
+  } catch (error) {
+    console.error("Failed to fetch department stats:", error);
+    createToast(
+      { title: "Error", description: "Failed to load department statistics." },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+    departmentStats.value = []; // Reset on error
+  } finally {
+    loadingStats.value = false;
+  }
+};
+
+// Download ideas as Excel
 const downloadFile = async () => {
   if (!closures.value.length) {
     createToast(
@@ -218,7 +265,7 @@ const downloadFile = async () => {
   }
 };
 
-// Download documents as ZIP (without using downloadUrl)
+// Download documents as ZIP
 const downloadDocumentsAsZip = async () => {
   if (!closures.value.length) {
     createToast(
@@ -241,14 +288,8 @@ const downloadDocumentsAsZip = async () => {
   const url = `/download-documents/${closureId}`;
 
   try {
-    // Make the HTTP request to fetch the ZIP file
-    const response = await Http.get(url, {
-      responseType: "blob", // Ensure the response is treated as a Blob
-    });
-
-    // Check if the response status indicates an error
+    const response = await Http.get(url, { responseType: "blob" });
     if (response.status >= 400) {
-      // Attempt to parse the response as JSON to get the error message
       const text = await response.data.text();
       let errorData;
       try {
@@ -259,23 +300,16 @@ const downloadDocumentsAsZip = async () => {
       throw new Error(errorData.message || "Failed to download ZIP");
     }
 
-    // Create a Blob from the response data
     const blob = new Blob([response.data], {
-      type: response.headers["content-type"] || "application/zip", // Fallback to application/zip if Content-Type is missing
+      type: response.headers["content-type"] || "application/zip",
     });
-
-    // Create a temporary URL for the Blob
     const blobUrl = window.URL.createObjectURL(blob);
-
-    // Create a hidden <a> element to trigger the download
     const a = document.createElement("a");
     a.href = blobUrl;
     const currentDate = new Date();
     const isoDate = currentDate.toISOString().split("T")[0];
-    a.download = `${isoDate}-documents-${closureId}.zip`; // Set the filename
+    a.download = `${isoDate}-documents-${closureId}.zip`;
     a.click();
-
-    // Clean up the Blob URL
     window.URL.revokeObjectURL(blobUrl);
 
     createToast(
@@ -309,5 +343,6 @@ const downloadDocumentsAsZip = async () => {
 onMounted(async () => {
   await fetchTableData();
   await getClosure();
+  await fetchDepartmentStats(); // Fetch department stats on mount
 });
 </script>

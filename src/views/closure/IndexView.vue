@@ -57,6 +57,16 @@
             <Loading></Loading>
           </template>
           <template #item-action="data">
+            <Popper arrow placement="top" content="Change Status" hover>
+              <button
+                class="btn btn-secondary waves-effect waves-light btn-sm me-1"
+                data-bs-toggle="modal"
+                data-bs-target="#change-status-modal"
+                @click="openChangeStatusModal(data.id)"
+              >
+                <i class="mdi mdi-sync text-white"></i>
+              </button>
+            </Popper>
             <Popper arrow placement="right" content="Edit" hover>
               <router-link
                 class="btn btn-sm btn-info"
@@ -66,7 +76,56 @@
               </router-link>
             </Popper>
           </template>
+          <template #item-is_active="data">
+            <Badge
+              :class="data.is_active ? 'bg-success' : 'bg-danger'"
+              :name="data.is_active ? 'Active' : 'Inactive'"
+            ></Badge>
+          </template>
         </EasyDataTable>
+      </div>
+    </div>
+    <div
+      id="change-status-modal"
+      class="modal fade"
+      tabindex="-1"
+      role="dialog"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body py-3 px-2">
+            <div class="text-center">
+              <i
+                class="dripicons-information text-info"
+                style="font-size: 4rem"
+              ></i>
+              <h4 class="mb-3 mt-1 fs-4">Confirmation!</h4>
+              <h5 class="mt-4 fs-5">Are you sure to change status?</h5>
+              <div class="mt-2">
+                <button
+                  type="button"
+                  class="btn btn-success my-2 me-2"
+                  @click="changeClosureStatus()"
+                  :disabled="loading"
+                >
+                  <span
+                    v-if="loading"
+                    class="spinner-border text-light spinner-border-sm me-1"
+                  ></span>
+                  {{ loading ? "Loading" : "Confirm" }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger my-2"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -76,7 +135,7 @@
 import { ref, onMounted, reactive, watch } from "vue";
 import { Http } from "@/services/http-common";
 import Badge from "@/components/shared/Badge.vue";
-
+import { createToast } from "mosha-vue-toastify";
 const pageLoading = ref(true);
 const loading = ref(false);
 const tableData = ref([]);
@@ -96,21 +155,22 @@ const headers = [
   { text: "Final Date", value: "final_date", sortable: true },
   { text: "Created At", value: "created_at", sortable: true },
   { text: "Updated At", value: "updated_at", sortable: true },
+  { text: "IsActive", value: "is_active", sortable: true },
   { text: "Action", value: "action", width: "200" },
 ];
 // Function to convert UTC to local timezone
 const formatToLocalTime = (utcDate) => {
-if (!utcDate) return ""; // Handle null/undefined
-const date = new Date(utcDate); // Parse UTC date string
-return date.toLocaleString("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hour12: true,
-}); // e.g., "Mar 04, 2024, 10:00:00 AM"
+  if (!utcDate) return ""; // Handle null/undefined
+  const date = new Date(utcDate); // Parse UTC date string
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }); // e.g., "Mar 04, 2024, 10:00:00 AM"
 };
 const getResults = async () => {
   loading.value = true;
@@ -120,24 +180,24 @@ const getResults = async () => {
   }
 
   try {
-  const { data } = await Http.get(
-    `closures?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
-  );
+    const { data } = await Http.get(
+      `closures?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
+    );
 
-  console.log("API response:", data);
+    console.log("API response:", data);
 
-  // Transform UTC dates to local timezone
-  tableData.value = data.data.data.map(item => ({
-    ...item,
-    created_at: formatToLocalTime(item.created_at),
-    updated_at: formatToLocalTime(item.updated_at),
-  }));
-  serverItemsLength.value = data.data.total;
-} catch (err) {
-  console.error("Error fetching Closures:", err);
-} finally {
-  loading.value = false;
-}
+    // Transform UTC dates to local timezone
+    tableData.value = data.data.data.map((item) => ({
+      ...item,
+      created_at: formatToLocalTime(item.created_at),
+      updated_at: formatToLocalTime(item.updated_at),
+    }));
+    serverItemsLength.value = data.data.total;
+  } catch (err) {
+    console.error("Error fetching Closures:", err);
+  } finally {
+    loading.value = false;
+  }
 };
 const updateSort = (selectedSortOptions) => {
   serverOptions.value.sortType = selectedSortOptions.sortType
@@ -165,6 +225,35 @@ watch(
   { deep: true }
 );
 
+const ClousreId = ref("");
+const openChangeStatusModal = (id) => {
+  ClousreId.value = id;
+};
+
+const changeClosureStatus = () => {
+  loading.value = true;
+  Http.get(`closures/change-status/${ClousreId.value}`)
+    .then(() => {
+      $("#change-status-modal").modal("hide");
+      createToast(
+        { title: "Success", description: "Successfully Changed Status!" },
+        {
+          type: "success",
+          transition: "bounce",
+          position: "top-right",
+          showIcon: true,
+        }
+      );
+    })
+    .catch((err) => {
+      console.log(err);
+      createToast(
+        { title: "Error", description: "Failed to change status" },
+        { type: "danger", position: "top-right" }
+      );
+    })
+    .finally(() => getResults());
+};
 onMounted(() => {
   getResults();
 });
