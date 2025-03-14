@@ -71,7 +71,7 @@
                 <path
                   stroke-width="2"
                   stroke="#ffffff"
-                  d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H11M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V11.8125"
+                  d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 21 8 21H11M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V11.8125"
                   stroke-linejoin="round"
                   stroke-linecap="round"
                 ></path>
@@ -124,6 +124,9 @@
             </label>
           </div>
 
+          <!-- Hypothetical Download Button -->
+         
+
           <button
             type="submit"
             class="btn post-btn btn-primary"
@@ -138,7 +141,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -166,6 +168,9 @@ const form = reactive({
 const documentInput = ref(null);
 const selectedDocuments = ref([]);
 const documentError = ref("");
+const exportBtnLoading = ref(false); // Added for download loading state
+const serverOptions = ref({ sortBy: "default" }); // Example sorting options
+const searchValue = ref(""); // Example search value
 
 // Trigger document input
 const triggerDocumentInput = () => {
@@ -317,6 +322,8 @@ const postIdea = async () => {
     );
   }
 };
+
+
 </script>
 
 <style scoped>

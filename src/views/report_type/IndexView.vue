@@ -57,6 +57,16 @@
             <Loading></Loading>
           </template>
           <template #item-action="data">
+            <Popper arrow placement="top" content="Change Status" hover>
+              <button
+                class="btn btn-secondary waves-effect waves-light btn-sm me-1"
+                data-bs-toggle="modal"
+                data-bs-target="#change-status-modal"
+                @click="openChangeStatusModal(data.id)"
+              >
+                <i class="mdi mdi-sync text-white"></i>
+              </button>
+            </Popper>
             <Popper arrow placement="right" content="Edit" hover>
               <router-link
                 class="btn btn-sm btn-info"
@@ -75,6 +85,52 @@
         </EasyDataTable>
       </div>
     </div>
+
+    <div
+      id="change-status-modal"
+      class="modal fade"
+      tabindex="-1"
+      role="dialog"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body py-3 px-2">
+            <div class="text-center">
+              <i
+                class="dripicons-information text-info"
+                style="font-size: 4rem"
+              ></i>
+              <h4 class="mb-3 mt-1 fs-4">Confirmation!</h4>
+              <h5 class="mt-4 fs-5">Are you sure to change status?</h5>
+              <div class="mt-2">
+                <button
+                  type="button"
+                  class="btn btn-success my-2 me-2"
+                  @click="changeReportStatus()"
+                  :disabled="loading"
+                >
+                  <span
+                    v-if="loading"
+                    class="spinner-border text-light spinner-border-sm me-1"
+                  ></span>
+                  {{ loading ? "Loading" : "Confirm" }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger my-2"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
   </div>
 </template>
 
@@ -82,7 +138,7 @@
 import { ref, onMounted, watch } from "vue";
 import { Http } from "@/services/http-common";
 import Badge from "@/components/shared/Badge.vue";
-
+import { createToast } from "mosha-vue-toastify";
 const pageLoading = ref(true);
 const loading = ref(false);
 const tableData = ref([]);
@@ -98,6 +154,7 @@ const serverOptions = ref({
 const headers = [
   { text: "Name", value: "name", sortable: true },
   { text: "Description", value: "description", sortable: true },
+  { text: "IsActive", value: "is_active", sortable: true },
   { text: "Created At", value: "created_at", sortable: true },
   { text: "Updated At", value: "updated_at", sortable: true },
   { text: "Action", value: "action", width: "200" },
@@ -171,6 +228,35 @@ watch(
   { deep: true }
 );
 
+const ReportId = ref("");
+const openChangeStatusModal = (id) => {
+  ReportId.value = id;
+};
+
+const changeReportStatus = () => {
+  loading.value = true;
+  Http.get(`report-types/change-status/${ReportId.value}`)
+    .then(() => {
+      $("#change-status-modal").modal("hide");
+      createToast(
+        { title: "Success", description: "Successfully Changed Status!" },
+        {
+          type: "success",
+          transition: "bounce",
+          position: "top-right",
+          showIcon: true,
+        }
+      );
+    })
+    .catch((err) => {
+      console.log(err);
+      createToast(
+        { title: "Error", description: "Failed to change status" },
+        { type: "danger", position: "top-right" }
+      );
+    })
+    .finally(() => getResults());
+};
 onMounted(() => {
   getResults();
 });
