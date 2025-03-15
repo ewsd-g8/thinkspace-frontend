@@ -3,89 +3,53 @@
     <div class="card">
       <div class="card-body">
         <h1>Dashboard Page</h1>
-        <div></div>
-        <div>
-          <div class="card">
-            <div class="card-body">
-              <h4>Category Page</h4>
-              <EasyDataTable
-                v-model:server-options="serverOptions"
-                :server-items-length="serverItemsLength"
-                :loading="loading"
-                :headers="headers"
-                :items="tableData"
-                show-index
-                @update-sort="updateSort"
-                :rows-items="[10, 30, 50]"
-                :search-value="searchValue"
-                table-class-name="customize-table"
-                :rows-per-page="10"
-                buttons-pagination
-                border-cell
-                theme-color="#a1dcd8"
-              >
-                <template #loading>
-                  <Loading></Loading>
-                </template>
-                <template #item-action="data">
-                  <Popper arrow placement="right" content="Edit" hover>
-                    <router-link
-                      class="btn btn-sm btn-info"
-                      :to="{ name: 'role-edit', params: { id: data.id } }"
-                    >
-                      <i class="mdi mdi-square-edit-outline"></i>
-                    </router-link>
-                  </Popper>
-                </template>
-                <template #item-is_active="data">
-                  <Badge
-                    :class="data.is_active ? 'bg-success' : 'bg-danger'"
-                    :name="data.is_active ? 'Active' : 'Inactive'"
-                  ></Badge>
-                </template>
-              </EasyDataTable>
 
-              <div class="mb-3">
-                <button
-                  @click="downloadFile(1)"
-                  class="btn btn-primary"
-                  :disabled="exportBtnLoading.value"
+        <div class="card">
+          <div class="card-body">
+            <div class="mb-3">
+              <button
+                @click="downloadFile(1)"
+                class="btn btn-primary"
+                :disabled="exportBtnLoading.value"
+              >
+                {{
+                  exportBtnLoading.value
+                    ? "Downloading..."
+                    : "Download Ideas as Excel"
+                }}
+              </button>
+              <button
+                @click="downloadDocumentsAsZip"
+                class="btn btn-primary ml-2"
+                :disabled="zipBtnLoading.value"
+              >
+                {{
+                  zipBtnLoading.value
+                    ? "Downloading..."
+                    : "Download Documents as ZIP"
+                }}
+              </button>
+              <div class="showcard">
+                <h2>Ideas in each Department</h2>
+                <div v-if="loadingStats" class="text-center">
+                  <p>Loading department statistics...</p>
+                </div>
+                <div
+                  v-else-if="departmentStats.length === 0"
+                  class="text-center"
                 >
-                  {{
-                    exportBtnLoading.value
-                      ? "Downloading..."
-                      : "Download Ideas as Excel"
-                  }}
-                </button>
-                <button
-                  @click="downloadDocumentsAsZip"
-                  class="btn btn-primary"
-                  :disabled="zipBtnLoading.value"
-                >
-                  {{
-                    zipBtnLoading.value
-                      ? "Downloading..."
-                      : "Download Documents as ZIP"
-                  }}
-                </button>
-                <div class="showcard">
-                  <h2>Ideas in each Department</h2>
-                  <div v-if="loadingStats" class="text-center">
-                    <p>Loading department statistics...</p>
-                  </div>
-                  <div v-else-if="departmentStats.length === 0" class="text-center">
-                    <p>No department statistics available.</p>
-                  </div>
-                  <div v-else class="card-container">
-                    <div
-                      v-for="stat in departmentStats"
-                      :key="stat.department_id"
-                      class="Card"
-                    >
-                      <div class="name">{{ stat.department_name }}</div>
-                      <div class="cardcontent">
-                        Number of Ideas: <div class="count">{{ stat.ideas_count }}</div> 
-                      </div>
+                  <p>No department statistics available.</p>
+                </div>
+                <div v-else class="card-container">
+                  <div
+                    v-for="stat in departmentStats"
+                    :key="stat.department_id"
+                    class="Card"
+                  >
+                    <div class="name">{{ stat.department_name }}</div>
+                    <div class="cardcontent">
+                      Number of Ideas:
+                      <div class="count">{{ stat.ideas_count }}</div>
                     </div>
                   </div>
                 </div>
@@ -93,18 +57,27 @@
             </div>
           </div>
         </div>
+        <div style="width: 50%">
+          <Doughnut :data="data.value" :options="options" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script setup>
 // Imports for categories
-import { ref, onMounted } from "vue";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Doughnut } from "vue-chartjs";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+import { ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { createToast } from "mosha-vue-toastify";
 import { Http } from "@/services/http-common";
 import { useAuthStore } from "@/stores/auth";
 import { downloadUrl } from "@/composables/fileDownload";
+import { reactive } from "vue";
 
 const loading = ref(false);
 const tableData = ref([]);
@@ -122,54 +95,8 @@ const closures = ref([]); // Added closures ref
 const departmentStats = ref([]); // New ref for department statistics
 const loadingStats = ref(false); // Loading state for department stats
 
-const headers = [
-  { text: "Name", value: "name", sortable: true },
-  { text: "Created At", value: "created_at", sortable: true },
-  { text: "Updated At", value: "updated_at", sortable: true },
-  { text: "Status", value: "is_active", sortable: true },
-  { text: "Action", value: "action", width: "200" },
-];
-
 const authStore = useAuthStore();
 const router = useRouter();
-
-// Fetch table data based on serverOptions
-const fetchTableData = async () => {
-  loading.value = true;
-  try {
-    const response = await Http.get("/get-all-categories", {
-      params: {
-        page: serverOptions.value.page,
-        per_page: serverOptions.value.rowsPerPage,
-        sortType: serverOptions.value.sortType,
-        sortBy: serverOptions.value.sortBy,
-        search: searchValue.value,
-      },
-    });
-    tableData.value = response.data.data;
-    serverItemsLength.value = response.data.total;
-  } catch (error) {
-    console.error("Failed to fetch categories:", error);
-    createToast(
-      { title: "Error", description: "Failed to load categories." },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Update sort when triggered by EasyDataTable
-const updateSort = (sortInfo) => {
-  serverOptions.value.sortBy = sortInfo.sortBy;
-  serverOptions.value.sortType = sortInfo.sortType;
-  fetchTableData();
-};
 
 // Fetch closures data
 const getClosure = async () => {
@@ -191,14 +118,20 @@ const getClosure = async () => {
   }
 };
 
+const departmentIdea = reactive({
+  departments: "",
+});
 // Fetch department statistics
 const fetchDepartmentStats = async () => {
   loadingStats.value = true;
   try {
     const response = await Http.get("/stats/ideas-per-department");
-    console.log("d", response)
+    console.log("d", response);
     departmentStats.value = response.data; // Adjust based on your API response structure
+    departmentIdea.departments = response.data.departments;
     console.log("Department Stats:", departmentStats.value);
+    console.log("Departments", departmentIdea.departments);
+    updateDonutChart();
   } catch (error) {
     console.error("Failed to fetch department stats:", error);
     createToast(
@@ -215,6 +148,54 @@ const fetchDepartmentStats = async () => {
     loadingStats.value = false;
   }
 };
+
+// Department Donut chart
+const data = ref({
+  labels: [],
+  datasets: [
+    {
+      backgroundColor: [],
+      data: [],
+    },
+  ],
+});
+
+const options = {
+  responsive: true,
+  maintainAspectRatio: false,
+};
+
+// Function to update chart data
+const updateDonutChart = () => {
+  if (departmentIdea.departments.length > 0) {
+    data.value.labels = departmentIdea.departments.map(
+      (stat) => stat.department_name
+    );
+    console.log(data.value.labels);
+    data.value.datasets[0].data = departmentIdea.departments.map(
+      (stat) => stat.percentage
+    );
+
+    console.log(data.value.datasets[0].data);
+    if (
+      departmentIdea.departments.length >
+      data.value.datasets[0].backgroundColor.length
+    ) {
+      data.value.datasets[0].backgroundColor = departmentIdea.departments.map(
+        (_, index) => `#${Math.floor(Math.random() * 16777215).toString(16)}` // Random color generator
+      );
+    }
+    console.log(data.value);
+  } else {
+    data.value.labels = [];
+    data.value.datasets[0].data = [];
+  }
+};
+
+// Watch for changes in departmentStats and update chart
+watch(departmentStats, () => {
+  updateDonutChart();
+});
 
 // Download ideas as Excel
 const downloadFile = async () => {
@@ -341,7 +322,6 @@ const downloadDocumentsAsZip = async () => {
 
 // Fetch data on mount
 onMounted(async () => {
-  await fetchTableData();
   await getClosure();
   await fetchDepartmentStats(); // Fetch department stats on mount
 });
