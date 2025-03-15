@@ -58,7 +58,7 @@
           </div>
         </div>
         <div style="width: 50%">
-          <Doughnut :data="data.value" :options="options" />
+          <Doughnut :data="data" :options="options" />
         </div>
       </div>
     </div>
@@ -71,13 +71,16 @@ import { Doughnut } from "vue-chartjs";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-import { ref, watch, onMounted } from "vue";
+import {ref, watch, onMounted, computed} from "vue";
 import { useRouter } from "vue-router";
 import { createToast } from "mosha-vue-toastify";
 import { Http } from "@/services/http-common";
 import { useAuthStore } from "@/stores/auth";
 import { downloadUrl } from "@/composables/fileDownload";
 import { reactive } from "vue";
+
+
+const authStore = useAuthStore();
 
 const loading = ref(false);
 const tableData = ref([]);
@@ -95,7 +98,6 @@ const closures = ref([]); // Added closures ref
 const departmentStats = ref([]); // New ref for department statistics
 const loadingStats = ref(false); // Loading state for department stats
 
-const authStore = useAuthStore();
 const router = useRouter();
 
 // Fetch closures data
@@ -128,10 +130,17 @@ const fetchDepartmentStats = async () => {
     const response = await Http.get("/stats/ideas-per-department");
     console.log("d", response);
     departmentStats.value = response.data; // Adjust based on your API response structure
-    departmentIdea.departments = response.data.departments;
-    console.log("Department Stats:", departmentStats.value);
-    console.log("Departments", departmentIdea.departments);
-    updateDonutChart();
+
+    label_values.value= response.data.data.data.map(
+        (stat) => stat.department_name
+    );
+
+    data_values.value = response.data.data.data.map(
+        (stat) => stat.percentage
+    );
+
+    console.log(authStore.getUser)
+
   } catch (error) {
     console.error("Failed to fetch department stats:", error);
     createToast(
@@ -150,15 +159,21 @@ const fetchDepartmentStats = async () => {
 };
 
 // Department Donut chart
-const data = ref({
-  labels: [],
-  datasets: [
-    {
-      backgroundColor: [],
-      data: [],
-    },
-  ],
-});
+const data_values = ref([40, 39, 10, 40, 39, 80, 40]);
+const label_values = ref(['January', 'February', 'March', 'April', 'May', 'June', 'July']);
+
+const data = computed(() => {
+  return {
+    labels: label_values.value,
+    datasets: [
+      {
+        label: 'Data One',
+        backgroundColor: '#f87979',
+        data: data_values.value
+      }
+    ]
+  }
+})
 
 const options = {
   responsive: true,
@@ -171,12 +186,11 @@ const updateDonutChart = () => {
     data.value.labels = departmentIdea.departments.map(
       (stat) => stat.department_name
     );
-    console.log(data.value.labels);
+
     data.value.datasets[0].data = departmentIdea.departments.map(
       (stat) => stat.percentage
     );
 
-    console.log(data.value.datasets[0].data);
     if (
       departmentIdea.departments.length >
       data.value.datasets[0].backgroundColor.length
