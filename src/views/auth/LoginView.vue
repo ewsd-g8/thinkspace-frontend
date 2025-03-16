@@ -131,6 +131,7 @@ import { createToast } from "mosha-vue-toastify";
 
 const authStore = useAuthStore();
 const router = useRouter();
+
 const inputFieldType = ref("password");
 const showHidePassword = () => {
   inputFieldType.value =
@@ -175,7 +176,6 @@ const submitForm = async () => {
           showIcon: true,
         }
       );
-
       resetServerErrors();
     })
     .catch((err) => {
