@@ -141,7 +141,7 @@ const appRoutes = [
     name: "department-edit",
     component: departmentEditView,
   },
-        //  for chart
+  //  for chart
   {
     path: "chart_demo/bar",
     name: "bar",
@@ -158,8 +158,7 @@ const appRoutes = [
     component: LineChartView,
   },
 
-
-  // for idea 
+  // for idea
   {
     path: "idea/:id",
     name: "idea_details",

@@ -8,7 +8,6 @@
             {{ showSummary ? "Hide Summary" : "Show Summary" }}
           </button>
         </div>
-
         <!-- Summary Section -->
 
         <!-- Search and Content Length Filters -->
@@ -374,11 +373,13 @@ const currentIdea = ref(null);
 const fetchUserDetails = async () => {
   try {
     const response = await Http.get("/auth-user");
+
     isBlocked.value = response.data.data.is_blocked || false;
   } catch (error) {
     console.error("Failed to fetch user details:", error);
   }
 };
+
 const uniqueClosures = computed(() => {
   const closures = ideas.value
     .filter((idea) => idea.closure)

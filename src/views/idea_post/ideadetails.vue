@@ -12,20 +12,31 @@
             margin-bottom: 20px;
           "
         >
-          <div style="display: inline-block">
-            <div
-              style="
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              "
-            >
-              <i
-                class="mdi mdi-account-circle rounded-circle"
-                style="font-size: 40px"
-              ></i>
-              <span style="font-weight: bold; margin-left: 5px"
-                >Anonymous Participant</span
+          <div class="d-flex justify-content-between border-bottom mb-2">
+            <div class="d-flex justify-content-start align-items-center mb-1">
+              <img
+                v-if="!ideas.is_anonymous"
+                :src="
+                  ideas.user.profile
+                    ? ideas.user.profile
+                    : '/images/users/user-1.png'
+                "
+                class="rounded-circle object-fit-cover"
+                style="width: 35px; height: 35px"
+              />
+              <img
+                v-if="ideas.is_anonymous"
+                :src="'/images/users/user-1.png'"
+                class="rounded-circle object-fit-cover"
+                style="width: 35px; height: 35px"
+              />
+              <span style="font-weight: bold; margin-left: 10px">{{
+                !ideas.is_anonymous ? ideas.user.name : "Anonymous Participant"
+              }}</span>
+            </div>
+            <div class="d-flex justify-content-end">
+              <span style="margin-right: 20px"
+                >{{ ideas.views_count }} views</span
               >
             </div>
           </div>
@@ -133,9 +144,6 @@
               </button>
             </div>
             <div class="d-flex justify-content-end align-items-center w-50">
-              <span style="margin-right: 20px"
-                >{{ ideas.views_count }} views</span
-              >
               <button
                 class="btn btn-primary me-md-2 ml-3"
                 type="submit"
@@ -148,29 +156,28 @@
             </div>
           </div>
           <hr />
-          <div>
-            <div class="grid w-100" v-if="showDocument">
-              <div
-                v-for="doc in ideas.document"
-                :key="doc.id"
-                class="g-col-6 g-col-md-4 mb-3"
-              >
-                <img
-                  v-if="isImage(doc.file_path)"
-                  :src="doc.file_path"
-                  class="img-fluid w-25 h-50 shadow-lg p-3bg-body-tertiary rounded float-start"
-                  alt="..."
-                />
+          <div class="grid w-100" v-if="showDocument">
+            <div
+              v-for="doc in ideas.document"
+              :key="doc.id"
+              class="g-col-6 g-col-md-4 mb-3"
+            >
+              <img
+                v-if="isImage(doc.file_path)"
+                :src="doc.file_path"
+                class="img-fluid w-50 h-50 shadow-lg p-3bg-body-tertiary"
+                alt="..."
+              />
 
-                <iframe
-                  v-else-if="isPDF(doc.file_path)"
-                  :src="doc.file_path"
-                  class="w-100 shadow-lg p-3 bg-body-tertiary rounded"
-                  style="height: 600px"
-                ></iframe>
-              </div>
+              <iframe
+                v-else-if="isPDF(doc.file_path)"
+                :src="doc.file_path"
+                class="w-100 shadow-lg p-3 bg-body-tertiary rounded"
+                style="height: 600px"
+              ></iframe>
             </div>
           </div>
+
           <hr />
           <div class="mb-3" ref="commentBox">
             <form @submit.prevent="sendComment()">
@@ -184,24 +191,36 @@
                 ></textarea>
                 <label for="floatingTextarea">Comments</label>
               </div>
-              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button
-                  class="btn btn-primary me-md-2"
-                  type="submit"
-                  v-if="showBtn"
-                  style="background-color: #670e10"
-                >
-                  Send
-                </button>
-                <button
-                  class="btn btn-primary"
-                  type="button"
-                  v-if="showBtn"
-                  style="background-color: #670e10"
-                  @click="cancelComment"
-                >
-                  Cancel
-                </button>
+              <div class="d-flex justify-content-between" v-if="showBtn">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="anonymousComment"
+                    v-model="comment.is_anonymous"
+                  />
+                  <label class="form-check-label" for="anonymousComment"
+                    >Comment Anonymously</label
+                  >
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <button
+                    class="btn btn-primary me-md-2"
+                    type="submit"
+                    style="background-color: #670e10"
+                  >
+                    Send
+                  </button>
+                  <button
+                    class="btn btn-primary"
+                    type="button"
+                    style="background-color: #670e10"
+                    @click="cancelComment"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -221,18 +240,35 @@
                   class="d-flex"
                   style="justify-content: center; align-items: center"
                 >
-                  <i
-                    class="mdi mdi-account-circle rounded-circle"
-                    style="font-size: 40px"
-                  ></i>
-                  <h5 style="padding-left: 10px">Anonymous User</h5>
+                  <img
+                    v-if="!com.is_anonymous"
+                    :src="
+                      com.user.profile
+                        ? com.user.profile
+                        : '/images/users/user-1.png'
+                    "
+                    class="rounded-circle object-fit-cover"
+                    style="width: 35px; height: 35px"
+                  />
+                  <img
+                    v-else-if="com.is_anonymous"
+                    :src="'/images/users/user-1.png'"
+                    class="rounded-circle object-fit-cover"
+                    style="width: 35px; height: 35px"
+                  />
+                  <h5 style="margin-left: 10px">
+                    {{
+                      !com.is_anonymous
+                        ? com.user.full_name
+                        : "Anonymous Participant"
+                    }}
+                  </h5>
                 </div>
-                <small>3 days ago</small>
+                <small>{{ timeAgo(com.created_at) }}</small>
               </div>
-              <p class="mb-1">
+              <p class="mb-1 mt-1">
                 {{ com.content }}
               </p>
-              <small>And some small print.</small>
             </li>
           </ul>
         </div>
@@ -279,6 +315,8 @@ const ideas = reactive({
   views_count: "",
   has_thumbs_up: "",
   has_thumbs_down: "",
+  user: "",
+  is_anonymous: "",
 });
 
 const getIdeaDetail = async () => {
@@ -299,9 +337,8 @@ const getIdeaDetail = async () => {
       ideas.views_count = res.data.data.views_count;
       ideas.has_thumbs_up = ideas.user_reaction === true;
       ideas.has_thumbs_down = ideas.user_reaction === false;
-      console.log(ideas.has_thumbs_up);
-      console.log(ideas.has_thumbs_down);
-      console.log(res.data.data.documents);
+      ideas.user = res.data.data.user;
+      ideas.is_anonymous = res.data.data.is_anonymous;
       loading.value = false;
     })
     .catch((err) => {
@@ -419,7 +456,27 @@ const comment = reactive({
   content: "",
   idea_id: route.params.id,
   user_id: getUserID,
+  is_anonymous: false,
 });
+
+const timeAgo = (timestamp) => {
+  const currentDate = new Date();
+  const postDate = new Date(timestamp);
+  const diffMs = currentDate - postDate;
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days < 0) return "In the future";
+  if (days > 1) return `${days} days ago`;
+  if (days === 1) return "Yesterday";
+  if (hours > 0) return `${hours} hours ago`;
+  if (minutes > 0) return `${minutes} minutes ago`;
+  return "Just now";
+};
+
+console.log(comment.is_anonymous);
 
 const v$ = useVuelidate(comment);
 
@@ -434,6 +491,7 @@ const sendComment = async () => {
   fd.append("content", comment.content);
   fd.append("user_id", comment.user_id);
   fd.append("idea_id", comment.idea_id);
+  fd.append("is_anonymous", comment.is_anonymous ? 1 : 0);
 
   const commentDetail = async () => {
     const ideares = await Http.get(`ideas/${route.params.id}`);
@@ -442,6 +500,7 @@ const sendComment = async () => {
     updatedIdea.comments_count = ideares.data.data.comments_count;
     ideas.comments = updatedIdea.comments;
     ideas.comments_count = updatedIdea.comments_count;
+    console.log(ideas.comments.is_anonymous);
   };
 
   await Http.post("comments", fd, {
