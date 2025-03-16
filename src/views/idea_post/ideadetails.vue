@@ -237,7 +237,7 @@
         </div>
       </div>
     </div>
-  </div>
+ 
 </template>
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";

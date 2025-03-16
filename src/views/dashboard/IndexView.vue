@@ -40,71 +40,30 @@
                 :key="stat.department_id"
                 class="Card"
               >
-                <template #loading>
-                  <Loading></Loading>
-                </template>
-                <template #item-action="data">
-                  <Popper arrow placement="right" content="Edit" hover>
-                    <router-link
-                      class="btn btn-sm btn-info"
-                      :to="{ name: 'role-edit', params: { id: data.id } }"
-                    >
-                      <i class="mdi mdi-square-edit-outline"></i>
-                    </router-link>
-                  </Popper>
-                </template>
-                <template #item-is_active="data">
-                  <Badge
-                    :class="data.is_active ? 'bg-success' : 'bg-danger'"
-                    :name="data.is_active ? 'Active' : 'Inactive'"
-                  ></Badge>
-                </template>
-              </EasyDataTable>
-
-              <div class="mb-3">
-                <button
-                  @click="downloadFile(1)"
-                  class="btn btn-primary"
-                  :disabled="exportBtnLoading.value"
-                >
-                  {{
-                    exportBtnLoading.value
-                      ? "Downloading..."
-                      : "Download Ideas as Excel"
-                  }}
-                </button>
-                <button
-                  @click="downloadDocumentsAsZip"
-                  class="btn btn-primary"
-                  :disabled="zipBtnLoading.value"
-                >
-                  {{
-                    zipBtnLoading.value
-                      ? "Downloading..."
-                      : "Download Documents as ZIP"
-                  }}
-                </button>
-                <div class="showcard">
-                  <h2>Ideas in each Department</h2>
-                  <div v-if="loadingStats" class="text-center">
-                    <p>Loading department statistics...</p>
-                  </div>
-                  <div v-else-if="departmentStats.length === 0" class="text-center">
-                    <p>No department statistics available.</p>
-                  </div>
-                  <div v-else class="card-container">
-                    <div
-                      v-for="stat in departmentStats"
-                      :key="stat.department_id"
-                      class="Card"
-                    >
-                      <div class="name">{{ stat.department_name }}</div>
-                      <div class="cardcontent">
-                        Number of Ideas: <div class="count">{{ stat.ideas_count }}</div> 
-                      </div>
-                    </div>
-                  </div>
+                <div class="name">{{ stat.department_name }}</div>
+                <div class="cardcontent">
+                  Number of Ideas:
+                  <div class="count">{{ stat.ideas_count }}</div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row justify-content-between">
+          <div class="col-6">
+            <div class="p-3 shadow mb-5 bg-body-tertiary rounded">
+              <span class="mb-5">Percentage of Ideas Per Department</span>
+              <div class="w-100 mt-1">
+                <Doughnut :data="donutData" :options="options" />
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 shadow mb-5 bg-body-tertiary rounded">
+              <span>Percentage of Ideas Per Department</span>
+              <div class="w-100">
+                <Pie :data="donutData" :options="options" />
               </div>
             </div>
           </div>
@@ -200,54 +159,7 @@ const closures = ref([]); // Added closures ref
 const departmentStats = ref([]); // New ref for department statistics
 const loadingStats = ref(false); // Loading state for department stats
 
-const headers = [
-  { text: "Name", value: "name", sortable: true },
-  { text: "Created At", value: "created_at", sortable: true },
-  { text: "Updated At", value: "updated_at", sortable: true },
-  { text: "Status", value: "is_active", sortable: true },
-  { text: "Action", value: "action", width: "200" },
-];
-
-
 const router = useRouter();
-
-// Fetch table data based on serverOptions
-const fetchTableData = async () => {
-  loading.value = true;
-  try {
-    const response = await Http.get("/get-all-categories", {
-      params: {
-        page: serverOptions.value.page,
-        per_page: serverOptions.value.rowsPerPage,
-        sortType: serverOptions.value.sortType,
-        sortBy: serverOptions.value.sortBy,
-        search: searchValue.value,
-      },
-    });
-    tableData.value = response.data.data;
-    serverItemsLength.value = response.data.total;
-  } catch (error) {
-    console.error("Failed to fetch categories:", error);
-    createToast(
-      { title: "Error", description: "Failed to load categories." },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Update sort when triggered by EasyDataTable
-const updateSort = (sortInfo) => {
-  serverOptions.value.sortBy = sortInfo.sortBy;
-  serverOptions.value.sortType = sortInfo.sortType;
-  fetchTableData();
-};
 
 // Fetch closures data
 const getClosure = async () => {
@@ -269,12 +181,26 @@ const getClosure = async () => {
   }
 };
 
+// Department Donut chart
+const donutData_values = ref([40, 39, 10, 40, 39, 80, 40]);
+const donutLabel_values = ref([
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+]);
+
+const backgroundColors = ref(["#41B883", "#E46651", "#00D8FF", "#DD1B16"]);
+
 // Fetch department statistics
 const fetchDepartmentStats = async () => {
   loadingStats.value = true;
   try {
     const response = await Http.get("/stats/ideas-per-department");
-    console.log("d", response)
+    console.log("d", response);
     departmentStats.value = response.data; // Adjust based on your API response structure
 
     donutLabel_values.value = response.data.departments.map(
@@ -531,7 +457,6 @@ const closeModal = () => {
 
 // Fetch data on mount
 onMounted(async () => {
-  await fetchTableData();
   await getClosure();
   await fetchDepartmentStats(); // Fetch department stats on mount
   await fetchContributions();
