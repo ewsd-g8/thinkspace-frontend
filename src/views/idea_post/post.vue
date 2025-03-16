@@ -15,13 +15,12 @@
           <div class="mb-3">
             <label for="content" class="form-label">Idea Content</label>
             <textarea
-              class="form-control"
+              class="form-control content-textarea"
               id="content"
               rows="3"
               v-model="form.content"
               autofocus
               required
-              style="min-height: 200px"
               spellcheck="true"
             ></textarea>
           </div>
@@ -29,10 +28,10 @@
             <label class="form-label">Category <span class="text-danger">*</span></label>
             <p>
               Suggested Categories:
-              <span v-if="categories.length > 0" style="background-color: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-right: 5px">
+              <span v-if="categories.length > 0" class="suggested-category">
                 {{ categories[categories.length - 1].name }}
               </span>
-              <span v-if="categories.length > 1" style="background-color: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-right: 5px">
+              <span v-if="categories.length > 1" class="suggested-category">
                 {{ categories[categories.length - 2].name }}
               </span>
             </p>
@@ -47,48 +46,45 @@
             ></v-select>
           </div>
 
-          <!-- Document Upload -->
+          <!-- Document Upload with New Uiverse.io Button -->
           <div class="mb-3">
             <label class="form-label">Documents (Max 3, JPG/JPEG/PNG/PDF, 5MB each)</label>
-            <input
-              type="file"
-              ref="documentInput"
-              style="display: none"
-              multiple
-              accept=".jpg,.jpeg,.png,.pdf"
-              @change="handleDocumentChange"
-            />
-            <button type="button" class="btn btn-primary" @click="triggerDocumentInput">
-              <svg
-                aria-hidden="true"
-                stroke="currentColor"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                class="icon"
-              >
-                <path
-                  stroke-width="2"
-                  stroke="#ffffff"
-                  d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 21 8 21H11M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V11.8125"
-                  stroke-linejoin="round"
-                  stroke-linecap="round"
-                ></path>
-                <path
-                  stroke-linejoin="round"
-                  stroke-linecap="round"
-                  stroke-width="2"
-                  stroke="#ffffff"
-                  d="M17 15V18M17 21V18M17 18H14M17 18H20"
-                ></path>
-              </svg>
-              Add Documents and photos
-            </button>
-            <ul v-if="selectedDocuments.length" class="mt-3">
+            <label class="custum-file-upload" for="documentInput">
+              <div class="icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill=""
+                  viewBox="0 0 24 24"
+                >
+                  <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
+                  <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <path
+                      fill=""
+                      d="M10 1C9.73478 1 9.48043 1.10536 9.29289 1.29289L3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 21.6569 4.34315 23 6 23H7C7.55228 23 8 22.5523 8 22C8 21.4477 7.55228 21 7 21H6C5.44772 21 5 20.5523 5 20V9H10C10.5523 9 11 8.55228 11 8V3H18C18.5523 3 19 3.44772 19 4V9C19 9.55228 19.4477 10 20 10C20.5523 10 21 9.55228 21 9V4C21 2.34315 19.6569 1 18 1H10ZM9 7H6.41421L9 4.41421V7ZM14 15.5C14 14.1193 15.1193 13 16.5 13C17.8807 13 19 14.1193 19 15.5V16V17H20C21.1046 17 22 17.8954 22 19C22 20.1046 21.1046 21 20 21H13C11.8954 21 11 20.1046 11 19C11 17.8954 11.8954 17 13 17H14V16V15.5ZM16.5 11C14.142 11 12.2076 12.8136 12.0156 15.122C10.2825 15.5606 9 17.1305 9 19C9 21.2091 10.7909 23 13 23H20C22.2091 23 24 21.2091 24 19C24 17.1305 22.7175 15.5606 20.9844 15.122C20.7924 12.8136 18.858 11 16.5 11Z"
+                      clip-rule="evenodd"
+                      fill-rule="evenodd"
+                    ></path>
+                  </g>
+                </svg>
+              </div>
+              <div class="text">
+                <span>Add Documents and Photos</span>
+              </div>
+              <input
+                type="file"
+                id="documentInput"
+                ref="documentInput"
+                multiple
+                accept=".jpg,.jpeg,.png,.pdf"
+                @change="handleDocumentChange"
+                class="hidden-input"
+              />
+            </label>
+            <ul v-if="selectedDocuments.length" class="mt-3 document-list">
               <li v-for="(file, index) in selectedDocuments" :key="index">{{ file.name }} ({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</li>
             </ul>
-            <p v-if="documentError" class="text-danger">{{ documentError }}</p>
+            <p v-if="documentError" class="text-danger error-message">{{ documentError }}</p>
           </div>
 
           <!-- Anonymous Switch -->
@@ -110,10 +106,10 @@
           <!-- Closure Information -->
           <div class="mb-3">
             <p v-if="closures.length > 0 && closures[0]">
-              This closure is <span style="font-weight: bold;">{{ closures[0].name }}</span> and opened on
-              <span style="font-weight: bold;">{{ closures[0].date }}</span> and will be closed on
-              <span style="font-weight: bold;">{{ closures[0].final_date }}</span>. After submission, your idea will be reviewed by the QA manager and closed within
-              <span style="font-weight: bold;">{{ Math.ceil(Math.abs(new Date(closures[0]?.final_date) - new Date(closures[0]?.date)) / (1000 * 60 * 60 * 24)) }} days</span>.
+              This closure is <span class="bold-text">{{ closures[0].name }}</span> and opened on
+              <span class="bold-text">{{ closures[0].date }}</span> and will be closed on
+              <span class="bold-text">{{ closures[0].final_date }}</span>. After submission, your idea will be reviewed by the QA manager and closed within
+              <span class="bold-text">{{ Math.ceil(Math.abs(new Date(closures[0]?.final_date) - new Date(closures[0]?.date)) / (1000 * 60 * 60 * 24)) }} days</span>.
             </p>
           </div>
 
@@ -124,23 +120,35 @@
             </label>
           </div>
 
-          <!-- Hypothetical Download Button -->
-         
-
+          <!-- Post Button -->
           <button
+            class="cssbuttons-io-button"
             type="submit"
-            class="btn post-btn btn-primary"
             :disabled="isBlocked"
             :title="isBlocked ? 'You are blocked and cannot react' : ''"
-            style="background-color: #5d1010; width: 300px; border-radius: 10px; text-align: center;"
           >
             Post
+            <div class="icon">
+              <svg
+                height="24"
+                width="24"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M0 0h24v24H0z" fill="none"></path>
+                <path
+                  d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
+                  fill="currentColor"
+                ></path>
+              </svg>
+            </div>
           </button>
         </form>
       </div>
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -152,7 +160,7 @@ const authStore = useAuthStore();
 const getUserID = computed(() => authStore.getUserId);
 const router = useRouter();
 
-const isBlocked = ref(false); // Fixed typo: `isblocked` to `isBlocked`
+const isBlocked = ref(false);
 const categories = ref([]);
 const closures = ref([]);
 const form = reactive({
@@ -161,27 +169,21 @@ const form = reactive({
   closure_id: "",
   userId: getUserID,
   category_id: [],
-  isAnonymous: false, // Added isAnonymous field, defaulting to false
+  isAnonymous: false,
   agreeTerms: false,
 });
 
 const documentInput = ref(null);
 const selectedDocuments = ref([]);
 const documentError = ref("");
-const exportBtnLoading = ref(false); // Added for download loading state
-const serverOptions = ref({ sortBy: "default" }); // Example sorting options
-const searchValue = ref(""); // Example search value
+const exportBtnLoading = ref(false);
+const serverOptions = ref({ sortBy: "default" });
+const searchValue = ref("");
 
-// Trigger document input
-const triggerDocumentInput = () => {
-  documentInput.value.click();
-};
-
-// Handle document selection with validation
 const handleDocumentChange = (event) => {
   const files = Array.from(event.target.files);
   const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
-  const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+  const maxSize = 5 * 1024 * 1024;
 
   documentError.value = "";
 
@@ -291,14 +293,12 @@ const postIdea = async () => {
     return;
   }
   fd.append("user_id", form.userId);
-  fd.append("is_anonymous", form.isAnonymous ? 1 : 0); // Send as 1 or 0 for backend compatibility
+  fd.append("is_anonymous", form.isAnonymous ? 1 : 0);
 
-  // Append categories as an array
   form.category_id.forEach(categoryId => {
     fd.append("categories[]", categoryId);
   });
 
-  // Append documents as an array
   selectedDocuments.value.forEach((file, index) => {
     fd.append(`documents[${index}]`, file);
   });
@@ -309,7 +309,7 @@ const postIdea = async () => {
         "Content-Type": "multipart/form-data",
       },
     });
-    router.push({ name: "category-index" });
+    router.push({ name: "idea_post_idea" });
     createToast(
       { title: "Success", description: "Successfully Created Post!" },
       { type: "success", transition: "bounce", position: "top-right", showIcon: true }
@@ -322,52 +322,5 @@ const postIdea = async () => {
     );
   }
 };
-
-
 </script>
 
-<style scoped>
-.btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 15px;
-  font-size: 16px;
-}
-
-.icon {
-  width: 24px;
-  height: 24px;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  padding: 5px 0;
-}
-
-.text-danger {
-  font-size: 14px;
-  margin-top: 5px;
-}
-
-.post-btn:disabled,
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Style for the switch */
-.form-switch .form-check-input {
-  width: 2em;
-  height: 1em;
-  margin-top: 0.25em;
-}
-
-.form-switch .form-check-label {
-  margin-left: 0.5em;
-}
-</style>

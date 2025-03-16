@@ -4,36 +4,26 @@
     <div class="card-body">
       <h5 class="card-title">
         Reason --
-        <span
-          style="
-            background-color: #e5e5e5;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 5px;
-            margin-right: 5px;
-            margin-left: 3px;
-          "
-        >
+        <span class="report-type-name">
           {{ reportTypes.name }}
         </span>
       </h5>
-      <p class="card-text" style="text-align: justify">
+      <p class="card-text">
         Description --
-        <span style="color: black">{{ reportTypes.description }} </span>
+        <span class="description-text">{{ reportTypes.description }}</span>
       </p>
       <form @submit.prevent="sendReport()">
         <div class="mb-3">
-          <label for="reason" class="form-label" style="color: black"
-            >Give your Reason <span class="text-danger">*</span></label
-          >
+          <label for="reason" class="form-label">
+            Give your Reason <span class="text-danger">*</span>
+          </label>
           <textarea
-            class="form-control"
+            class="form-control reason-textarea"
             id="reason"
             rows="4"
             v-model="reports.reason"
             autofocus
             required
-            style="min-height: 300px"
             spellcheck="true"
           ></textarea>
           <v-errors
@@ -43,7 +33,7 @@
               value: 'Reason',
             }"
           ></v-errors>
-          <small class="form-text text-muted">
+          <small class="form-text">
             {{ wordCount }} / {{ maxWords }} words
             <span v-if="wordCount > maxWords" class="text-danger">
               (Exceeds limit!)
@@ -51,11 +41,7 @@
           </small>
         </div>
         <div class="d-grid gap-2">
-          <button
-            class="btn btn-primary"
-            type="submit"
-            style="background-color: #670e10"
-          >
+          <button class="btn btn-primary submit-button" type="submit">
             Submit
           </button>
         </div>

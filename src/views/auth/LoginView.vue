@@ -7,26 +7,18 @@
         <img
           src="/icon/think-space-logo.png"
           alt="logo"
-          class="img-fluid"
-          style="max-width: 100%; height: auto"
+          class="img-fluid auth-logo"
         />
         <br />
-        <!-- <img
-          src="/images/ani2.gif"
-          alt="logo"
-          class="img-fluid"
-          style="height: 250px"
-        /> -->
       </div>
     </div>
-    <div class="auth-fluid-form-box" style="background-color: #670e10">
+    <div class="auth-fluid-form-box">
       <div class="align-items-center d-flex h-100">
         <div class="card-body">
           <img
             src="/icon/think-space-icon.png"
             alt="logo"
-            class="img-fluid"
-            style="width: 350px; height: 105px"
+            class="img-fluid card-logo"
           />
           <h4 class="mt-0 fw-bold text-focus-in">Welcome to Think Space!!</h4>
           <p class="mb-4 text-secondary">
@@ -70,9 +62,8 @@
                     placeholder="Enter your password"
                   />
                   <div
-                    class="input-group-text"
+                    class="input-group-text toggle-password"
                     @click="showHidePassword()"
-                    style="cursor: pointer"
                   >
                     <i
                       v-if="inputFieldType == 'password'"
@@ -112,6 +103,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 // import Loading from "@/components/shared/Loading.vue";
 import { reactive, ref, computed, onMounted } from "vue";
@@ -208,3 +200,4 @@ const submitForm = async () => {
 //   }
 // });
 </script>
+

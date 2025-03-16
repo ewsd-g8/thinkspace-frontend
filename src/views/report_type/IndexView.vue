@@ -25,13 +25,13 @@
           <i
             v-show="searchValue"
             class="mdi mdi-close text-danger fs-4"
-            style="cursor: pointer"
+           
             @click="searchValue = ''"
           ></i>
         </div>
         <router-link
           :to="{ name: 'reportType-create' }"
-          class="btn btn-blue waves-effect waves-light float-end"
+          class="btn btn-primary waves-effect waves-light float-end"
         >
           <i class="mdi mdi-plus me-sm-1 text-white"></i>Add New
         </router-link>
@@ -99,7 +99,7 @@
             <div class="text-center">
               <i
                 class="dripicons-information text-info"
-                style="font-size: 4rem"
+              
               ></i>
               <h4 class="mb-3 mt-1 fs-4">Confirmation!</h4>
               <h5 class="mt-4 fs-5">Are you sure to change status?</h5>
