@@ -34,7 +34,7 @@
         </div>
         <router-link
           :to="{ name: 'role-create' }"
-          class="btn btn-blue waves-effect waves-light float-end"
+          class="btn btn-primary waves-effect waves-light float-end"
         >
           <i class="mdi mdi-plus me-sm-1 text-white"></i>Add New
         </router-link>

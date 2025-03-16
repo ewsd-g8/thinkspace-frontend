@@ -35,7 +35,7 @@
         </div>
         <router-link
           :to="{ name: 'user-create' }"
-          class="btn btn-blue waves-effect waves-light float-end"
+          class="btn btn-primary waves-effect waves-light float-end"
         >
           <i class="mdi mdi-plus me-sm-1 text-dark"></i>Add New
         </router-link>
@@ -153,7 +153,7 @@
               <div class="mt-2">
                 <button
                   type="button"
-                  class="btn btn-success my-2 me-2"
+                  class="btn btn-primary my-2 me-2"
                   @click="changeUserStatus()"
                   :disabled="loading"
                 >
