@@ -5,14 +5,11 @@
         <div class="page-title-box">
           <div class="page-title-right">
             <ol class="breadcrumb m-0">
-             
-
               <li class="breadcrumb-item active">
                 <router-link :to="{ name: 'category-index' }"
                   >Category</router-link
                 >
               </li>
-
               <li class="breadcrumb-item active">Edit</li>
             </ol>
           </div>
@@ -23,7 +20,7 @@
     <div class="card position-relative">
       <!-- Account -->
       <div class="card-body">
-        <div v-if="loading" style="height: 50vh">
+        <div v-if="loading" class="loading-container">
           <Loading></Loading>
         </div>
 
@@ -81,7 +78,7 @@
           <div class="mt-2">
             <button
               @click="updatecategory()"
-              class="btn btn-success loading-button me-2 loading-button"
+              class="btn btn-primary loading-button me-2"
             >
               Update
             </button>
@@ -97,6 +94,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
 import { useVuelidate } from "@vuelidate/core";
@@ -116,59 +114,53 @@ const loading = ref(false);
 const router = useRouter();
 const route = useRoute();
 
-
 const categories = reactive({
   id: "",
   name: "",
   description: "",
-});  
-  const getCategoriesDetail = async () => {
-    loading.value = true;
-    await Http.get(`categories/${route.params.id}`)
-      .then((res) => {
-        console.log("res", res);
-        categories.id = res.data.data.id;
-        categories.name = res.data.data.name;
-        categories.description = res.data.data.description;
-        loading.value=false;
-      })
-      .catch((err) => {
-        if (err.response.status == 404) {
-          router.push({ name: "page-not-found" });
-        }
-      });
-  
-   
-  };
-  
-  
- 
-  const v$ = useVuelidate( categories);
-  
-  const updatecategory = async () => {
-    let isFormCorrect = await v$.value.$validate();
-    if (!isFormCorrect) return;
-    loading.value = true;
-  
-    resetServerErrors();
-  
-    const fd = new FormData();
-    fd.append("name", categories.name);
-    fd.append("description", categories.description);
-    
-  
-    await Http.post(`categories/${route.params.id}?_method=PUT`, fd, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+});
 
+const getCategoriesDetail = async () => {
+  loading.value = true;
+  await Http.get(`categories/${route.params.id}`)
+    .then((res) => {
+      console.log("res", res);
+      categories.id = res.data.data.id;
+      categories.name = res.data.data.name;
+      categories.description = res.data.data.description;
+      loading.value = false;
+    })
+    .catch((err) => {
+      if (err.response.status == 404) {
+        router.push({ name: "page-not-found" });
+      }
+    });
+};
+
+const v$ = useVuelidate(categories);
+
+const updatecategory = async () => {
+  let isFormCorrect = await v$.value.$validate();
+  if (!isFormCorrect) return;
+  loading.value = true;
+
+  resetServerErrors();
+
+  const fd = new FormData();
+  fd.append("name", categories.name);
+  fd.append("description", categories.description);
+
+  await Http.post(`categories/${route.params.id}?_method=PUT`, fd, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   })
     .then(() => {
       router.push({ name: "category-index" });
       createToast(
         {
           title: "Success",
-          description: "Successfully Updated Cateogry!",
+          description: "Successfully Updated Category!",
         },
         {
           type: "success",
@@ -186,8 +178,10 @@ const categories = reactive({
       loading.value = false;
     });
 };
+
 onMounted(() => {
   resetServerErrors();
   getCategoriesDetail();
 });
 </script>
+

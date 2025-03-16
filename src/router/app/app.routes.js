@@ -41,6 +41,7 @@ const reportDetail = () => import("@/views/idea_post/report_detail.vue");
 
 // for idea
 const ideadetailsview = () => import("@/views/idea_post/ideadetails.vue");
+const ideareportdetailsview = () =>import ("@/views/idea_post/report_idea_details.vue");
 const appRoutes = [
   {
     path: "dashboard",
@@ -164,6 +165,12 @@ const appRoutes = [
     name: "idea_details",
     component: ideadetailsview,
   },
+  {
+    path: "idea/:id/reportdetails",
+    name: "report_idea_details",
+    component: ideareportdetailsview,
+  },
+  
 
   // for report type
   {

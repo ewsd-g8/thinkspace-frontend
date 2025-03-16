@@ -148,19 +148,18 @@
             </div>
           </div>
           <hr />
-          <div>
-            <div class="grid w-100" v-if="showDocument">
-              <div
-                v-for="doc in ideas.document"
-                :key="doc.id"
-                class="g-col-6 g-col-md-4 mb-3"
-              >
-                <img
-                  v-if="isImage(doc.file_path)"
-                  :src="doc.file_path"
-                  class="img-fluid w-25 h-50 shadow-lg p-3bg-body-tertiary rounded float-start"
-                  alt="..."
-                />
+          <div class="grid w-100" v-if="showDocument">
+            <div
+              v-for="doc in ideas.document"
+              :key="doc.id"
+              class="g-col-6 g-col-md-4 mb-3 d-flex justify-content-center align-items-center"
+            >
+              <img
+                v-if="isImage(doc.file_path)"
+                :src="doc.file_path"
+                class="img-fluid w-50 h-50 shadow-lg p-3bg-body-tertiary"
+                alt="..."
+              />
 
                 <iframe
                   v-else-if="isPDF(doc.file_path)"
@@ -238,7 +237,7 @@
         </div>
       </div>
     </div>
-  </div>
+ 
 </template>
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
