@@ -2,7 +2,13 @@
   <div>
     <div class="card">
       <div class="card-body">
-        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4>Ideas</h4>
+          <button class="btn btn-info" @click="toggleSummary">
+            {{ showSummary ? "Hide Summary" : "Show Summary" }}
+          </button>
+        </div>
+        <!-- Summary Section -->
 
         <!-- Search and Content Length Filters -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
