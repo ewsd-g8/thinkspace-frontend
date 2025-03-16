@@ -36,7 +36,7 @@
             </div>
             <div v-else class="card-container">
               <div
-                v-for="stat in departmentStats"
+                v-for="stat in departmentStats.departments"
                 :key="stat.department_id"
                 class="Card"
               >

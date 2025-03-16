@@ -160,7 +160,7 @@
             <div
               v-for="doc in ideas.document"
               :key="doc.id"
-              class="g-col-6 g-col-md-4 mb-3"
+              class="g-col-6 g-col-md-4 mb-3 d-flex justify-content-center align-items-center"
             >
               <img
                 v-if="isImage(doc.file_path)"
