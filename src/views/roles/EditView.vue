@@ -141,7 +141,7 @@
         </div>
         <div class="mt-2">
           <button
-            class="btn btn-primary loading-button me-2"
+            class="btn btn-success loading-button me-2"
             @click="updateRole()"
           >
             Create

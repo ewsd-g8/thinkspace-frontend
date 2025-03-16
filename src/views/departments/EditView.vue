@@ -23,7 +23,7 @@
       <div class="card position-relative">
         <!-- Account -->
         <div class="card-body">
-          <div v-if="loading" >
+          <div v-if="loading" style="height: 50vh">
             <Loading></Loading>
           </div>
 
@@ -81,7 +81,7 @@
             <div class="mt-2">
               <button
                 @click="updatedepartment()"
-                class="btn btn-primary loading-button me-2 loading-button"
+                class="btn btn-success loading-button me-2 loading-button"
               >
                 Update
               </button>

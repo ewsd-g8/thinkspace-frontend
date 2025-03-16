@@ -20,7 +20,7 @@
     </div>
     <div class="card position-relative">
       <div class="card-body">
-        <div v-if="loading" >
+        <div v-if="loading" style="height: 50vh">
           <Loading></Loading>
         </div>
         <div v-else>
@@ -79,7 +79,7 @@
             <div class="mt-2">
               <button
                 type="submit"
-                class="btn btn-primary loading-button me-2 loading-button"
+                class="btn btn-success loading-button me-2 loading-button"
               >
                 Submit
               </button>

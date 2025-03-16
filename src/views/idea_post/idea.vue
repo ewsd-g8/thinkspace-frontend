@@ -12,7 +12,7 @@
 
         <!-- Search and Content Length Filters -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
-          <div class="search-container">
+          <div style="flex: 4; margin-right: 10px; min-width: 200px">
             <input
               type="text"
               class="form-control"
@@ -21,7 +21,7 @@
               @input="debouncedSearchIdeas"
             />
           </div>
-          <div class="content-length-container">
+          <div style="flex: 1; margin: 0 10px; min-width: 200px">
             <select
               class="form-control form-control-sm content-length-filter"
               v-model="selectedContentLength"
@@ -37,7 +37,7 @@
 
         <!-- Filters Container -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
-          <div class="filter-container">
+          <div style="flex: 1; margin-right: 10px; min-width: 200px">
             <select
               class="form-control"
               v-model="selectedCategory"
@@ -53,7 +53,7 @@
               </option>
             </select>
           </div>
-          <div class="filter-middle">
+          <div style="flex: 1; margin: 0 10px; min-width: 200px">
             <select
               class="form-control"
               v-model="selectedDepartment"
@@ -69,7 +69,7 @@
               </option>
             </select>
           </div>
-          <div class="filter-middle">
+          <div style="flex: 1; margin: 0 10px; min-width: 200px">
             <select
               class="form-control"
               v-model="selectedClosure"
@@ -85,7 +85,7 @@
               </option>
             </select>
           </div>
-          <div class="filter-last">
+          <div style="flex: 1; margin-left: 10px; min-width: 200px">
             <select
               class="form-control"
               v-model="sortOption"
@@ -97,13 +97,18 @@
               <option value="mostDislikes">Most Dislikes</option>
               <option value="mostViews">Most Views</option>
               <option value="noComments">No Comments</option>
+              <!-- Fixed label -->
             </select>
           </div>
         </div>
 
         <!-- Loading Animation -->
         <div v-if="loading" class="text-center my-5">
-          <div class="spinner-border" role="status">
+          <div
+            class="spinner-border"
+            role="status"
+            style="width: 3rem; height: 3rem"
+          >
             <span class="visually-hidden">Loading...</span>
           </div>
           <p>Loading ideas...</p>
@@ -115,24 +120,33 @@
             class="list-group-item"
             v-for="idea in filteredIdeas"
             :key="idea.id"
+            style="
+              box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.49);
+              margin-bottom: 20px;
+            "
           >
-            <div class="profile-container"  @mouseover="showPopup(idea)"
-                @mouseleave="hidePopup()"
-                @click="togglePopup(idea)">
+            <div style="display: inline-block">
               <div
-                class="profile-flex"
-              
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+                @mouseover="showPopup(idea)"
+                @mouseleave="hidePopup()"
+                @click="togglePopup(idea)"
               >
                 <img
                   :src="
                     idea.is_anonymous
-                      ? '/images/users/anonymous.jpg'
-                      : idea.user?.profile || '/images/users/anonymous.jpg'
+                      ? '/images/users/anonymous.jpg' // Default for anonymous
+                      : idea.user?.profile || '/images/users/anonymous.jpg' // User's profile or fallback
                   "
-                  class="profile-img"
+                  class="rounded-circle"
+                  style="width: 40px; height: 40px; object-fit: cover"
                   alt="User Profile"
                 />
-                <span class="profile-name">
+                <span style="font-weight: bold; margin-left: 5px">
                   {{
                     idea.is_anonymous
                       ? "Anonymous Participant"
@@ -142,11 +156,21 @@
               </div>
             </div>
 
-            <span class="views-count">{{ idea.views_count }} views</span>
-            <div @click="viewIdeaDetails(idea.id)" style="cursor: pointer" class="d-flex justify-content-between">
-              <div>
+            <span style="opacity: 0.5; float: right"
+              >{{ idea.views_count }} views</span
+            >
+            <div class="d-flex justify-content-between">
+              <div @click="viewIdeaDetails(idea.id)" style="cursor: pointer">
                 <p class="text-muted">
-                  <span class="category-tag">
+                  <span
+                    style="
+                      background-color: #e5e5e5;
+                      border: 1px solid #ccc;
+                      border-radius: 5px;
+                      padding: 5px;
+                      margin-right: 5px;
+                    "
+                  >
                     {{
                       idea.categories && idea.categories.length
                         ? `Tagged Categories: ${idea.categories
@@ -156,21 +180,26 @@
                     }}
                   </span>
                   - -
-                  <span class="closure-name">
-                    {{ idea.closure_id ? ` ${idea.closure.name}` : "No closure ID" }}
-                  </span>
+                  <span style="font-weight: bold">{{
+                    idea.closure_id ? ` ${idea.closure.name}` : "No closure ID"
+                  }}</span>
                 </p>
-                <h5 class="idea-title">{{ idea.title }}</h5>
-                <div>
+                <h5 style="font-weight: bold; font-size: 20px">
+                  {{ idea.title }}
+                </h5>
+                <div style="font-size: 15px">
                   <p class="content-preview">
                     {{ truncateContent(idea.content) }}
-                    <div v-if="idea.content.length > 100" class="see-more">
+                    <span v-if="idea.content.length > 100" class="see-more">
                       <router-link
-                        :to="{ name: 'idea_details', params: { id: idea.id } }"
+                        :to="{
+                          name: 'idea_details',
+                          params: { id: idea.id },
+                        }"
                         @click.stop
                         >...see more</router-link
                       >
-                    </div>
+                    </span>
                   </p>
                 </div>
               </div>
@@ -185,8 +214,13 @@
                     ? '/images/users/anonymous.jpg'
                     : idea.user?.profile || '/images/users/anonymous.jpg'
                 "
+                style="
+                  width: 200px;
+                  height: auto;
+                  object-fit: cover;
+                  border-radius: 8px;
+                "
                 alt="Profile Picture"
-                style="width: 300px; height: 200px; object-fit: cover;"
               />
               <h5>{{ idea.title }}</h5>
               <p>
@@ -221,7 +255,11 @@
               :title="isBlocked ? 'You are blocked and cannot react' : ''"
             >
               <i class="mdi mdi-thumb-up"></i>
-              <span class="btn-likes">{{ idea.likes }}</span>
+              <span
+                class="ml-1"
+                style="margin-left: 5px; font-weight: bold; padding-right: 5px"
+                >{{ idea.likes }}</span
+              >
               <span>{{ idea.likes ? "Liked" : "Like" }}</span>
             </button>
             <button
@@ -232,7 +270,11 @@
               :title="isBlocked ? 'You are blocked and cannot react' : ''"
             >
               <i class="mdi mdi-thumb-down"></i>
-              <span class="btn-likes">{{ idea.unlikes }}</span>
+              <span
+                class="ml-1"
+                style="margin-left: 5px; font-weight: bold; padding-right: 5px"
+                >{{ idea.unlikes }}</span
+              >
               <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
             </button>
 
@@ -243,17 +285,27 @@
               :title="isBlocked ? 'You are blocked and cannot comment' : ''"
             >
               <i class="mdi mdi-comment"></i>
-              <span class="btn-likes">{{ idea.comments_count }}</span>
+              <span
+                class="ml-1"
+                style="font-weight: bold; padding-right: 5px"
+                >{{ idea.comments_count }}</span
+              >
               <span>Comments</span>
             </button>
             <router-link
+              
               :to="{ name: 'report_idea_details', params: { id: idea.id } }"
             >
               <button class="btn btn-sm">
                 <i class="mdi mdi-message-alert"></i>
-                <span class="btn-likes">{{ idea.reports_count }}</span>
+                <span
+                  class="ml-1"
+                  style="font-weight: bold; padding-right: 5px"
+                  >{{ idea.reports_count }}</span
+                >
                 <span>Report</span>
               </button>
+             
             </router-link>
           </li>
         </ul>
@@ -604,4 +656,117 @@ const truncateContent = (content) => {
 };
 </script>
 
+<style scoped>
+ul.list-group {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.idea-popup {
+  position: absolute;
+  top: 0%;
+  left: 0;
+  z-index: 1000;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 650px;
+  max-height: 400px;
+  width: 100%;
+}
 
+.idea-popup h5 {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.idea-popup p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .idea-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+  }
+}
+ul.list-group > li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+ul.list-group > li:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .d-flex.flex-wrap {
+    flex-direction: column;
+  }
+
+  .d-flex.flex-wrap > div {
+    margin: 0 0 10px 0 !important;
+    width: 100%;
+  }
+}
+
+.spinner-border {
+  color: #5d1010;
+}
+.reaction-btn:disabled,
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.content-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.see-more {
+  font-size: 14px;
+  color: #007bff;
+}
+
+.see-more a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.see-more a:hover {
+  text-decoration: underline;
+}
+
+.content-length-filter {
+  width: 150px;
+  height: 30px;
+  font-size: 14px;
+  padding: 0 5px;
+}
+
+.summary-section {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+}
+
+.summary-section .list-group-item {
+  padding: 8px 12px;
+}
+
+.summary-section .badge {
+  font-size: 12px;
+}
+</style>
