@@ -606,8 +606,13 @@ label {
 }
 
 .Card{
+
   width: 300px;
  background-color: #f8f9fa;
+
+
+  
+
   border: 2px solid #000;
   padding: 20px;
   border-radius: 20px;
@@ -617,6 +622,7 @@ label {
   text-align: center;
 }
 .Card .name{
+
   font-size: 20px;
   font-weight: 800;
   color: #620f10;

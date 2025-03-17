@@ -168,12 +168,18 @@
                 class="img-fluid w-50 h-50 shadow-lg p-3bg-body-tertiary"
                 alt="..."
               />
-              <iframe
-                v-else-if="isPDF(doc.file_path)"
-                :src="doc.file_path"
-                class="w-100 shadow-lg p-3 bg-body-tertiary rounded"
-                style="height: 600px"
-              ></iframe>
+
+          
+
+
+                <iframe
+                  v-else-if="isPDF(doc.file_path)"
+                  :src="doc.file_path"
+                  class="w-100 shadow-lg p-3 bg-body-tertiary rounded"
+                  style="height: 600px"
+                ></iframe>
+              </div>
+
             </div>
           </div>
           <hr />
@@ -288,7 +294,7 @@
         </div>
       </div>
     </div>
-  </div>
+ 
 </template>
 
 <script setup>
