@@ -40,9 +40,9 @@
                 :key="stat.department_id"
                 class="Card"
               >
-                <div class="name">{{ stat.department_name }}</div>
+                <div class="name">{{ stat.department_name }}</div><br>
                 <div class="cardcontent">
-                  Number of Ideas:
+                  Number of Ideas: <br>
                   <div class="count">{{ stat.ideas_count }}</div>
                 </div>
               </div>

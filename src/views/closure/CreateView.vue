@@ -10,7 +10,6 @@
                   >Closure</router-link
                 >
               </li>
-
               <li class="breadcrumb-item active">Create</li>
             </ol>
           </div>
@@ -117,7 +116,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { useRouter } from "vue-router";
 import { createToast } from "mosha-vue-toastify";
@@ -140,17 +139,56 @@ const closure = reactive({
 
 const v$ = useVuelidate(closure);
 
+// Check if any closure has is_active = 1
+const checkActiveClosure = async () => {
+  try {
+    const response = await Http.get("closures");
+    console.log("Response from closures:", response.data);
+
+    
+    const closures = response.data.data.data || [];
+    console.log(closures)
+    const hasActiveClosure = closures.some(closure => closure.is_active === 1);
+    return hasActiveClosure; 
+  } catch (error) {
+    console.error("Error checking active closure:", error);
+    return false; 
+  }
+};
+
 const saveClosure = async () => {
+
   let isFormCorrect = await v$.value.$validate();
   if (!isFormCorrect) return;
-  loading.value = true;
 
+  loading.value = true;
   resetServerErrors();
 
+  // Check for active closure
+  const hasActiveClosure = await checkActiveClosure();
+  if (hasActiveClosure) {
+    loading.value = false;
+    createToast(
+      {
+        title: "Error",
+        description: "Cannot create a new closure while an active closure exists!",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+    return; // Stop if an active closure exists
+  }
+
+  // Proceed with saving the new closure
   const fd = new FormData();
   fd.append("name", closure.name);
   fd.append("date", closure.date);
   fd.append("final_date", closure.finaldate);
+  fd.append("is_active", 1); // Set new closure as active
 
   await Http.post("closures", fd, {
     headers: {
@@ -173,13 +211,36 @@ const saveClosure = async () => {
       );
     })
     .catch((error) => {
+      if (error.response?.status === 422) {
+        createToast(
+          {
+            title: "Error",
+            description: error.response.data.message || "Failed to create closure.",
+          },
+          {
+            type: "danger",
+            transition: "bounce",
+            position: "top-right",
+            showIcon: true,
+          }
+        );
+      }
       serverErrors(error.response?.data.errors);
     })
     .finally(() => {
       loading.value = false;
     });
 };
+
 onMounted(() => {
   resetServerErrors();
+
+  checkActiveClosure();
 });
 </script>
+
+<style scoped>
+.loading-container {
+  height: 50vh;
+}
+</style>
