@@ -12,20 +12,31 @@
             margin-bottom: 20px;
           "
         >
-          <div style="display: inline-block">
-            <div
-              style="
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              "
-            >
-              <i
-                class="mdi mdi-account-circle rounded-circle"
-                style="font-size: 40px"
-              ></i>
-              <span style="font-weight: bold; margin-left: 5px"
-                >Anonymous Participant</span
+          <div class="d-flex justify-content-between border-bottom mb-2">
+            <div class="d-flex justify-content-start align-items-center mb-1">
+              <img
+                v-if="!ideas.is_anonymous"
+                :src="
+                  ideas.user.profile
+                    ? ideas.user.profile
+                    : '/images/users/user-1.png'
+                "
+                class="rounded-circle object-fit-cover"
+                style="width: 35px; height: 35px"
+              />
+              <img
+                v-if="ideas.is_anonymous"
+                :src="'/images/users/user-1.png'"
+                class="rounded-circle object-fit-cover"
+                style="width: 35px; height: 35px"
+              />
+              <span style="font-weight: bold; margin-left: 10px">{{
+                !ideas.is_anonymous ? ideas.user.name : "Anonymous Participant"
+              }}</span>
+            </div>
+            <div class="d-flex justify-content-end">
+              <span style="margin-right: 20px"
+                >{{ ideas.views_count }} views</span
               >
             </div>
           </div>
@@ -133,9 +144,6 @@
               </button>
             </div>
             <div class="d-flex justify-content-end align-items-center w-50">
-              <span style="margin-right: 20px"
-                >{{ ideas.views_count }} views</span
-              >
               <button
                 class="btn btn-primary me-md-2 ml-3"
                 type="submit"
@@ -161,6 +169,9 @@
                 alt="..."
               />
 
+          
+
+
                 <iframe
                   v-else-if="isPDF(doc.file_path)"
                   :src="doc.file_path"
@@ -168,6 +179,7 @@
                   style="height: 600px"
                 ></iframe>
               </div>
+
             </div>
           </div>
           <hr />
@@ -183,24 +195,52 @@
                 ></textarea>
                 <label for="floatingTextarea">Comments</label>
               </div>
-              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button
-                  class="btn btn-primary me-md-2"
-                  type="submit"
-                  v-if="showBtn"
-                  style="background-color: #670e10"
+              <div class="filter-last">
+                <select
+                  class="form-control"
+                  v-model="sortOption"
+                  @change="sortComments"
                 >
-                  Send
-                </button>
-                <button
-                  class="btn btn-primary"
-                  type="button"
-                  v-if="showBtn"
-                  style="background-color: #670e10"
-                  @click="cancelComment"
-                >
-                  Cancel
-                </button>
+                  <option value="newest">Latest</option>
+                  <option value="oldest">Oldest</option>
+                </select>
+              </div>
+              <div v-if="loading" class="text-center my-5">
+                <div class="spinner-border" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Loading comments...</p>
+              </div>
+              <div class="d-flex justify-content-between" v-if="showBtn">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="anonymousComment"
+                    v-model="comment.is_anonymous"
+                  />
+                  <label class="form-check-label" for="anonymousComment"
+                    >Comment Anonymously</label
+                  >
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <button
+                    class="btn btn-primary me-md-2"
+                    type="submit"
+                    style="background-color: #670e10"
+                  >
+                    Send
+                  </button>
+                  <button
+                    class="btn btn-primary"
+                    type="button"
+                    style="background-color: #670e10"
+                    @click="cancelComment"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -209,7 +249,7 @@
             <li
               class="list-group-item list-group-item-action"
               aria-current="true"
-              v-for="com in ideas.comments"
+              v-for="com in sortedComments"
               :key="com.id"
             >
               <div
@@ -220,18 +260,35 @@
                   class="d-flex"
                   style="justify-content: center; align-items: center"
                 >
-                  <i
-                    class="mdi mdi-account-circle rounded-circle"
-                    style="font-size: 40px"
-                  ></i>
-                  <h5 style="padding-left: 10px">Anonymous User</h5>
+                  <img
+                    v-if="!com.is_anonymous"
+                    :src="
+                      com.user.profile
+                        ? com.user.profile
+                        : '/images/users/user-1.png'
+                    "
+                    class="rounded-circle object-fit-cover"
+                    style="width: 35px; height: 35px"
+                  />
+                  <img
+                    v-else-if="com.is_anonymous"
+                    :src="'/images/users/user-1.png'"
+                    class="rounded-circle object-fit-cover"
+                    style="width: 35px; height: 35px"
+                  />
+                  <h5 style="margin-left: 10px">
+                    {{
+                      !com.is_anonymous
+                        ? com.user.full_name
+                        : "Anonymous Participant"
+                    }}
+                  </h5>
                 </div>
-                <small>3 days ago</small>
+                <small>{{ timeAgo(com.created_at) }}</small>
               </div>
-              <p class="mb-1">
+              <p class="mb-1 mt-1">
                 {{ com.content }}
               </p>
-              <small>And some small print.</small>
             </li>
           </ul>
         </div>
@@ -239,15 +296,13 @@
     </div>
  
 </template>
+
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { useRouter, useRoute } from "vue-router";
 import { createToast } from "mosha-vue-toastify";
-import Skeleton from "@/components/shared/Skeleton.vue";
-import { required, email, helpers } from "@vuelidate/validators";
 import { Http } from "@/services/http-common";
-import { getAuthUser } from "@/composables/getAuthUser";
 import { useAuthStore } from "@/stores/auth";
 import {
   serverErrors,
@@ -257,57 +312,92 @@ import {
 
 const loading = ref(false);
 const authStore = useAuthStore();
-const getUserID = computed(() => authStore.getUserId);
+const getUserID = authStore.getUserId; // No need for computed here
 const router = useRouter();
 const route = useRoute();
-
-console.log(getUserID);
-console.log(route.params.id);
 
 const ideas = reactive({
   content: "",
   title: "",
   closurename: "",
   categories: "",
-  document: "",
-  comments: "",
-  comments_count: "",
+  document: [],
+  comments: [],
+  comments_count: 0,
   user_reaction: "",
-  likes: "",
-  unlikes: "",
-  views_count: "",
-  has_thumbs_up: "",
-  has_thumbs_down: "",
+  likes: 0,
+  unlikes: 0,
+  views_count: 0,
+  has_thumbs_up: false,
+  has_thumbs_down: false,
+  user: {},
+  is_anonymous: false,
 });
+
+const sortOption = ref("newest"); // Default sort option
+
+// Computed property to sort comments locally
+const sortedComments = computed(() => {
+  const comments = [...ideas.comments]; // Create a copy to avoid mutating original
+  return comments.sort((a, b) => {
+    const dateA = new Date(a.created_at);
+    const dateB = new Date(b.created_at);
+    return sortOption.value === "newest" ? dateB - dateA : dateA - dateB;
+  });
+});
+
+// Fetch idea details including comments (no sort parameter sent to backend)
+const fetchComments = async () => {
+  loading.value = true;
+  try {
+    const url = `ideas/${route.params.id}`;
+    console.log("Fetching comments with URL:", url);
+    const { data } = await Http.get(url);
+    console.log("API response:", data);
+
+    // Update only comments and comments_count
+    ideas.comments = data.data.comments || [];
+    ideas.comments_count = data.data.comments_count || 0;
+  } catch (error) {
+    console.error(
+      "Failed to load comments:",
+      error.response?.data || error.message
+    );
+    ideas.comments = [];
+    ideas.comments_count = 0;
+  } finally {
+    loading.value = false;
+  }
+};
 
 const getIdeaDetail = async () => {
   loading.value = true;
-  await Http.get(`ideas/${route.params.id}`)
-    .then((res) => {
-      console.log("res", res);
-      ideas.content = res.data.data.content;
-      ideas.title = res.data.data.title;
-      ideas.categories = res.data.data.categories;
-      ideas.closurename = res.data.data.closure.name;
-      ideas.document = res.data.data.documents;
-      ideas.comments = res.data.data.comments;
-      ideas.comments_count = res.data.data.comments_count;
-      ideas.user_reaction = res.data.data.user_reaction;
-      ideas.likes = res.data.data.likes;
-      ideas.unlikes = res.data.data.unlikes;
-      ideas.views_count = res.data.data.views_count;
-      ideas.has_thumbs_up = ideas.user_reaction === true;
-      ideas.has_thumbs_down = ideas.user_reaction === false;
-      console.log(ideas.has_thumbs_up);
-      console.log(ideas.has_thumbs_down);
-      console.log(res.data.data.documents);
-      loading.value = false;
-    })
-    .catch((err) => {
-      if (err.response.status == 404) {
-        router.push({ name: "page-not-found" });
-      }
-    });
+  try {
+    const response = await Http.get(`ideas/${route.params.id}`);
+    console.log("Idea detail response:", response);
+    const data = response.data.data;
+    ideas.content = data.content;
+    ideas.title = data.title;
+    ideas.categories = data.categories;
+    ideas.closurename = data.closure.name;
+    ideas.document = data.documents;
+    ideas.comments = data.comments;
+    ideas.comments_count = data.comments_count;
+    ideas.user_reaction = data.user_reaction;
+    ideas.likes = data.likes;
+    ideas.unlikes = data.unlikes;
+    ideas.views_count = data.views_count;
+    ideas.has_thumbs_up = data.user_reaction === true;
+    ideas.has_thumbs_down = data.user_reaction === false;
+    ideas.user = data.user;
+    ideas.is_anonymous = data.is_anonymous;
+  } catch (err) {
+    if (err.response?.status === 404) {
+      router.push({ name: "page-not-found" });
+    }
+  } finally {
+    loading.value = false;
+  }
 };
 
 // Reaction
@@ -316,22 +406,18 @@ const updatedIdea = reactive({
   title: "",
   closurename: "",
   categories: "",
-  document: "",
-  comments: "",
-  comments_count: "",
+  document: [],
+  comments: [],
+  comments_count: 0,
   user_reaction: "",
-  likes: "",
-  unlikes: "",
-  views_count: "",
+  likes: 0,
+  unlikes: 0,
+  views_count: 0,
 });
 
 const thumbsUp = async () => {
-  const newLikes = ideas.has_thumbs_up
-    ? (ideas.likes || 0) - 1
-    : (ideas.likes || 0) + 1;
-  const newUnlikes = ideas.has_thumbs_down
-    ? (ideas.unlikes || 0) - 1
-    : ideas.unlikes || 0;
+  const newLikes = ideas.has_thumbs_up ? ideas.likes - 1 : ideas.likes + 1;
+  const newUnlikes = ideas.has_thumbs_down ? ideas.unlikes - 1 : ideas.unlikes;
 
   ideas.likes = newLikes;
   ideas.unlikes = newUnlikes;
@@ -344,23 +430,19 @@ const thumbsUp = async () => {
       type: true,
     });
     const response = await Http.get(`ideas/${route.params.id}`);
-    console.log(response);
     updatedIdea.user_reaction = response.data.data.user_reaction;
-    console.log(updatedIdea.user_reaction);
     ideas.has_thumbs_up = updatedIdea.user_reaction === true;
     ideas.has_thumbs_down = updatedIdea.user_reaction === false;
+    ideas.likes = response.data.data.likes;
+    ideas.unlikes = response.data.data.unlikes;
   } catch (error) {
     console.error("Error in thumbUp:", error.response?.data || error.message);
   }
 };
 
 const thumbsDown = async () => {
-  const newUnlikes = ideas.has_thumbs_down
-    ? (ideas.unlikes || 0) - 1
-    : (ideas.unlikes || 0) + 1;
-  const newLikes = ideas.has_thumbs_up
-    ? (ideas.likes || 0) - 1
-    : ideas.likes || 0;
+  const newUnlikes = ideas.has_thumbs_down ? ideas.unlikes - 1 : ideas.unlikes + 1;
+  const newLikes = ideas.has_thumbs_up ? ideas.likes - 1 : ideas.likes;
 
   ideas.likes = newLikes;
   ideas.unlikes = newUnlikes;
@@ -373,11 +455,11 @@ const thumbsDown = async () => {
       type: false,
     });
     const response = await Http.get(`ideas/${route.params.id}`);
-    console.log(response);
     updatedIdea.user_reaction = response.data.data.user_reaction;
-    console.log(updatedIdea.user_reaction);
     ideas.has_thumbs_up = updatedIdea.user_reaction === true;
     ideas.has_thumbs_down = updatedIdea.user_reaction === false;
+    ideas.likes = response.data.data.likes;
+    ideas.unlikes = response.data.data.unlikes;
   } catch (error) {
     console.error("Error in thumbDown:", error.response?.data || error.message);
   }
@@ -389,6 +471,7 @@ const showDocument = ref(false);
 const toggleBtn = () => {
   showBtn.value = !showBtn.value;
 };
+
 const showDocToggle = () => {
   showDocument.value = !showDocument.value;
 };
@@ -400,25 +483,47 @@ const isImage = (filePath) => {
 const isPDF = (filePath) => {
   return filePath && /\.pdf$/i.test(filePath);
 };
-//>>>>> Comment Posting
+
 const focusCommentBox = () => {
   const textarea = document.querySelector("#floatingTextarea");
   if (textarea) {
-    textarea.focus(); // Focus the textarea, which also triggers toggleBtn
+    textarea.focus();
   }
 };
 
-// Cancel Comment
 const cancelComment = () => {
-  comment.content = ""; // Clear input
-  showBtn.value = false; // Hide buttons
+  comment.content = "";
+  showBtn.value = false;
 };
 
 const comment = reactive({
   content: "",
   idea_id: route.params.id,
   user_id: getUserID,
+  is_anonymous: false,
 });
+
+const timeAgo = (timestamp) => {
+  const currentDate = new Date();
+  const postDate = new Date(timestamp);
+  const diffMs = currentDate - postDate;
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days < 0) return "In the future";
+  if (days > 1) return `${days} days ago`;
+  if (days === 1) return "Yesterday";
+  if (hours > 0) return `${hours} hours ago`;
+  if (minutes > 0) return `${minutes} minutes ago`;
+  return "Just now";
+};
+
+// Function to trigger sorting (just updates UI since sorting is handled by computed)
+const sortComments = () => {
+  // No need to fetch again; sortedComments will update automatically
+};
 
 const v$ = useVuelidate(comment);
 
@@ -433,15 +538,7 @@ const sendComment = async () => {
   fd.append("content", comment.content);
   fd.append("user_id", comment.user_id);
   fd.append("idea_id", comment.idea_id);
-
-  const commentDetail = async () => {
-    const ideares = await Http.get(`ideas/${route.params.id}`);
-    console.log(ideares);
-    updatedIdea.comments = ideares.data.data.comments;
-    updatedIdea.comments_count = ideares.data.data.comments_count;
-    ideas.comments = updatedIdea.comments;
-    ideas.comments_count = updatedIdea.comments_count;
-  };
+  fd.append("is_anonymous", comment.is_anonymous ? 1 : 0);
 
   await Http.post("comments", fd, {
     headers: {
@@ -449,11 +546,11 @@ const sendComment = async () => {
     },
   })
     .then(() => {
-      commentDetail();
+      fetchComments(); // Refresh comments after posting
       createToast(
         {
           title: "Success",
-          description: "Successfully Send Comment!",
+          description: "Successfully Sent Comment!",
         },
         {
           type: "success",
@@ -464,34 +561,24 @@ const sendComment = async () => {
       );
     })
     .catch((error) => {
-      console.log("Error Response:", error.response); // Log status, data, headers
+      console.log("Error Response:", error.response);
       serverErrors(error.response?.data.errors);
     })
     .finally(() => {
       loading.value = false;
-      comment.content = ""; // Clear input
-      showBtn.value = false; // Hide buttons
+      comment.content = "";
+      showBtn.value = false;
     });
 };
 
 onMounted(async () => {
-  getIdeaDetail();
+  await getIdeaDetail();
+  await fetchComments();
 });
 </script>
 
-<!-- <style scoped>
-ul.list-group {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+<style scoped>
+.loading-container {
+  height: 50vh;
 }
-
-ul.list-group > li {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-}
-
-ul.list-group > li:last-child {
-  border-bottom: none;
-}
-</style> -->
+</style>
