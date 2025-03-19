@@ -154,7 +154,7 @@ const submitForm = async () => {
   authStore
     .login(user.email, user.password)
     .then(() => {
-      router.push({ name: "dashboard" });
+      router.push({ name: "idea_post_idea" });
       createToast(
         {
           title: "Success",
