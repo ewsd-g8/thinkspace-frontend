@@ -40,7 +40,6 @@
       </div>
     </div>
   </div>
-  <div v-if="show" class="modal-backdrop fade show"></div>
 </template>
 <script setup>
 import { ref, defineProps, defineEmits } from "vue";

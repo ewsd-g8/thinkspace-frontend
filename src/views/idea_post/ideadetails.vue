@@ -3,6 +3,7 @@
     <div class="card">
       <div class="card-body">
         <h4>Detail Ideas</h4>
+
         <div
           class="px-4 py-3"
           style="
@@ -19,14 +20,14 @@
                 :src="
                   ideas.user.profile
                     ? ideas.user.profile
-                    : '/images/users/user-1.png'
+                    : '/images/users/anonymous.jpg'
                 "
                 class="rounded-circle object-fit-cover"
                 style="width: 35px; height: 35px"
               />
               <img
                 v-if="ideas.is_anonymous"
-                :src="'/images/users/user-1.png'"
+                :src="'/images/users/anonymous.jpg'"
                 class="rounded-circle object-fit-cover"
                 style="width: 35px; height: 35px"
               />
@@ -155,150 +156,192 @@
               </button>
             </div>
           </div>
+
           <hr />
-          <div class="grid w-100" v-if="showDocument">
-            <div
-              v-for="doc in ideas.document"
-              :key="doc.id"
-              class="g-col-6 g-col-md-4 mb-3 d-flex justify-content-center align-items-center"
-            >
-              <img
-                v-if="isImage(doc.file_path)"
-                :src="doc.file_path"
-                class="img-fluid w-50 h-50 shadow-lg p-3bg-body-tertiary"
-                alt="..."
-              />
+          <div class="d-flex justify-content-center align-item-center">
+            <div class="grid w-75" v-if="showDocument">
+              <div
+                id="carouselExampleControls"
+                class="carousel slide"
+                data-bs-ride="carousel"
+              >
+                <div class="carousel-inner">
+                  <div
+                    class="carousel-item"
+                    v-for="(doc, index) in imageList"
+                    :key="index"
+                    :class="{ active: index === 0 }"
+                  >
+                    <img
+                      class="d-block w-100"
+                      :src="doc.file_path"
+                      alt="Slide"
+                    />
+                  </div>
+                </div>
 
-          
+                <!-- Default Bootstrap Controls -->
+                <button
+                  class="carousel-control-prev"
+                  id="prevSlideBtn"
+                  type="button"
+                  data-bs-target="#carouselExampleControls"
+                  data-bs-slide="prev"
+                >
+                  <span
+                    class="carousel-control-prev-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="visually-hidden">Previous</span>
+                </button>
+                <button
+                  class="carousel-control-next"
+                  id="nextSlideBtn"
+                  type="button"
+                  data-bs-target="#carouselExampleControls"
+                  data-bs-slide="next"
+                >
+                  <span
+                    class="carousel-control-next-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="visually-hidden">Next</span>
+                </button>
+              </div>
 
-
+              <div
+                v-for="doc in ideas.document"
+                :key="doc.id"
+                class="g-col-6 g-col-md-4 mb-3 d-flex justify-content-center align-items-center"
+              >
                 <iframe
-                  v-else-if="isPDF(doc.file_path)"
+                  v-if="isPDF(doc.file_path)"
                   :src="doc.file_path"
                   class="w-100 shadow-lg p-3 bg-body-tertiary rounded"
-                  style="height: 600px"
+                  style="height: 50vw"
                 ></iframe>
               </div>
-
             </div>
           </div>
-          <hr />
-          <div class="mb-3" ref="commentBox">
-            <form @submit.prevent="sendComment()">
-              <div class="form-floating mb-2">
-                <textarea
-                  class="form-control"
-                  placeholder="Leave a comment here"
-                  id="floatingTextarea"
-                  v-model="comment.content"
-                  @focus="toggleBtn"
-                ></textarea>
-                <label for="floatingTextarea">Comments</label>
+        </div>
+        <hr />
+        <div class="mb-3" ref="commentBox">
+          <form @submit.prevent="sendComment()">
+            <div class="form-floating mb-2">
+              <textarea
+                class="form-control"
+                placeholder="Leave a comment here"
+                id="floatingTextarea"
+                v-model="comment.content"
+                @focus="toggleBtn"
+              ></textarea>
+              <label for="floatingTextarea">Comments</label>
+            </div>
+            <div v-if="loading" class="text-center my-5">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
               </div>
-              <div class="filter-last">
-                <select
-                  class="form-control"
-                  v-model="sortOption"
-                  @change="sortComments"
+              <p>Loading comments...</p>
+            </div>
+            <div class="d-flex justify-content-between" v-if="showBtn">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="anonymousComment"
+                  v-model="comment.is_anonymous"
+                />
+                <label class="form-check-label" for="anonymousComment"
+                  >Comment Anonymously</label
                 >
-                  <option value="newest">Latest</option>
-                  <option value="oldest">Oldest</option>
-                </select>
               </div>
-              <div v-if="loading" class="text-center my-5">
-                <div class="spinner-border" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-                <p>Loading comments...</p>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button
+                  class="btn btn-primary me-md-2"
+                  type="submit"
+                  style="background-color: #670e10"
+                >
+                  Send
+                </button>
+                <button
+                  class="btn btn-primary"
+                  type="button"
+                  style="background-color: #670e10"
+                  @click="cancelComment"
+                >
+                  Cancel
+                </button>
               </div>
-              <div class="d-flex justify-content-between" v-if="showBtn">
-                <div class="form-check form-switch">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="anonymousComment"
-                    v-model="comment.is_anonymous"
-                  />
-                  <label class="form-check-label" for="anonymousComment"
-                    >Comment Anonymously</label
-                  >
-                </div>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                  <button
-                    class="btn btn-primary me-md-2"
-                    type="submit"
-                    style="background-color: #670e10"
-                  >
-                    Send
-                  </button>
-                  <button
-                    class="btn btn-primary"
-                    type="button"
-                    style="background-color: #670e10"
-                    @click="cancelComment"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-          <hr />
-          <ul class="list-group">
-            <li
-              class="list-group-item list-group-item-action"
-              aria-current="true"
-              v-for="com in sortedComments"
-              :key="com.id"
+            </div>
+          </form>
+        </div>
+        <hr />
+        <ul class="list-group">
+          <li>
+            <div class="filter-last float-md-end w-15">
+              <select
+                class="form-control form-select"
+                v-model="sortOption"
+                @change="sortComments"
+              >
+                <option value="newest">Latest</option>
+                <option value="oldest">Oldest</option>
+              </select>
+            </div>
+          </li>
+          <li
+            class="list-group-item list-group-item-action"
+            aria-current="true"
+            v-for="com in sortedComments"
+            :key="com.id"
+          >
+            <div
+              class="d-flex w-100 justify-content-between border-bottom"
+              style="align-items: center"
             >
               <div
-                class="d-flex w-100 justify-content-between border-bottom"
-                style="align-items: center"
+                class="d-flex"
+                style="justify-content: center; align-items: center"
               >
-                <div
-                  class="d-flex"
-                  style="justify-content: center; align-items: center"
-                >
-                  <img
-                    v-if="!com.is_anonymous"
-                    :src="
-                      com.user.profile
-                        ? com.user.profile
-                        : '/images/users/user-1.png'
-                    "
-                    class="rounded-circle object-fit-cover"
-                    style="width: 35px; height: 35px"
-                  />
-                  <img
-                    v-else-if="com.is_anonymous"
-                    :src="'/images/users/user-1.png'"
-                    class="rounded-circle object-fit-cover"
-                    style="width: 35px; height: 35px"
-                  />
-                  <h5 style="margin-left: 10px">
-                    {{
-                      !com.is_anonymous
-                        ? com.user.full_name
-                        : "Anonymous Participant"
-                    }}
-                  </h5>
-                </div>
-                <small>{{ timeAgo(com.created_at) }}</small>
+                <img
+                  v-if="!com.is_anonymous"
+                  :src="
+                    com.user.profile
+                      ? com.user.profile
+                      : '/images/users/anonymous.jpg'
+                  "
+                  class="rounded-circle object-fit-cover"
+                  style="width: 35px; height: 35px"
+                />
+                <img
+                  v-else-if="com.is_anonymous"
+                  :src="'/images/users/anonymous.jpg'"
+                  class="rounded-circle object-fit-cover"
+                  style="width: 35px; height: 35px"
+                />
+                <h5 style="margin-left: 10px">
+                  {{
+                    !com.is_anonymous
+                      ? com.user.full_name
+                      : "Anonymous Participant"
+                  }}
+                </h5>
               </div>
-              <p class="mb-1 mt-1">
-                {{ com.content }}
-              </p>
-            </li>
-          </ul>
-        </div>
+              <small>{{ timeAgo(com.created_at) }}</small>
+            </div>
+            <p class="mb-1 mt-1">
+              {{ com.content }}
+            </p>
+          </li>
+        </ul>
       </div>
     </div>
- 
+  </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed, nextTick } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { useRouter, useRoute } from "vue-router";
 import { createToast } from "mosha-vue-toastify";
@@ -309,17 +352,21 @@ import {
   errorFor,
   resetServerErrors,
 } from "@/composables/validationErrors";
+// Ensure Bootstrap is loaded
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const loading = ref(false);
 const authStore = useAuthStore();
 const getUserID = authStore.getUserId; // No need for computed here
 const router = useRouter();
 const route = useRoute();
-
+const closures = ref([]);
 const ideas = reactive({
   content: "",
   title: "",
   closurename: "",
+  closurefinal: "",
+  closure: "",
   categories: "",
   document: [],
   comments: [],
@@ -333,6 +380,8 @@ const ideas = reactive({
   user: {},
   is_anonymous: false,
 });
+
+let imageList = reactive([]);
 
 const sortOption = ref("newest"); // Default sort option
 
@@ -380,6 +429,8 @@ const getIdeaDetail = async () => {
     ideas.title = data.title;
     ideas.categories = data.categories;
     ideas.closurename = data.closure.name;
+    ideas.closure = data.closure;
+    ideas.closurefinal = data.closure.final_date;
     ideas.document = data.documents;
     ideas.comments = data.comments;
     ideas.comments_count = data.comments_count;
@@ -391,6 +442,9 @@ const getIdeaDetail = async () => {
     ideas.has_thumbs_down = data.user_reaction === false;
     ideas.user = data.user;
     ideas.is_anonymous = data.is_anonymous;
+
+    imageList = ideas.document.filter((d) => isImage(d.file_path));
+    console.log(imageList);
   } catch (err) {
     if (err.response?.status === 404) {
       router.push({ name: "page-not-found" });
@@ -441,7 +495,9 @@ const thumbsUp = async () => {
 };
 
 const thumbsDown = async () => {
-  const newUnlikes = ideas.has_thumbs_down ? ideas.unlikes - 1 : ideas.unlikes + 1;
+  const newUnlikes = ideas.has_thumbs_down
+    ? ideas.unlikes - 1
+    : ideas.unlikes + 1;
   const newLikes = ideas.has_thumbs_up ? ideas.likes - 1 : ideas.likes;
 
   ideas.likes = newLikes;
@@ -525,8 +581,32 @@ const sortComments = () => {
   // No need to fetch again; sortedComments will update automatically
 };
 
-const v$ = useVuelidate(comment);
+const getClosure = async () => {
+  try {
+    const response = await Http.get("closures");
+    console.log(response);
+    closures.value = response.data.data.data;
+    console.log("closure", closures.value);
+  } catch (error) {
+    console.error("Failed to fetch closures", error);
+  }
+};
 
+const v$ = useVuelidate(comment);
+// Function to convert UTC to local timezone
+const formatToLocalTime = (utcDate) => {
+  if (!utcDate) return ""; // Handle null/undefined
+  const date = new Date(utcDate); // Parse UTC date string
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }); // e.g., "Mar 04, 2024, 10:00:00 AM"
+};
 const sendComment = async () => {
   let isFormCorrect = await v$.value.$validate();
   if (!isFormCorrect) return;
@@ -534,46 +614,84 @@ const sendComment = async () => {
 
   resetServerErrors();
 
-  const fd = new FormData();
-  fd.append("content", comment.content);
-  fd.append("user_id", comment.user_id);
-  fd.append("idea_id", comment.idea_id);
-  fd.append("is_anonymous", comment.is_anonymous ? 1 : 0);
+  const currentDate = new Date();
 
-  await Http.post("comments", fd, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  })
-    .then(() => {
-      fetchComments(); // Refresh comments after posting
-      createToast(
-        {
-          title: "Success",
-          description: "Successfully Sent Comment!",
-        },
-        {
-          type: "success",
-          transition: "bounce",
-          position: "top-right",
-          showIcon: true,
-        }
-      );
+  console.log(ideas.closurefinal);
+  if (ideas.closurefinal < formatToLocalTime(currentDate)) {
+    const fd = new FormData();
+    fd.append("content", comment.content);
+    fd.append("user_id", comment.user_id);
+    fd.append("idea_id", comment.idea_id);
+    fd.append("is_anonymous", comment.is_anonymous ? 1 : 0);
+
+    await Http.post("comments", fd, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     })
-    .catch((error) => {
-      console.log("Error Response:", error.response);
-      serverErrors(error.response?.data.errors);
-    })
-    .finally(() => {
-      loading.value = false;
-      comment.content = "";
-      showBtn.value = false;
-    });
+      .then(() => {
+        fetchComments(); // Refresh comments after posting
+        createToast(
+          {
+            title: "Success",
+            description: "Successfully Sent Comment!",
+          },
+          {
+            type: "success",
+            transition: "bounce",
+            position: "top-right",
+            showIcon: true,
+          }
+        );
+      })
+      .catch((error) => {
+        console.log("Error Response:", error.response);
+        serverErrors(error.response?.data.errors);
+      })
+      .finally(() => {
+        loading.value = false;
+        comment.content = "";
+        showBtn.value = false;
+      });
+  } else {
+    createToast(
+      {
+        title: "Error",
+        description: "Comment Session is Ended for this closure",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+    loading.value = false;
+  }
 };
 
 onMounted(async () => {
   await getIdeaDetail();
-  await fetchComments();
+  fetchComments();
+  getClosure();
+
+  const carouselElement = document.querySelector("#carouselExampleControls");
+  if (carouselElement) {
+    const carousel = new bootstrap.Carousel(carouselElement, {
+      interval: 5000, // Auto-slide every 1 second
+      wrap: true,
+    });
+
+    // Example: Manually move to the next slide
+    document.querySelector("#nextSlideBtn").addEventListener("click", () => {
+      carousel.next();
+    });
+
+    // Example: Manually move to the previous slide
+    document.querySelector("#prevSlideBtn").addEventListener("click", () => {
+      carousel.prev();
+    });
+  }
 });
 </script>
 

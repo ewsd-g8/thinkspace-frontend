@@ -1,31 +1,20 @@
 <template>
   <div>
+    <div class="row px-1">
+      <div class="col-12">
+        <div class="page-title-box">
+          <div class="page-title-right">
+            <ol class="breadcrumb m-0">
+              <li class="breadcrumb-item active">Dashboard</li>
+            </ol>
+          </div>
+          <h4 class="page-title">Dashboard</h4>
+        </div>
+      </div>
+    </div>
     <div class="card">
       <div class="card-body">
-        <h1>Dashboard Page</h1>
         <div class="mb-3">
-          <button
-            @click="downloadFile(1)"
-            class="btn btn-primary"
-            :disabled="exportBtnLoading.value"
-          >
-            {{
-              exportBtnLoading.value
-                ? "Downloading..."
-                : "Download Ideas as Excel"
-            }}
-          </button>
-          <button
-            @click="downloadDocumentsAsZip"
-            class="btn btn-primary ml-2"
-            :disabled="zipBtnLoading.value"
-          >
-            {{
-              zipBtnLoading.value
-                ? "Downloading..."
-                : "Download Documents as ZIP"
-            }}
-          </button>
           <div class="showcard">
             <h2>Ideas in each Department</h2>
             <div v-if="loadingStats" class="text-center">
@@ -34,23 +23,63 @@
             <div v-else-if="departmentStats.length === 0" class="text-center">
               <p>No department statistics available.</p>
             </div>
-            <div v-else class="card-container">
+            <div v-else class="d-flex flex-wrap justify-content-around">
               <div
                 v-for="stat in departmentStats.departments"
                 :key="stat.department_id"
-                class="Card"
+                class="idea-card d-flex rounded mb-3"
+                style="width: 250px"
               >
-
-         
-
-                <div class="name">{{ stat.department_name }}</div>
-                <div class="cardcontent">
-                  Number of Ideas:
-
-                  <div class="count">{{ stat.ideas_count }}</div>
+                <span
+                  class="w-50 p-3 fs-3 rounded-start d-flex justify-content-center align-items-center"
+                  :style="{
+                    backgroundColor: stat.department_color,
+                    color: '#fff',
+                    textAlign: 'center',
+                  }"
+                >
+                  {{ stat.ideas_count }}
+                </span>
+                <div
+                  class="p-2 w-75 d-flex justify-content-center align-items-center"
+                >
+                  <div>
+                    <div class="d-inline-block">
+                      <span class="text-body-secondary">
+                        Number of Ideas in
+                      </span>
+                    </div>
+                    <div class="d-inline-block">
+                      <span class="fs-4 fw-semibold" style="color: #620f10">
+                        {{ stat.department_name }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+            <button
+              @click="downloadFile(1)"
+              class="btn btn-primary m-1"
+              :disabled="exportBtnLoading.value"
+            >
+              {{
+                exportBtnLoading.value
+                  ? "Downloading..."
+                  : "Download Ideas as Excel"
+              }}
+            </button>
+            <button
+              @click="downloadDocumentsAsZip"
+              class="btn btn-primary"
+              :disabled="zipBtnLoading.value"
+            >
+              {{
+                zipBtnLoading.value
+                  ? "Downloading..."
+                  : "Download Documents as ZIP"
+              }}
+            </button>
           </div>
         </div>
 
@@ -65,9 +94,9 @@
           </div>
           <div class="col-6">
             <div class="p-3 shadow mb-5 bg-body-tertiary rounded">
-              <span>Percentage of Ideas Per Department</span>
+              <span>Percentage of Browser Usage </span>
               <div class="w-100">
-                <Pie :data="donutData" :options="options" />
+                <Pie :data="pieData" :options="options" />
               </div>
             </div>
           </div>
@@ -87,6 +116,7 @@
       </div>
     </div>
     <WelcomeModal
+      v-if="isShowAlert"
       :title="modalTitle"
       :message="modalMsg"
       :show="showModal"
@@ -131,10 +161,11 @@ import { useAuthStore } from "@/stores/auth";
 import { downloadUrl } from "@/composables/fileDownload";
 import WelcomeModal from "@/components/shared/modal.vue";
 import { reactive } from "vue";
+import { color } from "chart.js/helpers";
 
 const authStore = useAuthStore();
 const lastLogout = authStore.getUserLogout;
-const isFirstLogin = authStore.getIsFirstLogin;
+let isFirstLogin = authStore.getIsFirstLogin;
 
 console.log(lastLogout);
 console.log(isFirstLogin);
@@ -216,10 +247,7 @@ const fetchDepartmentStats = async () => {
     );
 
     backgroundColors.value = response.data.departments.map(
-      () =>
-        `#${Math.floor(Math.random() * 16777215)
-          .toString(16)
-          .padStart(6, "0")}`
+      (stat) => stat.department_color
     );
 
     console.log("background Color:", backgroundColors.value);
@@ -248,6 +276,68 @@ const donutData = computed(() => {
         label: "Data One",
         backgroundColor: backgroundColors.value,
         data: donutData_values.value,
+      },
+    ],
+  };
+});
+
+// Department Donut chart
+const broswerStats = ref([]);
+const pieData_values = ref([40, 39, 10, 40, 39, 80, 40]);
+const pieLabel_values = ref([
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+]);
+
+const pieColors = ref(["#41B883", "#E46651", "#00D8FF", "#DD1B16"]);
+
+// Fetch department statistics
+const fetchBrowserStats = async () => {
+  loadingStats.value = true;
+  try {
+    const response = await Http.get("/stats/browsers");
+    console.log("b", response);
+    broswerStats.value = response.data; // Adjust based on your API response structure
+
+    pieLabel_values.value = broswerStats.value.map((stat) => stat.name);
+
+    pieData_values.value = broswerStats.value.map(
+      (stat) => stat.usage_percentage
+    );
+
+    pieColors.value = broswerStats.value.map((stat) => stat.color);
+
+    console.log("Pie Color:", pieColors.value);
+  } catch (error) {
+    console.error("Failed to fetch department stats:", error);
+    createToast(
+      { title: "Error", description: "Failed to load department statistics." },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+    departmentStats.value = []; // Reset on error
+  } finally {
+    loadingStats.value = false;
+  }
+};
+
+const pieData = computed(() => {
+  return {
+    labels: pieLabel_values.value,
+    datasets: [
+      {
+        label: "Data One",
+        backgroundColor: pieColors.value,
+        data: pieData_values.value,
       },
     ],
   };
@@ -286,12 +376,7 @@ const fetchContributions = async () => {
 
     console.log(lineLabel_values.value);
     console.log(lineData_values.value);
-    colors.value = ContributionStats.value.map(
-      () =>
-        `#${Math.floor(Math.random() * 16777215)
-          .toString(16)
-          .padStart(6, "0")}`
-    );
+    colors.value = ContributionStats.value.map((stat) => stat.department_color);
 
     console.log("background Color:", colors.value);
   } catch (error) {
@@ -459,11 +544,24 @@ const closeModal = () => {
   showModal.value = false;
 };
 
+//show modal
+const isShowAlert = computed(() => {
+  let isShow = false;
+  let showAlert = localStorage.getItem("show_modal");
+  if (showAlert) {
+    isShow = true;
+    localStorage.removeItem("show_modal");
+  }
+  return isShow;
+});
+
 // Fetch data on mount
 onMounted(async () => {
   await getClosure();
   await fetchDepartmentStats(); // Fetch department stats on mount
   await fetchContributions();
+  await fetchBrowserStats();
+
   if (isFirstLogin) {
     modalTitle.value = "Welcom to Think Space";
     modalMsg.value =
@@ -478,3 +576,8 @@ onMounted(async () => {
   }
 });
 </script>
+<style scoped>
+.idea-card {
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+}
+</style>

@@ -23,6 +23,9 @@ import "mosha-vue-toastify/dist/style.css";
 import Popper from "vue3-popper";
 
 import "spinkit/spinkit.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
+
+// import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 router.beforeEach((to) => {
   document.body.scrollTop = 0;

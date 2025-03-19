@@ -1,13 +1,9 @@
 * {
- 
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .navbar-custom {
- 
-  background-color:#5d1010 ;
-
- 
+  background-color: #5d1010;
 }
 
 .logo span.logo-lg {
@@ -26,8 +22,8 @@
 
 .router-link-active {
   transition: all 0.5s ease-in-out;
-  background-color:#620f10 ;
- 
+  background-color: #620f10;
+
   border-radius: 4px;
   margin-left: 2px;
   margin-right: 3px;
@@ -195,7 +191,6 @@ label {
   cursor: pointer;
 }
 
-
 /* category , department  */
 .clear-icon {
   cursor: pointer;
@@ -227,7 +222,6 @@ label {
 }
 
 .btn {
-  
   align-items: center;
   gap: 8px;
   padding: 10px 15px;
@@ -381,7 +375,6 @@ label {
 }
 
 .btn {
-  
   align-items: center;
   gap: 8px;
   padding: 10px 15px;
@@ -463,11 +456,10 @@ label {
     }
   }
 }
-.card-container{
+.card-container {
   display: flex;
   flex-wrap: wrap;
 }
-
 
 .d-flex {
   display: flex;
@@ -516,15 +508,13 @@ label {
 
 .filter-last {
   flex: 1;
- 
+
   min-width: 200px;
 }
 
 .text-center {
   text-center: center;
 }
-
-
 
 .spinner-border {
   width: 3rem;
@@ -605,33 +595,6 @@ label {
   padding-right: 5px;
 }
 
-.Card{
-
-  width: 300px;
- background-color: #f8f9fa;
-
-
-  
-
-  border: 2px solid #000;
-  padding: 20px;
-  border-radius: 20px;
-  margin: 20px;
- 
-  overflow: hidden;
-  text-align: center;
-}
-.Card .name{
-
-  font-size: 20px;
-  font-weight: 800;
-  color: #620f10;
-  text-align: center;
-}
-.Card .count{
-  font-size: 30px;
-  text-align: center;
-}
 /* report */
 .report-type-name {
   background-color: #e5e5e5;

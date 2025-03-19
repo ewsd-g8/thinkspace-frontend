@@ -13,6 +13,8 @@ export const useAuthStore = defineStore("auth", {
         name: "",
         email: "",
         profile: "",
+        last_logout_at: "",
+        isFirstLogin: false,
       },
     };
   },
@@ -35,6 +37,12 @@ export const useAuthStore = defineStore("auth", {
     getUserId(state) {
       return state.user.id;
     },
+    getUserLogout(state) {
+      return state.user.last_logout_at;
+    },
+    getIsFirstLogin(state) {
+      return state.user.isFirstLogin;
+    },
   },
   actions: {
     login(email, password) {
@@ -43,7 +51,7 @@ export const useAuthStore = defineStore("auth", {
           email,
           password,
         };
-
+        localStorage.setItem("show_modal", "true");
         Http.post("auth/login", bodyParameter)
           .then((res) => {
             this.isAuthenticated = true;
@@ -111,4 +119,3 @@ export const useAuthStore = defineStore("auth", {
     ],
   },
 });
-
