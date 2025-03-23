@@ -142,8 +142,11 @@
     <footer class="footer footer-alt text-white">
       {{ currentYear }}
       &copy;
-      <a href="https://thinkspace.com" class="link text-dark" target="_blank"
-        >Think Space</a
+      <a
+        href="https://eduplusmyanmar.com"
+        class="link text-dark"
+        target="_blank"
+        >EDUPlus</a
       >
       Admin System by
       <a href="javascript:void(0);" class="link link-info text-dark">

@@ -79,7 +79,7 @@ body {
 #sidebar-menu > ul > li > a:active,
 #sidebar-menu > ul > li > a:focus,
 #sidebar-menu > ul > li > a:hover {
-  color: #620f10;
+  color:#620f10;
   text-decoration: none;
 }
 #sidebar-menu > ul > li > a > span {
@@ -495,6 +495,7 @@ body[data-sidebar-size="condensed"] .user-box {
 @media (max-width: 991.98px) {
   body {
     overflow-x: hidden;
+   
   }
   .left-side-menu {
     display: none;
@@ -2869,57 +2870,19 @@ body.authentication-bg-pattern {
 .auth-fluid .auth-fluid-form-box {
   max-width: 480px;
   border-radius: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
+  z-index: 2;
   padding: 3rem 2rem;
-  /* background-color: #fff; */
-  background-color: #e7d188;
-  /* background-color: #670e10; */
-  /* background-image: -webkit-linear-gradient(30deg,#e7d188  50%, #670e10 50%); */
+  background-color: #670e10;
+
+  background-image: -webkit-linear-gradient(30deg,#e7d188  50%, #670e10 50%);
   position: relative;
   width: 100%;
-  overflow: hidden;
 }
-
-.auth-fluid .auth-fluid-form-box::before {
-  position: absolute;
-  content: "";
-  width: 700px;
-  height: 700px;
-  background-color: #670e10;
-  /* background-color: #e7d188; */
-  transform: rotate(45deg);
-  left: -360px;
-  /* bottom: 30px; */
-  z-index: -1;
-  border-radius: 30px;
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.082);
-}
-
-.auth-fluid .auth-fluid-form-box::after {
-  position: absolute;
-  content: "";
-  width: 700px;
-  height: 700px;
-  /* background-color: #670e10; */
-  background-color: #fff;
-  /* background-color: #e7d188; */
-  transform: rotate(45deg);
-  left: -355px;
-  /* bottom: 30px; */
-  z-index: -2;
-  border-radius: 30px;
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.082);
-}
-
 .auth-fluid .auth-fluid-right {
   padding: 6rem 3rem;
   flex: 1;
   position: relative;
-  color: #e7d188;
+  color: #fff;
   background-color: rgba(0, 0, 0, 0.3);
 }
 .auth-brand {
@@ -2942,6 +2905,7 @@ body.authentication-bg-pattern {
   }
   .auth-fluid .auth-fluid-form-box {
     max-width: 100%;
+    
   }
   .auth-fluid .auth-fluid-right {
     display: none;

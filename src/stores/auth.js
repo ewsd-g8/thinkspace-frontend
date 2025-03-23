@@ -54,7 +54,6 @@ export const useAuthStore = defineStore("auth", {
         localStorage.setItem("show_modal", "true");
         Http.post("auth/login", bodyParameter)
           .then((res) => {
-            console.log("Login View: ", res);
             this.isAuthenticated = true;
             this.access_token = res.data.data.access_token;
             this.user.id = res.data.data.user.id;
