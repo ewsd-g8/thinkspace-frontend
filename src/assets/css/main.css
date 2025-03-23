@@ -1,13 +1,9 @@
 * {
- 
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .navbar-custom {
- 
-  background-color:#5d1010 ;
-
- 
+  background-color: #5d1010;
 }
 
 .logo span.logo-lg {
@@ -26,8 +22,8 @@
 
 .router-link-active {
   transition: all 0.5s ease-in-out;
-  background-color:#620f10 ;
- 
+  background-color: #620f10;
+
   border-radius: 4px;
   margin-left: 2px;
   margin-right: 3px;
@@ -195,7 +191,6 @@ label {
   cursor: pointer;
 }
 
-
 /* category , department  */
 .clear-icon {
   cursor: pointer;
@@ -227,7 +222,6 @@ label {
 }
 
 .btn {
-  
   align-items: center;
   gap: 8px;
   padding: 10px 15px;
@@ -381,7 +375,6 @@ label {
 }
 
 .btn {
-  
   align-items: center;
   gap: 8px;
   padding: 10px 15px;
@@ -448,7 +441,7 @@ label {
   height: 50px;
   display: flex;
   border-radius: 6px;
-  border: 2px solid white;
+  border: 2px solid #e7d188;
   padding: 7px 4px 15px 5px;
   text-align: center;
 
@@ -456,18 +449,17 @@ label {
     background-color: transparent;
     outline: none;
     border: none;
-    color: #ffffff;
+    color: #e7d188;
     font-size: 16px;
     &::placeholder {
-      color: #ffffff;
+      color: #fff;
     }
   }
 }
-.card-container{
+.card-container {
   display: flex;
   flex-wrap: wrap;
 }
-
 
 .d-flex {
   display: flex;
@@ -516,15 +508,13 @@ label {
 
 .filter-last {
   flex: 1;
- 
+
   min-width: 200px;
 }
 
 .text-center {
   text-center: center;
 }
-
-
 
 .spinner-border {
   width: 3rem;
