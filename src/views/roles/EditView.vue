@@ -115,67 +115,7 @@
           </div>
 
           <!-- Menu Items Section -->
-          <div class="row">
-            <div class="mb-3 col-md-12">
-              <h5>Menu Items</h5>
-              <div class="table-responsive">
-                <table class="table table-flush-spacing">
-                  <tbody>
-                    <tr>
-                      <td class="text-nowrap fw-semibold" width="25%">
-                        Menu Access
-                        <Popper
-                          arrow
-                          placement="top"
-                          content="Select which menu items this role can see"
-                          hover
-                        >
-                          <i class="mdi mdi-information-outline" style="cursor: pointer"></i>
-                        </Popper>
-                      </td>
-                      <td width="75%">
-                        <div class="row">
-                          <div class="col-3">
-                            <div class="form-check form-check-success">
-                              <input
-                                class="form-check-input rounded-circle"
-                                id="select-all-menus"
-                                type="checkbox"
-                                v-model="selectAllMenus"
-                                @change="checkAllMenus()"
-                              />
-                              <label for="select-all-menus" class="form-check-label">Select All</label>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="text-nowrap fw-semibold" width="25%">Menu Options</td>
-                      <td width="75%">
-                        <div class="row">
-                          <div class="col-3" v-for="(menu, index) in menuItems" :key="index">
-                            <div class="form-check form-check-success">
-                              <input
-                                class="form-check-input rounded-circle"
-                                :id="`menu${menu.id}`"
-                                type="checkbox"
-                                v-model="formData.menu_items"
-                                :value="menu.id"
-                              />
-                              <label :for="`menu${menu.id}`" class="form-check-label">
-                                {{ menu.label }}
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          
 
           <div class="mt-2">
             <button class="btn btn-primary loading-button me-2" @click="updateRole()">
@@ -223,7 +163,7 @@ const route = useRoute();
 const formData = reactive({
   name: "",
   permission: [], // Permission IDs
-  menu_items: [], // Menu item IDs
+
 });
 
 const rules = computed(() => ({
@@ -273,14 +213,6 @@ const checkAllPermissions = () => {
     }
   } else {
     formData.permission = [];
-  }
-};
-
-const checkAllMenus = () => {
-  if (selectAllMenus.value) {
-    formData.menu_items = menuItems.value.map((menu) => menu.id);
-  } else {
-    formData.menu_items = [];
   }
 };
 
