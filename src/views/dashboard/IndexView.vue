@@ -235,7 +235,7 @@ ChartJS.register(
 );
 
 import { ref, watch, onMounted, computed } from "vue";
-import { useRouter } from "vue-router";
+
 import { createToast } from "mosha-vue-toastify";
 import { Http } from "@/services/http-common";
 import { useAuthStore } from "@/stores/auth";
@@ -245,14 +245,14 @@ import Badge from "@/components/shared/Badge.vue";
 import { reactive } from "vue";
 import { color } from "chart.js/helpers";
 
-const router = useRouter();
+
 const authStore = useAuthStore();
 const lastLogout = authStore.getUserLogout;
 let isFirstLogin = authStore.getIsFirstLogin;
-const userRole = authStore.getAuthUserRoles;
 
-console.log(lastLogout);
-console.log(isFirstLogin);
+
+ console.log(lastLogout);
+ console.log(isFirstLogin);
 
 const showModal = ref(false);
 const modalTitle = ref("");
