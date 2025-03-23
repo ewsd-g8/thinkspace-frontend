@@ -441,7 +441,7 @@ label {
   height: 50px;
   display: flex;
   border-radius: 6px;
-  border: 2px solid white;
+  border: 2px solid #e7d188;
   padding: 7px 4px 15px 5px;
   text-align: center;
 
@@ -449,10 +449,10 @@ label {
     background-color: transparent;
     outline: none;
     border: none;
-    color: #ffffff;
+    color: #e7d188;
     font-size: 16px;
     &::placeholder {
-      color: #ffffff;
+      color: #fff;
     }
   }
 }
