@@ -6,11 +6,25 @@
         <form @submit.prevent="postIdea()">
           <div class="mb-3">
             <label for="userId" class="form-label" hidden>User ID</label>
-            <input type="text" class="form-control" id="userId" v-model="form.userId" readonly hidden />
+            <input
+              type="text"
+              class="form-control"
+              id="userId"
+              v-model="form.userId"
+              readonly
+              hidden
+            />
           </div>
           <div class="mb-3">
             <label for="title" class="form-label" required>Title</label>
-            <input type="text" class="form-control" id="title" v-model="form.title" autofocus required />
+            <input
+              type="text"
+              class="form-control"
+              id="title"
+              v-model="form.title"
+              autofocus
+              required
+            />
           </div>
           <div class="mb-3">
             <label for="content" class="form-label">Idea Content</label>
@@ -25,7 +39,9 @@
             ></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">Category <span class="text-danger">*</span></label>
+            <label class="form-label"
+              >Category <span class="text-danger">*</span></label
+            >
             <p>
               Suggested Categories:
               <span v-if="categories.length > 0" class="suggested-category">
@@ -46,9 +62,11 @@
             ></v-select>
           </div>
 
-          <!-- Document Upload with New Uiverse.io Button -->
+          <!-- Document Upload -->
           <div class="mb-3">
-            <label class="form-label">Documents (Max 3, JPG/JPEG/PNG/PDF, 5MB each)</label>
+            <label class="form-label"
+              >Documents (Max 3, JPG/JPEG/PNG/PDF, 5MB each)</label
+            >
             <label class="custum-file-upload" for="documentInput">
               <div class="icon">
                 <svg
@@ -57,7 +75,11 @@
                   viewBox="0 0 24 24"
                 >
                   <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
-                  <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
+                  <g
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    id="SVGRepo_tracerCarrier"
+                  ></g>
                   <g id="SVGRepo_iconCarrier">
                     <path
                       fill=""
@@ -82,9 +104,13 @@
               />
             </label>
             <ul v-if="selectedDocuments.length" class="mt-3 document-list">
-              <li v-for="(file, index) in selectedDocuments" :key="index">{{ file.name }} ({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</li>
+              <li v-for="(file, index) in selectedDocuments" :key="index">
+                {{ file.name }} ({{ (file.size / 1024 / 1024).toFixed(2) }} MB)
+              </li>
             </ul>
-            <p v-if="documentError" class="text-danger error-message">{{ documentError }}</p>
+            <p v-if="documentError" class="text-danger error-message">
+              {{ documentError }}
+            </p>
           </div>
 
           <!-- Anonymous Switch -->
@@ -98,7 +124,9 @@
                 v-model="form.isAnonymous"
               />
               <label class="form-check-label" for="isAnonymous">
-                {{ form.isAnonymous ? 'Post as Anonymous' : 'Post with Username' }}
+                {{
+                  form.isAnonymous ? "Post as Anonymous" : "Post with Username"
+                }}
               </label>
             </div>
           </div>
@@ -106,17 +134,41 @@
           <!-- Closure Information -->
           <div class="mb-3">
             <p v-if="closures.length > 0 && closures[0]">
-              This closure is <span class="bold-text">{{ closures[0].name }}</span> and opened on
-              <span class="bold-text">{{ closures[0].date }}</span> and will be closed on
-              <span class="bold-text">{{ closures[0].final_date }}</span>. After submission, your idea will be reviewed by the QA manager and closed within
-              <span class="bold-text">{{ Math.ceil(Math.abs(new Date(closures[0]?.final_date) - new Date(closures[0]?.date)) / (1000 * 60 * 60 * 24)) }} days</span>.
+              This closure is
+              <span class="bold-text">{{ closures[0].name }}</span> and opened
+              on <span class="bold-text">{{ closures[0].date }}</span> and will
+              be closed on
+              <span class="bold-text">{{ closures[0].final_date }}</span
+              >. After submission, your idea will be reviewed by the QA manager
+              and closed within
+              <span class="bold-text"
+                >{{
+                  Math.ceil(
+                    Math.abs(
+                      new Date(closures[0]?.final_date) -
+                        new Date(closures[0]?.date)
+                    ) /
+                      (1000 * 60 * 60 * 24)
+                  )
+                }}
+                days</span
+              >.
             </p>
           </div>
 
           <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="terms" v-model="form.agreeTerms" required />
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="terms"
+              v-model="form.agreeTerms"
+              required
+            />
             <label class="form-check-label" for="terms">
-              I agree to the <router-link :to="{ name: 'term_and_condition' }">terms and conditions</router-link>
+              I agree to the
+              <router-link :to="{ name: 'term_and_condition' }"
+                >terms and conditions</router-link
+              >
             </label>
           </div>
 
@@ -146,9 +198,47 @@
         </form>
       </div>
     </div>
+
+    <div class="card mt-4">
+      <div class="card-body">
+        <h4>Your Ideas</h4>
+        <div v-if="userIdeas.length > 0">
+          <ul class="list-group">
+            <li
+              v-for="idea in userIdeas"
+              :key="idea.id"
+              class="list-group-item"
+            >
+              <h5><b>{{ idea.title }}</b></h5>
+              <p>{{ idea.content }}</p>
+              <small
+                >Posted on:
+                {{ new Date(idea.created_at).toLocaleDateString() }}</small
+              >
+              <p v-if="idea.is_anonymous">Posted Anonymously</p>
+              <p>
+                <strong>Status:</strong>
+                <span :class="idea.is_active ? 'text-success' : 'text-danger'">
+                  {{ idea.is_active ? "Active" : "Inactive" }}
+                </span>
+              </p>
+              <button
+                class="btn btn-danger btn-sm"
+                @click="changeIdeaStatus(idea.id)"
+                :disabled="processingIdeas[idea.id]"
+              >
+                {{ processingIdeas[idea.id] ? "Processing..." : (idea.is_active ? "Delete" : "Restore") }}
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div v-else>
+          <p>No ideas posted yet.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
-
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -163,6 +253,8 @@ const router = useRouter();
 const isBlocked = ref(false);
 const categories = ref([]);
 const closures = ref([]);
+const userIdeas = ref([]);
+const processingIdeas = ref({}); // Track processing state per idea
 const form = reactive({
   title: "",
   content: "",
@@ -182,7 +274,12 @@ const searchValue = ref("");
 
 const handleDocumentChange = (event) => {
   const files = Array.from(event.target.files);
-  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+  const allowedTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "application/pdf",
+  ];
   const maxSize = 5 * 1024 * 1024;
 
   documentError.value = "";
@@ -216,23 +313,20 @@ const fetchUserDetails = async () => {
     console.error("Failed to fetch user details:", error);
     createToast(
       { title: "Error", description: "Could not verify user status." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
   }
 };
 
-onMounted(async () => {
-  await getAllCategory();
-  await getClosure();
-  await fetchUserDetails();
-});
-
 const getAllCategory = async () => {
   try {
     const response = await Http.get("/get-all-categories");
-    console.log("cate", response);
     categories.value = response.data.data;
-    console.log("cate", categories.value);
   } catch (error) {
     console.error("Failed to fetch categories", error);
   }
@@ -242,24 +336,106 @@ const getClosure = async () => {
   try {
     const response = await Http.get("closures");
     closures.value = response.data.data.data;
-    console.log("closure", closures.value);
   } catch (error) {
     console.error("Failed to fetch closures", error);
+  }
+};
+
+const fetchUserIdeas = async () => {
+  try {
+    const response = await Http.get(`/ideas?user_id=${getUserID.value}`);
+    console.log("response",response);
+    
+    userIdeas.value = response.data.data.data; // Assuming paginated response
+    console.log("User ideas:", userIdeas.value);
+  } catch (error) {
+    console.error("Failed to fetch user ideas:", error);
+    createToast(
+      { title: "Error", description: "Could not fetch your ideas." },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+  }
+};
+
+// New function to change idea status
+const changeIdeaStatus = async (ideaId) => {
+  processingIdeas.value[ideaId] = true;
+  try {
+    const response = await Http.get(`ideas/change-status/${ideaId}`);
+    const updatedIdea = response.data.data;
+    
+    // Update the idea in userIdeas reactively
+    const index = userIdeas.value.findIndex((idea) => idea.id === ideaId);
+    if (index !== -1) {
+      userIdeas.value[index].is_active = updatedIdea.is_active;
+      userIdeas.value = [...userIdeas.value]; // Trigger reactivity
+    }
+
+    createToast(
+      {
+        title: "Success",
+        description: `Idea ${updatedIdea.is_active ? "restored" : "deleted"} successfully!`,
+      },
+      {
+        type: "success",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+  } catch (error) {
+    console.error("Error changing idea status:", error);
+    createToast(
+      {
+        title: "Error",
+        description: "Failed to change idea status.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+  } finally {
+    processingIdeas.value[ideaId] = false;
   }
 };
 
 const postIdea = async () => {
   if (isBlocked.value) {
     createToast(
-      { title: "Blocked", description: "You are blocked and cannot post ideas. Contact your administrator." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        title: "Blocked",
+        description:
+          "You are blocked and cannot post ideas. Contact your administrator.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
   if (!form.agreeTerms) {
     createToast(
-      { title: "Error", description: "You must agree to the terms and conditions." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        title: "Error",
+        description: "You must agree to the terms and conditions.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
@@ -267,7 +443,12 @@ const postIdea = async () => {
   if (form.category_id.length === 0) {
     createToast(
       { title: "Error", description: "You must choose at least one category." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
@@ -275,7 +456,12 @@ const postIdea = async () => {
   if (documentError.value) {
     createToast(
       { title: "Error", description: documentError.value },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
@@ -288,14 +474,19 @@ const postIdea = async () => {
   } else {
     createToast(
       { title: "Error", description: "No closure available." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
     return;
   }
   fd.append("user_id", form.userId);
   fd.append("is_anonymous", form.isAnonymous ? 1 : 0);
 
-  form.category_id.forEach(categoryId => {
+  form.category_id.forEach((categoryId) => {
     fd.append("categories[]", categoryId);
   });
 
@@ -312,15 +503,42 @@ const postIdea = async () => {
     router.push({ name: "idea_post_idea" });
     createToast(
       { title: "Success", description: "Successfully Created Post!" },
-      { type: "success", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        type: "success",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
+    await fetchUserIdeas(); // Refresh ideas after posting
+    // Reset form
+    form.title = "";
+    form.content = "";
+    form.category_id = [];
+    form.isAnonymous = false;
+    form.agreeTerms = false;
+    selectedDocuments.value = [];
   } catch (error) {
     console.error("Failed to create post", error);
     createToast(
-      { title: "Error", description: error.response?.data?.message || "Failed to post idea." },
-      { type: "danger", transition: "bounce", position: "top-right", showIcon: true }
+      {
+        title: "Error",
+        description: error.response?.data?.message || "Failed to post idea.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
     );
   }
 };
-</script>
 
+onMounted(async () => {
+  await getAllCategory();
+  await getClosure();
+  await fetchUserDetails();
+  await fetchUserIdeas();
+});
+</script>

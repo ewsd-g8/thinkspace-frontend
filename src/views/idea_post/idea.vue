@@ -91,7 +91,8 @@
               <option value="mostDislikes">Most Dislikes</option>
               <option value="mostViews">Most Views</option>
               <option value="noComments">No Comments</option>
-            </select>
+              <option value="latestReport">Reported idea</option>
+</select>
           </div>
         </div>
 

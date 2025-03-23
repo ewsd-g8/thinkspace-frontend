@@ -15,17 +15,19 @@
     <div class="auth-fluid-form-box">
       <div class="align-items-center d-flex h-100">
         <div class="card-body">
-          <img
-            src="/icon/think-space-icon.png"
-            alt="logo"
-            class="img-fluid card-logo"
-          />
-          <h4 class="mt-0 fw-bold text-focus-in">Welcome to Think Space!!</h4>
-          <p class="mb-4 text-secondary">
-            Enter your email address and password to access account.
-          </p>
+          <div class="w-100 mb-4">
+            <img
+              src="/icon/think-space-icon.png"
+              alt="logo"
+              class="img-fluid card-logo"
+            />
+            <h4 class="mt-0 fw-bold text-focus-in">Welcome to Think Space!!</h4>
+          </div>
           <form @submit.prevent="submitForm">
             <!-- email field -->
+            <p class="text-secondary">
+              Enter your email address and password to access account.
+            </p>
             <div class="mb-3">
               <label for="emailaddress" class="form-label label">
                 <input
@@ -154,7 +156,7 @@ const submitForm = async () => {
   authStore
     .login(user.email, user.password)
     .then(() => {
-      router.push({ name: "dashboard" });
+      router.push({ name: "idea_post_idea" });
       createToast(
         {
           title: "Success",
@@ -200,4 +202,3 @@ const submitForm = async () => {
 //   }
 // });
 </script>
-
