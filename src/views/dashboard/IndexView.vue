@@ -195,15 +195,15 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  <WelcomeModal
+    </div>  <WelcomeModal
     v-if="isShowAlert"
     :title="modalTitle"
     :message="modalMsg"
     :show="showModal"
     @close="closeModal()"
   />
+  </div>
+
 </template>
 <script setup>
 // Imports for categories
