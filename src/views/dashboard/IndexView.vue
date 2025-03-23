@@ -58,6 +58,13 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <div class="showcard">
+            <h2>Download Ideas and Document for</h2>
+
             <button
               @click="downloadFile(1)"
               class="btn btn-primary m-1"
@@ -84,15 +91,55 @@
         </div>
 
         <div class="row justify-content-between">
-          <div class="col-6">
-            <div class="p-3 shadow mb-5 bg-body-tertiary rounded">
-              <span class="mb-5">Percentage of Ideas Per Department</span>
-              <div class="w-100 mt-1">
-                <Doughnut :data="donutData" :options="options" />
-              </div>
-            </div>
+          <div class="col-8">
+            <EasyDataTable
+              v-model:server-options="serverOptions"
+              :server-items-length="serverItemsLength"
+              :loading="loading"
+              :headers="headers"
+              :items="tableData"
+              show-index
+              @update-sort="updateSort"
+              :rows-items="[10, 30, 50]"
+              :search-value="searchValue"
+              table-class-name="customize-table"
+              :rows-per-page="5"
+              buttons-pagination
+              border-cell
+              theme-color="#a1dcd8"
+            >
+              <template #loading>
+                <Loading></Loading>
+              </template>
+              <template #item-action="data">
+                <Popper arrow placement="top" content="Change Status" hover>
+                  <button
+                    class="btn btn-secondary waves-effect waves-light btn-sm me-1"
+                    data-bs-toggle="modal"
+                    data-bs-target="#change-status-modal"
+                    @click="openChangeStatusModal(data.id)"
+                  >
+                    <i class="mdi mdi-sync text-white"></i>
+                  </button>
+                </Popper>
+                <Popper arrow placement="right" content="Edit" hover>
+                  <router-link
+                    class="btn btn-sm btn-info"
+                    :to="{ name: 'department-edit', params: { id: data.id } }"
+                  >
+                    <i class="mdi mdi-square-edit-outline"></i>
+                  </router-link>
+                </Popper>
+              </template>
+              <template #item-is_active="data">
+                <Badge
+                  :class="data.is_active ? 'bg-success' : 'bg-danger'"
+                  :name="data.is_active ? 'Active' : 'Inactive'"
+                ></Badge>
+              </template>
+            </EasyDataTable>
           </div>
-          <div class="col-6">
+          <div class="col-4">
             <div class="p-3 shadow mb-5 bg-body-tertiary rounded">
               <span>Percentage of Browser Usage </span>
               <div class="w-100">
@@ -111,18 +158,52 @@
               <Line :data="lineData" :options="options" />
             </div>
           </div>
-          <div class="col-4">col-4</div>
+          <div class="col-4">
+            <div class="p-3 shadow mb-5 bg-body-tertiary rounded">
+              <span class="mb-5">Percentage of Ideas Per Department</span>
+              <div class="w-100 mt-1">
+                <Doughnut :data="donutData" :options="options" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-8">
+            <div class="">
+              <h4>Most Active Users</h4>
+            </div>
+            <div class="discuss-box scale-in-center">
+              <div class="box-top">
+                <div class="discuss-pf">
+                  <div class="pf-img">
+                    <img src="/images/users/anonymous.jpg" alt="" />
+                  </div>
+                  <div class="name-user">
+                    <strong>Ethan Martinez</strong>
+                    <span>@ethanmartinez</span>
+                  </div>
+                </div>
+              </div>
+              <div class="comment">
+                <p>
+                  Jessica seems to be posting a lot of private material on
+                  Instagram, which concerns me. Sometimes she's not aware of the
+                  dangers involved in exposing her life.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <WelcomeModal
-      v-if="isShowAlert"
-      :title="modalTitle"
-      :message="modalMsg"
-      :show="showModal"
-      @close="closeModal()"
-    />
   </div>
+  <WelcomeModal
+    v-if="isShowAlert"
+    :title="modalTitle"
+    :message="modalMsg"
+    :show="showModal"
+    @close="closeModal()"
+  />
 </template>
 <script setup>
 // Imports for categories
@@ -160,12 +241,15 @@ import { Http } from "@/services/http-common";
 import { useAuthStore } from "@/stores/auth";
 import { downloadUrl } from "@/composables/fileDownload";
 import WelcomeModal from "@/components/shared/modal.vue";
+import Badge from "@/components/shared/Badge.vue";
 import { reactive } from "vue";
 import { color } from "chart.js/helpers";
 
+const router = useRouter();
 const authStore = useAuthStore();
 const lastLogout = authStore.getUserLogout;
 let isFirstLogin = authStore.getIsFirstLogin;
+const userRole = authStore.getAuthUserRoles;
 
 console.log(lastLogout);
 console.log(isFirstLogin);
@@ -174,27 +258,11 @@ const showModal = ref(false);
 const modalTitle = ref("");
 const modalMsg = ref("");
 
-const userLogout = authStore.getUserLogout;
-
-console.log(userLogout);
-
-const loading = ref(false);
-const tableData = ref([]);
-const serverItemsLength = ref(0);
-const searchValue = ref("");
-const serverOptions = ref({
-  page: 1,
-  rowsPerPage: 10,
-  sortType: "",
-  sortBy: "",
-});
 const exportBtnLoading = ref(false); // Loading state for Excel download
 const zipBtnLoading = ref(false); // Loading state for ZIP download
 const closures = ref([]); // Added closures ref
 const departmentStats = ref([]); // New ref for department statistics
-const loadingStats = ref(false); // Loading state for department stats
-
-const router = useRouter();
+const loadingStats = ref(false); //Loading state for department stats
 
 // Fetch closures data
 const getClosure = async () => {
@@ -555,6 +623,79 @@ const isShowAlert = computed(() => {
   return isShow;
 });
 
+// Ideas of User in a department
+const pageLoading = ref(true);
+const loading = ref(false);
+const tableData = ref([]);
+
+const serverItemsLength = ref(0);
+const searchValue = ref("");
+const serverOptions = ref({
+  page: 1,
+  rowsPerPage: 10,
+  sortType: "",
+  sortBy: "",
+});
+
+const headers = [
+  { text: "Name", value: "name", sortable: true },
+  { text: "User Name", value: "description", sortable: true },
+  { text: "Created At", value: "created_at", sortable: true },
+  { text: "Updated At", value: "updated_at", sortable: true },
+  { text: "Active", value: "is_active", sortable: true },
+  { text: "Action", value: "action", width: "200" },
+];
+
+const getResults = async () => {
+  loading.value = true;
+
+  if (searchValue.value) {
+    serverOptions.value.page = 1;
+  }
+  try {
+    const { data } = await Http.get(
+      `stats/contributions-related-department?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
+    );
+
+    console.log("API response:", data);
+
+    // Transform UTC dates to local timezone
+    tableData.value = data.data.data.map((item) => item);
+    console.log("Table Data: ", tableData.value);
+    serverItemsLength.value = data.data.total;
+  } catch (err) {
+    console.error("Error fetching categories:", err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const updateSort = (selectedSortOptions) => {
+  serverOptions.value.sortType = selectedSortOptions.sortType
+    ? selectedSortOptions.sortType
+    : "";
+  serverOptions.value.sortBy = selectedSortOptions.sortBy;
+};
+
+watch(
+  serverOptions,
+  (value) => {
+    getResults();
+  },
+  { deep: true }
+);
+const timer = ref(null);
+watch(
+  searchValue,
+  (value) => {
+    clearTimeout(timer.value);
+    timer.value = setTimeout(() => {
+      getResults();
+    }, 500);
+  },
+  { deep: true }
+);
+
 // Fetch data on mount
 onMounted(async () => {
   await getClosure();
@@ -579,5 +720,66 @@ onMounted(async () => {
 <style scoped>
 .idea-card {
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+}
+</style>
+<style scoped>
+.discuss-box {
+  box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  padding: 20px;
+  margin: 15px;
+  cursor: pointer;
+}
+
+.pf-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 10px;
+}
+
+.pf-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.discuss-pf {
+  display: flex;
+  align-items: center;
+}
+
+.name-user {
+  display: flex;
+  flex-direction: column;
+}
+
+.name-user strong {
+  color: #3d3d3d;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+.name-user span {
+  color: #979797;
+  font-size: 0.8rem;
+}
+
+.discuss-content a {
+  color: #535353;
+}
+
+.box-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.comment p {
+  font-size: 0.9rem;
+  color: #4b4b4b;
 }
 </style>
