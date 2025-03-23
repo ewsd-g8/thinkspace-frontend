@@ -354,7 +354,7 @@ import {
   resetServerErrors,
 } from "@/composables/validationErrors";
 // Ensure Bootstrap is loaded
-
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const loading = ref(false);
 const authStore = useAuthStore();
