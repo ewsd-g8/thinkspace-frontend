@@ -55,7 +55,7 @@ export const useAuthStore = defineStore("auth", {
             this.user.email = res.data.data.user.email;
             this.user.profile = res.data.data.user.profile;
             this.roles = res.data.data.roles;
-            this.permissions = res.data.data.permissions;
+            // this.permissions = response.data.data.permissions.map((p) => p.name);
             this.user.last_logout_at = res.data.data.user.last_logout_at;
             this.user.isFirstLogin =
               this.user.last_logout_at === null ? true : false;
