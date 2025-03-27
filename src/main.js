@@ -7,6 +7,8 @@ import { createPinia } from "pinia";
 import piniaPersist from "pinia-plugin-persist";
 
 import { useAuthStore } from "./stores/auth";
+import { hasPermissions } from "./composables/checkAuthorize"; // Importing hasPermissions
+
 
 import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
