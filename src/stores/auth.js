@@ -15,6 +15,7 @@ export const useAuthStore = defineStore("auth", {
         profile: "",
         last_logout_at: "",
         isFirstLogin: false,
+        department_name: "",
       },
     };
   },
@@ -45,6 +46,9 @@ export const useAuthStore = defineStore("auth", {
     getIsFirstLogin(state) {
       return state.user.isFirstLogin;
     },
+    getDeptName(state) {
+      return state.user.department_name;
+    },
   },
   actions: {
     login(email, password) {
@@ -68,6 +72,7 @@ export const useAuthStore = defineStore("auth", {
             this.user.last_logout_at = res.data.data.user.last_logout_at;
             this.user.isFirstLogin =
               this.user.last_logout_at === null ? true : false;
+            this.user.department_name = res.data.data.department.name;
             resolve("Successfully Login");
           })
           .catch((error) => {

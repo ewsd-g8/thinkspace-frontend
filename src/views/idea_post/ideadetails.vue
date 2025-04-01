@@ -221,7 +221,6 @@
                   style="height: 50vw"
                 ></iframe>
               </div>
-
             </div>
           </div>
         </div>
@@ -354,7 +353,7 @@ import {
   resetServerErrors,
 } from "@/composables/validationErrors";
 // Ensure Bootstrap is loaded
-// import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const loading = ref(false);
 const authStore = useAuthStore();
