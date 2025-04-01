@@ -85,6 +85,72 @@
   --easy-table-message-font-size: 14px;
 }
 
+.mostactive-table {
+  --easy-table-header-font-size: 14px;
+  --easy-table-header-height: 45px;
+  --easy-table-header-background-color: #ffffff;
+  --easy-table-header-font-color: #000;
+  --easy-table-footer-background-color: #efefef;
+  --easy-table-header-item-padding: 10px 15px;
+
+  --easy-table-body-even-row-font-color: #000000;
+
+  --easy-table-body-row-font-color: #000000;
+  --easy-table-body-row-height: 45px;
+  --easy-table-body-row-font-size: 14px;
+
+  --easy-table-body-row-hover-font-color: #000000;
+  --easy-table-body-row-hover-background-color: #eee;
+
+  --easy-table-body-item-padding: 8px 15px;
+  --easy-table-footer-font-size: 14px;
+  --easy-table-footer-padding: 0px 10px;
+  --easy-table-footer-height: 45px;
+  --easy-table-rows-per-page-selector-option-padding: 10px;
+  --easy-table-rows-per-page-selector-z-index: 1;
+
+  --easy-table-scrollbar-track-color: #2d3a4f;
+  --easy-table-scrollbar-color: #2d3a4f;
+  --easy-table-scrollbar-thumb-color: #4c5d7a;
+  --easy-table-scrollbar-corner-color: #2d3a4f;
+
+  --easy-table-loading-mask-background-color: #2d3a4f;
+  --easy-table-message-font-size: 14px;
+}
+
+.usersInDept-table {
+  --easy-table-header-font-size: 14px;
+  --easy-table-header-height: 45px;
+  --easy-table-header-background-color: #ffffff;
+  --easy-table-header-font-color: #000;
+  --easy-table-footer-background-color: #efefef;
+  --easy-table-header-item-padding: 10px 15px;
+
+  --easy-table-body-even-row-font-color: #000000;
+
+  --easy-table-body-row-font-color: #000000;
+  --easy-table-body-row-height: 45px;
+  --easy-table-body-row-font-size: 14px;
+
+  --easy-table-body-row-hover-font-color: #000000;
+  --easy-table-body-row-hover-background-color: #eee;
+
+  --easy-table-body-item-padding: 8px 15px;
+  --easy-table-footer-font-size: 14px;
+  --easy-table-footer-padding: 0px 10px;
+  --easy-table-footer-height: 45px;
+  --easy-table-rows-per-page-selector-option-padding: 10px;
+  --easy-table-rows-per-page-selector-z-index: 1;
+
+  --easy-table-scrollbar-track-color: #2d3a4f;
+  --easy-table-scrollbar-color: #2d3a4f;
+  --easy-table-scrollbar-thumb-color: #4c5d7a;
+  --easy-table-scrollbar-corner-color: #2d3a4f;
+
+  --easy-table-loading-mask-background-color: #2d3a4f;
+  --easy-table-message-font-size: 14px;
+}
+
 .mdi-close::before {
   position: absolute;
   top: 5px;
@@ -441,7 +507,7 @@ label {
   height: 50px;
   display: flex;
   border-radius: 6px;
-  border: 2px solid #e7d188;
+  border: 2px solid #040404;
   padding: 7px 4px 15px 5px;
   text-align: center;
 
@@ -595,6 +661,28 @@ label {
   padding-right: 5px;
 }
 
+.Card {
+  width: 300px;
+  background-color: #f8f9fa;
+
+  border: 2px solid #000;
+  padding: 20px;
+  border-radius: 20px;
+  margin: 20px;
+
+  overflow: hidden;
+  text-align: center;
+}
+.Card .name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #620f10;
+  text-align: center;
+}
+.Card .count {
+  font-size: 30px;
+  text-align: center;
+}
 /* report */
 .report-type-name {
   background-color: #e5e5e5;
