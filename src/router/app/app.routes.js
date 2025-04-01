@@ -44,6 +44,11 @@ const appRoutes = [
     path: "dashboard",
     name: "dashboard",
     component: DashboardView,
+    meta : {
+      requirePermissions: true,
+      permissions:['dashboard-view'],
+
+    },
   },
   {
     path: "users",

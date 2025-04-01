@@ -526,6 +526,7 @@ const debouncedSearchIdeas = debounce(() => {
   fetchIdeas(currentPage.value);
 }, 500);
 
+
 const filterIdeas = () => {
   console.log("filterIdeas triggered with:", {
     category: selectedCategory.value,
