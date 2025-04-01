@@ -321,6 +321,7 @@ label {
   width: 2em;
   height: 1em;
   margin-top: 0.25em;
+  
 }
 
 .form-switch .form-check-label {
@@ -487,6 +488,7 @@ label {
   width: 2em;
   height: 1em;
   margin-top: 0.25em;
+  margin-right: 30px;
 }
 
 .form-switch .form-check-label {
@@ -515,7 +517,7 @@ label {
     background-color: transparent;
     outline: none;
     border: none;
-    color: #e7d188;
+    color: #ffffff;
     font-size: 16px;
     &::placeholder {
       color: #fff;

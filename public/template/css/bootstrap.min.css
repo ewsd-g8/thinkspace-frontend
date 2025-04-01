@@ -2030,6 +2030,7 @@ textarea.form-control-lg {
   min-height: 1.3125rem;
   padding-left: 1.643em;
   margin-bottom: 0;
+  margin-right: 15px;
 }
 .form-check .form-check- {
   float: left;
@@ -2052,6 +2053,7 @@ textarea.form-control-lg {
 }
 .form-check-input[type="checkbox"] {
   border-radius: 0.25em;
+  margin-right: 5px;
 }
 .form-check-input[type="radio"] {
   border-radius: 50%;
