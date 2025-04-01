@@ -121,7 +121,7 @@
                 <p class="text-light">
                   Return to
                   <router-link
-                    :to="{ name: 'dashboard' }"
+                    :to="{ name: 'idea_post_idea' }"
                     class="text-white ms-1"
                     ><b>Home</b></router-link
                   >

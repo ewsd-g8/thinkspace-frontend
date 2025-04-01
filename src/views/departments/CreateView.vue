@@ -141,7 +141,7 @@ const savedepartment = async () => {
   loading.value = true;
 
   resetServerErrors();
-  const newColor = department.color;
+  let newColor = department.color;
   while (color.value.includes(department.color)) {
     newColor = ramdomColor();
   }

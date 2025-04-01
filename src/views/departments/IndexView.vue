@@ -187,7 +187,9 @@ const getResults = async () => {
       created_at: formatToLocalTime(item.created_at),
       updated_at: formatToLocalTime(item.updated_at),
     }));
+    console.log(tableData.value);
     serverItemsLength.value = data.data.total;
+    console.log("Total: ", data.data.total);
   } catch (err) {
     console.error("Error fetching categories:", err);
   } finally {

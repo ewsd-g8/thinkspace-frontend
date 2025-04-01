@@ -2,8 +2,6 @@
   <div>
     <div class="card">
       <div class="card-body">
-        
-
         <!-- Search and Content Length Filters -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
           <div class="search-container">
@@ -29,7 +27,7 @@
           </div>
         </div>
 
-        <!-- Filters Container -->
+        <!-- Filters Container (Removed Closure Dropdown) -->
         <div class="mb-3 d-flex justify-content-between flex-wrap">
           <div class="filter-container">
             <select
@@ -63,22 +61,6 @@
               </option>
             </select>
           </div>
-          <div class="filter-middle">
-            <select
-              class="form-control"
-              v-model="selectedClosure"
-              @change="filterIdeas"
-            >
-              <option value="">All Closures</option>
-              <option
-                v-for="closure in uniqueClosures"
-                :key="closure.id"
-                :value="closure.name"
-              >
-                {{ closure.name }}
-              </option>
-            </select>
-          </div>
           <div class="filter-last">
             <select
               class="form-control"
@@ -91,8 +73,8 @@
               <option value="mostDislikes">Most Dislikes</option>
               <option value="mostViews">Most Views</option>
               <option value="noComments">No Comments</option>
-              <option value="latestReport">Reported idea</option>
-</select>
+              <option value="latestReport" v-if="canReport">Reported idea</option>
+            </select>
           </div>
         </div>
 
@@ -111,13 +93,13 @@
             v-for="idea in filteredIdeas"
             :key="idea.id"
           >
-            <div class="profile-container"  @mouseover="showPopup(idea)"
-                @mouseleave="hidePopup()"
-                @click="togglePopup(idea)">
-              <div
-                class="profile-flex"
-              
-              >
+            <div
+              class="profile-container"
+              @mouseover="showPopup(idea)"
+              @mouseleave="hidePopup()"
+              @click="togglePopup(idea)"
+            >
+              <div class="profile-flex">
                 <img
                   :src="
                     idea.is_anonymous
@@ -138,7 +120,11 @@
             </div>
 
             <span class="views-count">{{ idea.views_count }} views</span>
-            <div @click="viewIdeaDetails(idea.id)" style="cursor: pointer" class="d-flex justify-content-between">
+            <div
+              @click="viewIdeaDetails(idea.id)"
+              style="cursor: pointer"
+              class="d-flex justify-content-between"
+            >
               <div>
                 <p class="text-muted">
                   <span class="category-tag">
@@ -152,7 +138,7 @@
                   </span>
                   - -
                   <span class="closure-name">
-                    {{ idea.closure_id ? ` ${idea.closure.name}` : "No closure ID" }}
+                    {{ idea.closure_id ? ` ${idea.closure.name}` : "No closure" }}
                   </span>
                 </p>
                 <h5 class="idea-title">{{ idea.title }}</h5>
@@ -244,7 +230,11 @@
             <router-link
               :to="{ name: 'report_idea_details', params: { id: idea.id } }"
             >
-              <button class="btn btn-sm">
+              <button
+                class="btn btn-sm"
+                v-if="canReport"
+                @click="reportIdea(idea)"
+              >
                 <i class="mdi mdi-message-alert"></i>
                 <span class="btn-likes">{{ idea.reports_count }}</span>
                 <span>Report</span>
@@ -295,22 +285,21 @@ const ideas = ref([]);
 const searchQuery = ref("");
 const departments = ref([]);
 const categories = ref([]);
+const latestClosure = ref(null); // Store latest closure data
 const selectedCategory = ref("");
 const selectedDepartment = ref("");
-const selectedClosure = ref("");
 const selectedContentLength = ref("");
 const sortOption = ref("newest");
 const currentPage = ref(1);
 const itemsPerPage = 5;
 const totalIdeas = ref(0);
 const loading = ref(true);
-const showSummary = ref(false);
 const store = useAuthStore();
 const user_id = store.getAuthUser.id;
 const router = useRouter();
 const isBlocked = ref(false);
 const originalIdeas = ref([]);
-const popupVisible = ref(false); // Pop-up visibility state
+const popupVisible = ref(false);
 const currentIdea = ref(null);
 
 const fetchUserDetails = async () => {
@@ -321,18 +310,21 @@ const fetchUserDetails = async () => {
     console.error("Failed to fetch user details:", error);
   }
 };
-const uniqueClosures = computed(() => {
-  const closures = ideas.value
-    .filter((idea) => idea.closure)
-    .map((idea) => ({
-      id: idea.closure_id,
-      name: idea.closure.name,
-      created_at: idea.closure.created_at || idea.created_at,
-    }));
-  return [...new Set(closures.map((c) => JSON.stringify(c)))].map((c) =>
-    JSON.parse(c)
-  );
-});
+
+const fetchLatestClosure = async () => {
+  try {
+    const res = await Http.get("closures"); 
+    console.log("closure",res);
+    
+    const closures = res.data.data.data || [];
+    latestClosure.value = closures
+      .filter((c) => c.is_active) 
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]; 
+    console.log("Latest closure:", latestClosure.value);
+  } catch (error) {
+    console.error("Failed to fetch closures:", error);
+  }
+};
 
 const totalPages = computed(() => {
   return Math.ceil(totalIdeas.value / itemsPerPage) || 1;
@@ -348,6 +340,8 @@ const fetchIdeas = async (
 ) => {
   loading.value = true;
   try {
+    // Always use the latest closure's name
+    const closureName = latestClosure.value?.name || "";
     const url = `ideas?page=${page}&paginate=${itemsPerPage}&search=${encodeURIComponent(
       search
     )}&category=${encodeURIComponent(
@@ -355,7 +349,7 @@ const fetchIdeas = async (
     )}&department=${encodeURIComponent(
       selectedDepartment.value
     )}&closure=${encodeURIComponent(
-      selectedClosure.value
+      closureName
     )}&contentLength=${encodeURIComponent(
       selectedContentLength.value
     )}&sort=${encodeURIComponent(sortOption.value)}`;
@@ -386,6 +380,7 @@ const fetchIdeas = async (
     loading.value = false;
   }
 };
+
 // Pop-up control functions
 const showPopup = (idea) => {
   currentIdea.value = idea;
@@ -485,13 +480,10 @@ const thumbDown = async (idea) => {
 
 const viewIdeaDetails = async (ideaId) => {
   try {
-    // Increment view count
     await Http.post(`views`, { idea_id: ideaId });
-    // Fetch updated idea to reflect new view count
     const response = await Http.get(`ideas/${ideaId}`);
     const updatedIdea = response.data.data;
 
-    // Update the idea in the list
     const index = ideas.value.findIndex((i) => i.id === ideaId);
     if (index !== -1) {
       ideas.value[index] = {
@@ -507,14 +499,12 @@ const viewIdeaDetails = async (ideaId) => {
       ideas.value = [...ideas.value];
     }
 
-    // Navigate to details page
     router.push({ name: "idea_details", params: { id: ideaId } });
   } catch (error) {
     console.error(
       "Error in viewIdeaDetails:",
       error.response?.data || error.message
     );
-    // Navigate even if view increment fails
     router.push({ name: "idea_details", params: { id: ideaId } });
   }
 };
@@ -524,8 +514,8 @@ onMounted(async () => {
     await fetchUserDetails();
     await getDepartments();
     await getCategories();
-
-    await fetchIdeas(1);
+    await fetchLatestClosure(); // Fetch latest closure first
+    await fetchIdeas(1); // Fetch ideas for latest closure
   } catch (error) {
     console.error("Failed to initialize:", error);
   }
@@ -536,11 +526,11 @@ const debouncedSearchIdeas = debounce(() => {
   fetchIdeas(currentPage.value);
 }, 500);
 
+
 const filterIdeas = () => {
   console.log("filterIdeas triggered with:", {
     category: selectedCategory.value,
     department: selectedDepartment.value,
-    closure: selectedClosure.value,
   });
   currentPage.value = 1;
   fetchIdeas(currentPage.value);
@@ -585,16 +575,21 @@ const getCategories = async () => {
   }
 };
 
-const toggleSummary = () => {
-  showSummary.value = !showSummary.value;
-};
-
 const truncateContent = (content) => {
   const maxLength = 200;
   if (!content || typeof content !== "string") return "";
   if (content.length <= maxLength) return content;
   return content.substring(0, maxLength).trim() + "...";
 };
+
+const userRoles = computed(() => store.getAuthUserRoles || []);
+const allowedReportingRoles = ["Superadmin", "QAmanager"];
+const canReport = computed(() => {
+  return userRoles.value.some((role) => allowedReportingRoles.includes(role));
+});
+
+const reportIdea = (idea) => {
+  if (!canReport.value) return;
+  console.log(`Reporting idea with ID: ${idea.id}`);
+};
 </script>
-
-

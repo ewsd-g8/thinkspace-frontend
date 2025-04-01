@@ -197,7 +197,7 @@
               <div class="mt-2">
                 <button
                   type="button"
-                  class="btn btn-success my-2 me-2"
+                  class="btn btn-primary my-2 me-2"
                   @click="changeBlockUserStatus()"
                   :disabled="loading"
                 >
@@ -209,7 +209,7 @@
                 </button>
                 <button
                   type="button"
-                  class="btn btn-danger my-2"
+                  class="btn btn-secondary my-2"
                   data-bs-dismiss="modal"
                 >
                   Cancel
@@ -240,7 +240,7 @@
               <div class="mt-2">
                 <button
                   type="button"
-                  class="btn btn-success my-2 me-2"
+                  class="btn btn-primary my-2 me-2"
                   @click="changeHideUserStatus()"
                   :disabled="loading"
                 >
@@ -252,7 +252,7 @@
                 </button>
                 <button
                   type="button"
-                  class="btn btn-danger my-2"
+                  class="btn btn-secondary my-2"
                   data-bs-dismiss="modal"
                 >
                   Cancel

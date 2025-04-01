@@ -60,102 +60,47 @@
             </div>
           </div>
         </div>
-
-        <div class="mb-3">
-          <div class="showcard">
-            <h2>Download Ideas and Document for</h2>
-
-            <button
-              @click="downloadFile(1)"
-              class="btn btn-primary m-1"
-              :disabled="exportBtnLoading.value"
-            >
-              {{
-                exportBtnLoading.value
-                  ? "Downloading..."
-                  : "Download Ideas as Excel"
-              }}
-            </button>
-            <button
-              @click="downloadDocumentsAsZip"
-              class="btn btn-primary"
-              :disabled="zipBtnLoading.value"
-            >
-              {{
-                zipBtnLoading.value
-                  ? "Downloading..."
-                  : "Download Documents as ZIP"
-              }}
-            </button>
-          </div>
-        </div>
-
         <div class="row justify-content-between">
           <div class="col-8">
-            <EasyDataTable
-              v-model:server-options="serverOptions"
-              :server-items-length="serverItemsLength"
-              :loading="loading"
-              :headers="headers"
-              :items="tableData"
-              show-index
-              @update-sort="updateSort"
-              :rows-items="[10, 30, 50]"
-              :search-value="searchValue"
-              table-class-name="customize-table"
-              :rows-per-page="5"
-              buttons-pagination
-              border-cell
-              theme-color="#a1dcd8"
+            <div
+              class="card text-center shadow-lg p-3 mb-5 bg-body-tertiary rounded"
             >
-              <template #loading>
-                <Loading></Loading>
-              </template>
-              <template #item-action="data">
-                <Popper arrow placement="top" content="Change Status" hover>
-                  <button
-                    class="btn btn-secondary waves-effect waves-light btn-sm me-1"
-                    data-bs-toggle="modal"
-                    data-bs-target="#change-status-modal"
-                    @click="openChangeStatusModal(data.id)"
-                  >
-                    <i class="mdi mdi-sync text-white"></i>
-                  </button>
-                </Popper>
-                <Popper arrow placement="right" content="Edit" hover>
-                  <router-link
-                    class="btn btn-sm btn-info"
-                    :to="{ name: 'department-edit', params: { id: data.id } }"
-                  >
-                    <i class="mdi mdi-square-edit-outline"></i>
-                  </router-link>
-                </Popper>
-              </template>
-              <template #item-is_active="data">
-                <Badge
-                  :class="data.is_active ? 'bg-success' : 'bg-danger'"
-                  :name="data.is_active ? 'Active' : 'Inactive'"
-                ></Badge>
-              </template>
-            </EasyDataTable>
-          </div>
-          <div class="col-4">
-            <div class="p-3 shadow mb-5 bg-body-tertiary rounded">
-              <span>Percentage of Browser Usage </span>
-              <div class="w-100">
-                <Pie :data="pieData" :options="options" />
+              <div class="card-header">
+                <h3 class="fw-bold" style="color: #620f10">Most Active User</h3>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="row" style="height: 400px">
-          <div
-            class="col-8 shadow p-2 mb-5 bg-body-tertiary rounded"
-            style="height: 100%"
-          >
-            <span class="">Percentage of Ideas Per Department</span>
-            <div class="w-100 mt-1" style="height: 90%">
-              <Line :data="lineData" :options="options" />
+              <div class="card-body">
+                <EasyDataTable
+                  v-model:server-options="serverOptions"
+                  :server-items-length="serverItemsLength"
+                  :loading="loading"
+                  :headers="mostactive"
+                  :items="MostActiveTable"
+                  show-index
+                  @update-sort="updateSort"
+                  :rows-items="[5, 10]"
+                  :search-value="searchValue"
+                  table-class-name="mostactive-table"
+                  :rows-per-page="5"
+                  buttons-pagination
+                  theme-color="#a1dcd8"
+                >
+                  <template #loading>
+                    <Loading></Loading>
+                  </template>
+                  <template #item-profile="data">
+                    <img
+                      class="rounded-circle object-fit-cover"
+                      style="width: 35px; height: 35px"
+                      :src="
+                        data.profile
+                          ? data.profile
+                          : '/images/users/anonymous.jpg'
+                      "
+                      alt=""
+                    />
+                  </template>
+                </EasyDataTable>
+              </div>
             </div>
           </div>
           <div class="col-4">
@@ -167,41 +112,110 @@
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-8">
-            <div class="">
-              <h4>Most Active Users</h4>
+        <div class="row mb-3" style="height: 400px">
+          <div
+            class="col-8 shadow p-2 mb-5 bg-body-tertiary rounded"
+            style="height: 100%"
+          >
+            <span class="">Percentage of Ideas Per Department</span>
+            <div class="w-100 mt-1" style="height: 90%">
+              <Line :data="lineData" :options="options" />
             </div>
-            <div class="discuss-box scale-in-center">
-              <div class="box-top">
-                <div class="discuss-pf">
-                  <div class="pf-img">
-                    <img src="/images/users/anonymous.jpg" alt="" />
-                  </div>
-                  <div class="name-user">
-                    <strong>Ethan Martinez</strong>
-                    <span>@ethanmartinez</span>
-                  </div>
-                </div>
+          </div>
+          <div class="col-4">
+            <div class="p-3 shadow mb-5 bg-body-tertiary rounded">
+              <span>Percentage of Browser Usage </span>
+              <div class="w-100">
+                <Pie :data="pieData" :options="options" />
               </div>
-              <div class="comment">
-                <p>
-                  Jessica seems to be posting a lot of private material on
-                  Instagram, which concerns me. Sometimes she's not aware of the
-                  dangers involved in exposing her life.
-                </p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-8" v-if="userRole === 'QAcoordinator || QAmanager'">
+            <EasyDataTable
+              v-model:server-options="serverOptions"
+              :server-items-length="serverItemsLength"
+              :loading="loading"
+              :headers="headers"
+              :items="userData"
+              show-index
+              :rows-items="[10, 30, 50]"
+              :search-value="searchValue"
+              table-class-name="usersInDept-table"
+              :rows-per-page="5"
+              buttons-pagination
+              theme-color="#a1dcd8"
+            >
+              <template #loading>
+                <Loading></Loading>
+              </template>
+            </EasyDataTable>
+          </div>
+          <div
+            :class="userRole === 'QAcoordinator || QAmanager' ? 'col-4' : 'col'"
+          >
+            <div
+              class="card text-center p-3 shadow mb-5 bg-body-tertiary rounded"
+            >
+              <div class="card-header">
+                <h3 class="fw-bold" style="color: #620f10">
+                  Download Ideas and Document
+                </h3>
+              </div>
+              <div class="card-body">
+                <table class="table table-bordered" style="color: #000">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Closure Name</th>
+                      <th scope="col">Closure Date</th>
+                      <th scope="col">Final Date</th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-group-divider" style="color: black">
+                    <tr>
+                      <th scope="row">1</th>
+                      <td>{{ closure.name }}</td>
+                      <td>{{ closure.date }}</td>
+                      <td>{{ closure.finaldate }}</td>
+                    </tr>
+                    <tr>
+                      <td colspan="3">
+                        <button
+                          @click="downloadFile(1)"
+                          class="btn btn-outline-primary"
+                          :disabled="exportBtnLoading.value"
+                        >
+                          {{
+                            exportBtnLoading.value
+                              ? "Downloading..."
+                              : "Download Ideas as Excel"
+                          }}
+                        </button>
+                      </td>
+                      <td>
+                        <button
+                          @click="downloadDocumentsAsZip"
+                          class="btn btn-outline-primary"
+                          :disabled="zipBtnLoading.value"
+                        >
+                          {{
+                            zipBtnLoading.value
+                              ? "Downloading..."
+                              : "Download Documents as ZIP"
+                          }}
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>  <WelcomeModal
-    v-if="isShowAlert"
-    :title="modalTitle"
-    :message="modalMsg"
-    :show="showModal"
-    @close="closeModal()"
-  />
+    </div>
   </div>
 
 </template>
@@ -240,23 +254,16 @@ import { createToast } from "mosha-vue-toastify";
 import { Http } from "@/services/http-common";
 import { useAuthStore } from "@/stores/auth";
 import { downloadUrl } from "@/composables/fileDownload";
-import WelcomeModal from "@/components/shared/modal.vue";
+
 import Badge from "@/components/shared/Badge.vue";
 import { reactive } from "vue";
 import { color } from "chart.js/helpers";
 
-
 const authStore = useAuthStore();
-const lastLogout = authStore.getUserLogout;
-let isFirstLogin = authStore.getIsFirstLogin;
+const userRole = authStore.getAuthUserRoles;
+const userDeptName = authStore.getDeptName;
 
-
- console.log(lastLogout);
- console.log(isFirstLogin);
-
-const showModal = ref(false);
-const modalTitle = ref("");
-const modalMsg = ref("");
+console.log("Department:", userDeptName);
 
 const exportBtnLoading = ref(false); // Loading state for Excel download
 const zipBtnLoading = ref(false); // Loading state for ZIP download
@@ -486,6 +493,7 @@ const options = {
 };
 
 // Download ideas as Excel
+
 const downloadFile = async () => {
   if (!closures.value.length) {
     createToast(
@@ -532,6 +540,32 @@ const downloadFile = async () => {
   } finally {
     exportBtnLoading.value = false;
   }
+};
+
+const closure = reactive({
+  id: "",
+  name: "",
+  date: "",
+  finaldate: "",
+});
+
+const getClosureDetail = async () => {
+  loading.value = true;
+  const closureId = closures.value[0]?.id;
+  await Http.get(`closures/${closureId}`)
+    .then((res) => {
+      console.log("res", res);
+      closure.id = res.data.data.id;
+      closure.name = res.data.data.name;
+      closure.date = res.data.data.date;
+      closure.finaldate = res.data.data.final_date;
+      loading.value = false;
+    })
+    .catch((err) => {
+      if (err.response.status == 404) {
+        router.push({ name: "page-not-found" });
+      }
+    });
 };
 
 // Download documents as ZIP
@@ -608,21 +642,6 @@ const downloadDocumentsAsZip = async () => {
   }
 };
 
-const closeModal = () => {
-  showModal.value = false;
-};
-
-//show modal
-const isShowAlert = computed(() => {
-  let isShow = false;
-  let showAlert = localStorage.getItem("show_modal");
-  if (showAlert) {
-    isShow = true;
-    localStorage.removeItem("show_modal");
-  }
-  return isShow;
-});
-
 // Ideas of User in a department
 const pageLoading = ref(true);
 const loading = ref(false);
@@ -632,20 +651,17 @@ const serverItemsLength = ref(0);
 const searchValue = ref("");
 const serverOptions = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: 5,
   sortType: "",
   sortBy: "",
 });
 
 const headers = [
-  { text: "Name", value: "name", sortable: true },
-  { text: "User Name", value: "description", sortable: true },
-  { text: "Created At", value: "created_at", sortable: true },
-  { text: "Updated At", value: "updated_at", sortable: true },
-  { text: "Active", value: "is_active", sortable: true },
-  { text: "Action", value: "action", width: "200" },
+  { text: "Name", value: "user_name", sortable: true },
+  { text: "Ideas", value: "ideas.length", sortable: true },
+  { text: "Comments", value: "comments.length", sortable: true },
 ];
-
+const userData = ref([]);
 const getResults = async () => {
   loading.value = true;
 
@@ -653,18 +669,26 @@ const getResults = async () => {
     serverOptions.value.page = 1;
   }
   try {
-    const { data } = await Http.get(
-      `stats/contributions-related-department?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
+    const res = await Http.get(
+      `/stats/contributions-related-department?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
     );
 
-    console.log("API response:", data);
-
-    // Transform UTC dates to local timezone
-    tableData.value = data.data.data.map((item) => item);
+    tableData.value = res.data.map((item) => ({
+      ...item,
+    }));
     console.log("Table Data: ", tableData.value);
-    serverItemsLength.value = data.data.total;
+    const userDepartmentData = tableData.value.find(
+      (dep) => dep.department_name === userDeptName
+    );
+
+    userData.value = userDepartmentData
+      ? userDepartmentData.users.map((user) => ({ ...user }))
+      : [];
+    console.log("User Data:", userData);
+    serverItemsLength.value = tableData.value.length;
+    console.log(serverItemsLength.value);
   } catch (err) {
-    console.error("Error fetching categories:", err);
+    console.error("Error fetching contribution related department:", err);
   } finally {
     loading.value = false;
   }
@@ -677,10 +701,47 @@ const updateSort = (selectedSortOptions) => {
   serverOptions.value.sortBy = selectedSortOptions.sortBy;
 };
 
+//Most Active Users
+const MostActiveTable = ref([]);
+const mostactive = [
+  { text: "Profile", value: "profile", sortable: true },
+  { text: "Name", value: "name", sortable: true },
+  { text: "Department", value: "department.name", sortable: true },
+  { text: "Ideas", value: "ideas_count", sortable: true },
+  { text: "Comments", value: "comments_count", sortable: true },
+];
+
+const getMostActiveUser = async () => {
+  loading.value = true;
+
+  if (searchValue.value) {
+    serverOptions.value.page = 1;
+  }
+  try {
+    const { data } = await Http.get(
+      `/stats/most-active-users?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}`
+    );
+
+    console.log("Most Active API response:", data);
+
+    // Transform UTC dates to local timezone
+    MostActiveTable.value = data.map((item) => ({
+      ...item,
+    }));
+    console.log("Most Active user:", MostActiveTable.value);
+    serverItemsLength.value = data.length;
+  } catch (err) {
+    console.error("Error fetching Most active users:", err);
+  } finally {
+    loading.value = false;
+  }
+};
+
 watch(
   serverOptions,
   (value) => {
     getResults();
+    getMostActiveUser();
   },
   { deep: true }
 );
@@ -691,6 +752,7 @@ watch(
     clearTimeout(timer.value);
     timer.value = setTimeout(() => {
       getResults();
+      getMostActiveUser();
     }, 500);
   },
   { deep: true }
@@ -699,87 +761,16 @@ watch(
 // Fetch data on mount
 onMounted(async () => {
   await getClosure();
+  await getClosureDetail();
   await fetchDepartmentStats(); // Fetch department stats on mount
   await fetchContributions();
   await fetchBrowserStats();
-
-  if (isFirstLogin) {
-    modalTitle.value = "Welcom to Think Space";
-    modalMsg.value =
-      "Thank you for participating us! This is your first time Logging in";
-    showModal.value = true;
-    isFirstLogin = false;
-  } else if (lastLogout) {
-    const lastLoginDate = new Date(lastLogout).toLocaleString();
-    modalTitle.value = "Welcome Back!";
-    modalMsg.value = `You last logged in at ${lastLoginDate}.`;
-    showModal.value = true;
-  }
+  getResults();
+  getMostActiveUser();
 });
 </script>
 <style scoped>
 .idea-card {
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
-}
-</style>
-<style scoped>
-.discuss-box {
-  box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  padding: 20px;
-  margin: 15px;
-  cursor: pointer;
-}
-
-.pf-img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  overflow: hidden;
-  margin-right: 10px;
-}
-
-.pf-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.discuss-pf {
-  display: flex;
-  align-items: center;
-}
-
-.name-user {
-  display: flex;
-  flex-direction: column;
-}
-
-.name-user strong {
-  color: #3d3d3d;
-  font-size: 1.1rem;
-  letter-spacing: 0.5px;
-}
-
-.name-user span {
-  color: #979797;
-  font-size: 0.8rem;
-}
-
-.discuss-content a {
-  color: #535353;
-}
-
-.box-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.comment p {
-  font-size: 0.9rem;
-  color: #4b4b4b;
 }
 </style>
