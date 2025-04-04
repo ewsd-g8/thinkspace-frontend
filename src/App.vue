@@ -1,4 +1,5 @@
 <template>
+  <router-view></router-view>
   <div>
     <WelcomeModal
       v-if="isShowAlert"
@@ -8,7 +9,6 @@
       @close="closeModal()"
     />
   </div>
-  <router-view></router-view>
 </template>
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";

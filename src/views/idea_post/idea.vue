@@ -261,8 +261,18 @@
             Next
           </button>
         </div>
+        <div>
+              <WelcomeModal
+      v-if="isShowAlert"
+      :title="modalTitle"
+      :message="modalMsg"
+      :show="showModal"
+      @close="closeModal()"
+    />
+        </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -271,6 +281,7 @@ import { ref, onMounted, computed } from "vue";
 import { Http } from "@/services/http-common";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.js";
+import WelcomeModal from "@/components/shared/modal.vue";
 
 // Custom debounce function
 const debounce = (func, wait) => {
@@ -509,7 +520,48 @@ const viewIdeaDetails = async (ideaId) => {
   }
 };
 
+//Show Modal Welcome and Last Login Message 
+
+const showModal = ref(false);
+const modalTitle = ref("");
+const modalMsg = ref("");
+
+
+const closeModal = () => {
+  showModal.value = false;
+};
+
+const authStore = useAuthStore();
+const lastLogout = authStore.getUserLogout;
+let isFirstLogin = authStore.getIsFirstLogin;
+
+console.log(lastLogout);
+console.log(isFirstLogin);
+
+//show modal
+const isShowAlert = computed(() => {
+  let isShow = false;
+  let showAlert = localStorage.getItem("show_modal");
+  if (showAlert) {
+    isShow = true;
+    localStorage.removeItem("show_modal");
+  }
+  return isShow;
+});
+
 onMounted(async () => {
+    if (isFirstLogin) {
+    modalTitle.value = "Welcom to Think Space";
+    modalMsg.value =
+      "Thank you for participating us! This is your first time Logging in";
+    showModal.value = true;
+    isFirstLogin = false;
+  } else if (lastLogout) {
+    const lastLoginDate = new Date(lastLogout).toLocaleString();
+    modalTitle.value = "Welcome Back!";
+    modalMsg.value = `You last logged in at ${lastLoginDate}.`;
+    showModal.value = true;
+  }
   try {
     await fetchUserDetails();
     await getDepartments();
@@ -519,6 +571,7 @@ onMounted(async () => {
   } catch (error) {
     console.error("Failed to initialize:", error);
   }
+
 });
 
 const debouncedSearchIdeas = debounce(() => {
