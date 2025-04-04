@@ -33,8 +33,6 @@ export const useAuthStore = defineStore("auth", {
       return state.user;
     },
     getAuthUserRoles(state) {
-
-      
       return state.roles;
     },
     getUserId(state) {

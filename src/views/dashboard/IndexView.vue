@@ -15,15 +15,22 @@
     <div class="card">
       <div class="card-body">
         <div class="mb-3">
-          <div class="showcard">
-            <h2>Ideas in each Department</h2>
+          <div
+            class="showcard text-center shadow-lg p-3 mb-5 bg-body-tertiary rounded"
+          >
+            <div class="card-header mb-3">
+              <h2>Ideas in each Department</h2>
+            </div>
             <div v-if="loadingStats" class="text-center">
               <p>Loading department statistics...</p>
             </div>
             <div v-else-if="departmentStats.length === 0" class="text-center">
               <p>No department statistics available.</p>
             </div>
-            <div v-else class="d-flex flex-wrap justify-content-around">
+            <div
+              v-else
+              class="d-flex flex-wrap justify-content-around align-items-center"
+            >
               <div
                 v-for="stat in departmentStats.departments"
                 :key="stat.department_id"
@@ -60,7 +67,7 @@
             </div>
           </div>
         </div>
-        <div class="row justify-content-between">
+        <div class="row d-flex justify-content-between flex-wrap">
           <div class="col-8">
             <div
               class="card text-center shadow-lg p-3 mb-5 bg-body-tertiary rounded"
@@ -72,13 +79,11 @@
                 <EasyDataTable
                   v-model:server-options="serverOptions"
                   :server-items-length="serverItemsLength"
-                  :loading="loading"
+                  :loading="ActiveLoading"
                   :headers="mostactive"
                   :items="MostActiveTable"
                   show-index
-                  @update-sort="updateSort"
                   :rows-items="[5, 10]"
-                  :search-value="searchValue"
                   table-class-name="mostactive-table"
                   :rows-per-page="5"
                   buttons-pagination
@@ -112,13 +117,10 @@
             </div>
           </div>
         </div>
-        <div class="row mb-3" style="height: 400px">
-          <div
-            class="col-8 shadow p-2 mb-5 bg-body-tertiary rounded"
-            style="height: 100%"
-          >
+        <div class="row row d-flex justify-content-between flex-wrap">
+          <div class="col-8 shadow p-2 mb-5 bg-body-tertiary rounded">
             <span class="">Percentage of Ideas Per Department</span>
-            <div class="w-100 mt-1" style="height: 90%">
+            <div class="w-100 mt-1" style="height: 320px">
               <Line :data="lineData" :options="options" />
             </div>
           </div>
@@ -131,30 +133,38 @@
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-8" v-if="userRole === 'QAcoordinator || QAmanager'">
-            <EasyDataTable
-              v-model:server-options="serverOptions"
-              :server-items-length="serverItemsLength"
-              :loading="loading"
-              :headers="headers"
-              :items="userData"
-              show-index
-              :rows-items="[10, 30, 50]"
-              :search-value="searchValue"
-              table-class-name="usersInDept-table"
-              :rows-per-page="5"
-              buttons-pagination
-              theme-color="#a1dcd8"
+        <div class="row d-flex flex-wrap">
+          <div class="col-6" v-if="userRole === 'QAcoordinator'">
+            <div
+              class="card text-center p-3 shadow mb-5 bg-body-tertiary rounded"
             >
-              <template #loading>
-                <Loading></Loading>
-              </template>
-            </EasyDataTable>
+              <div class="card-header">
+                <h3 class="fw-bold" style="color: #620f10">
+                  Contributions of Users in The Department
+                </h3>
+              </div>
+              <div class="card-body">
+                <EasyDataTable
+                  v-model:server-options="conServerOptions"
+                  :server-items-length="conItemLength"
+                  :loading="conLoading"
+                  :headers="headers"
+                  :items="userData"
+                  show-index
+                  :rows-items="[5, 10]"
+                  table-class-name="usersInDept-table"
+                  :rows-per-page="5"
+                  buttons-pagination
+                  theme-color="#a1dcd8"
+                >
+                  <template #loading>
+                    <Loading></Loading>
+                  </template>
+                </EasyDataTable>
+              </div>
+            </div>
           </div>
-          <div
-            :class="userRole === 'QAcoordinator || QAmanager' ? 'col-4' : 'col'"
-          >
+          <div :class="userRole === 'QAcoordinator' ? 'col-6' : 'col'">
             <div
               class="card text-center p-3 shadow mb-5 bg-body-tertiary rounded"
             >
@@ -217,7 +227,6 @@
       </div>
     </div>
   </div>
-
 </template>
 <script setup>
 // Imports for categories
@@ -260,9 +269,10 @@ import { reactive } from "vue";
 import { color } from "chart.js/helpers";
 
 const authStore = useAuthStore();
-const userRole = authStore.getAuthUserRoles;
+const userRoles = authStore.getAuthUserRoles;
 const userDeptName = authStore.getDeptName;
-
+const userRole = userRoles[0];
+console.log("User Role:", userRole);
 console.log("Department:", userDeptName);
 
 const exportBtnLoading = ref(false); // Loading state for Excel download
@@ -270,6 +280,8 @@ const zipBtnLoading = ref(false); // Loading state for ZIP download
 const closures = ref([]); // Added closures ref
 const departmentStats = ref([]); // New ref for department statistics
 const loadingStats = ref(false); //Loading state for department stats
+const ActiveLoading = ref(false); // Loading contribution in department
+const loading = ref(false); // loading for closure detail
 
 // Fetch closures data
 const getClosure = async () => {
@@ -643,9 +655,45 @@ const downloadDocumentsAsZip = async () => {
 };
 
 // Ideas of User in a department
-const pageLoading = ref(true);
-const loading = ref(false);
-const tableData = ref([]);
+const conLoading = ref(false);
+const contableData = ref({});
+
+const conItemLength = ref(0);
+const conServerOptions = ref({
+  page: 1,
+  rowsPerPage: 5,
+  sortType: "",
+  sortBy: "",
+});
+const headers = [
+  { text: "Name", value: "user_name", sortable: true },
+  { text: "Ideas", value: "ideas.length", sortable: true },
+  { text: "Comments", value: "comments.length", sortable: true },
+];
+const userData = ref([]);
+const getResults = async () => {
+  conLoading.value = true;
+  try {
+    const { data } = await Http.get(
+      `/stats/contributions-related-department?page=${conServerOptions.value.page}&paginate=${conServerOptions.value.rowsPerPage}`
+    );
+    console.log("Result: ", data);
+    contableData.value = data.data.users;
+    console.log("Table Data: ", contableData.value);
+    // Map users to the table format
+
+    userData.value = contableData.value.map((user) => user);
+    console.log("Mapped contribData:", userData.value);
+    conItemLength.value = data.pagination.total;
+    console.log(conItemLength.value);
+  } catch (err) {
+    console.error("Error fetching contribution related department:", err);
+  } finally {
+    conLoading.value = false;
+  }
+};
+
+//Most Active Users
 
 const serverItemsLength = ref(0);
 const searchValue = ref("");
@@ -656,52 +704,6 @@ const serverOptions = ref({
   sortBy: "",
 });
 
-const headers = [
-  { text: "Name", value: "user_name", sortable: true },
-  { text: "Ideas", value: "ideas.length", sortable: true },
-  { text: "Comments", value: "comments.length", sortable: true },
-];
-const userData = ref([]);
-const getResults = async () => {
-  loading.value = true;
-
-  if (searchValue.value) {
-    serverOptions.value.page = 1;
-  }
-  try {
-    const res = await Http.get(
-      `/stats/contributions-related-department?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
-    );
-
-    tableData.value = res.data.map((item) => ({
-      ...item,
-    }));
-    console.log("Table Data: ", tableData.value);
-    const userDepartmentData = tableData.value.find(
-      (dep) => dep.department_name === userDeptName
-    );
-
-    userData.value = userDepartmentData
-      ? userDepartmentData.users.map((user) => ({ ...user }))
-      : [];
-    console.log("User Data:", userData);
-    serverItemsLength.value = tableData.value.length;
-    console.log(serverItemsLength.value);
-  } catch (err) {
-    console.error("Error fetching contribution related department:", err);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const updateSort = (selectedSortOptions) => {
-  serverOptions.value.sortType = selectedSortOptions.sortType
-    ? selectedSortOptions.sortType
-    : "";
-  serverOptions.value.sortBy = selectedSortOptions.sortBy;
-};
-
-//Most Active Users
 const MostActiveTable = ref([]);
 const mostactive = [
   { text: "Profile", value: "profile", sortable: true },
@@ -712,11 +714,7 @@ const mostactive = [
 ];
 
 const getMostActiveUser = async () => {
-  loading.value = true;
-
-  if (searchValue.value) {
-    serverOptions.value.page = 1;
-  }
+  ActiveLoading.value = true;
   try {
     const { data } = await Http.get(
       `/stats/most-active-users?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}`
@@ -725,15 +723,15 @@ const getMostActiveUser = async () => {
     console.log("Most Active API response:", data);
 
     // Transform UTC dates to local timezone
-    MostActiveTable.value = data.map((item) => ({
+    MostActiveTable.value = data.data.map((item) => ({
       ...item,
     }));
     console.log("Most Active user:", MostActiveTable.value);
-    serverItemsLength.value = data.length;
+    serverItemsLength.value = data.total;
   } catch (err) {
     console.error("Error fetching Most active users:", err);
   } finally {
-    loading.value = false;
+    ActiveLoading.value = false;
   }
 };
 
@@ -761,7 +759,7 @@ watch(
 // Fetch data on mount
 onMounted(async () => {
   await getClosure();
-  await getClosureDetail();
+  getClosureDetail();
   await fetchDepartmentStats(); // Fetch department stats on mount
   await fetchContributions();
   await fetchBrowserStats();
