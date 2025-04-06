@@ -49,6 +49,8 @@ export const useAuthStore = defineStore("auth", {
     getDeptName(state) {
       return state.user.department_name;
     },
+      
+  
   },
   actions: {
     login(email, password) {
