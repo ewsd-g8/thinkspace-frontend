@@ -29,6 +29,7 @@
           ></i>
         </div>
         <router-link
+         v-if="createdepartment"
           :to="{ name: 'department-create' }"
           class="btn btn-primary waves-effect waves-light float-end"
         >
@@ -58,6 +59,7 @@
           <template #item-action="data">
             <Popper arrow placement="top" content="Change Status" hover>
               <button
+               v-if="createdepartment"
                 class="btn btn-secondary waves-effect waves-light btn-sm me-1"
                 data-bs-toggle="modal"
                 data-bs-target="#change-status-modal"
@@ -68,6 +70,7 @@
             </Popper>
             <Popper arrow placement="right" content="Edit" hover>
               <router-link
+               v-if="createdepartment"
                 class="btn btn-sm btn-info"
                 :to="{ name: 'department-edit', params: { id: data.id } }"
               >
@@ -129,14 +132,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, watch } from "vue";
+import { ref, onMounted, reactive, watch,computed } from "vue";
 import { Http } from "@/services/http-common";
 import Badge from "@/components/shared/Badge.vue";
+import { useAuthStore } from "@/stores/auth";
 import { createToast } from "mosha-vue-toastify";
 const pageLoading = ref(true);
 const loading = ref(false);
 const tableData = ref([]);
-
+const store = useAuthStore();
 const serverItemsLength = ref(0);
 const searchValue = ref("");
 const serverOptions = ref({
@@ -253,6 +257,11 @@ const changeDepartmentStatus = () => {
     .finally(() => getResults());
 };
 
+const userRoles = computed(() => store.getAuthUserRoles || []);
+const allowedReportingRoles = ["Superadmin"];  //to fix   
+const createdepartment = computed(() => {
+  return userRoles.value.some((role) => allowedReportingRoles.includes(role));
+});
 onMounted(() => {
   getResults();
 });

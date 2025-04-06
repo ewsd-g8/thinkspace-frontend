@@ -1,4 +1,13 @@
 <template>
+  <div>
+    <WelcomeModal
+      v-if="isShowAlert"
+      :title="modalTitle"
+      :message="modalMsg"
+      :show="showModal"
+      @close="closeModal()"
+    />
+  </div>
   <router-view></router-view>
   <div>
     <WelcomeModal

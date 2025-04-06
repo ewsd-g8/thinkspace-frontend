@@ -33,6 +33,7 @@
           ></i>
         </div>
         <router-link
+        v-if="createroles"
           :to="{ name: 'role-create' }"
           class="btn btn-primary waves-effect waves-light float-end"
         >
@@ -62,6 +63,7 @@
           <template #item-action="data">
             <Popper arrow placement="right" content="Edit" hover>
               <router-link
+              v-if="createroles"
                 class="btn btn-sm btn-info"
                 :to="{ name: 'role-edit', params: { id: data.id } }"
               >
@@ -87,10 +89,11 @@
 
 
 <script setup>
-import { ref, onMounted, reactive, watch } from "vue";
+import { ref, onMounted, reactive, watch,computed } from "vue";
 import { Http } from "@/services/http-common";
 import Badge from "@/components/shared/Badge.vue";
-
+const store = useAuthStore();
+import { useAuthStore } from "@/stores/auth";
 const pageLoading = ref(true);
 const loading = ref(false);
 const tableData = ref([]);
@@ -134,6 +137,11 @@ const getResults = async () => {
     });
 };
 
+const userRoles = computed(() => store.getAuthUserRoles || []);
+const allowedReportingRoles = ["Superadmin","QAmanager"];   //to fix
+const createroles = computed(() => {
+  return userRoles.value.some((role) => allowedReportingRoles.includes(role));
+});
 const updateSort = (selectedSortOptions) => {
   serverOptions.value.sortType = selectedSortOptions.sortType
     ? selectedSortOptions.sortType

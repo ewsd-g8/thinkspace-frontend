@@ -67,7 +67,9 @@
             </div>
           </div>
         </div>
+
         <div class="row d-flex justify-content-between flex-wrap">
+
           <div class="col-8">
             <div
               class="card text-center shadow-lg p-3 mb-5 bg-body-tertiary rounded"
@@ -79,11 +81,13 @@
                 <EasyDataTable
                   v-model:server-options="serverOptions"
                   :server-items-length="serverItemsLength"
+
                   :loading="ActiveLoading"
                   :headers="mostactive"
                   :items="MostActiveTable"
                   show-index
                   :rows-items="[5, 10]"
+
                   table-class-name="mostactive-table"
                   :rows-per-page="5"
                   buttons-pagination
@@ -117,8 +121,10 @@
             </div>
           </div>
         </div>
+
         <div class="row row d-flex justify-content-between flex-wrap">
           <div class="col-8 shadow p-2 mb-5 bg-body-tertiary rounded">
+
             <span class="">Percentage of Ideas Per Department</span>
             <div class="w-100 mt-1" style="height: 320px">
               <Line :data="lineData" :options="options" />
@@ -133,6 +139,7 @@
             </div>
           </div>
         </div>
+
         <div class="row d-flex flex-wrap">
           <div class="col-6" v-if="userRole === 'QAcoordinator'">
             <div
@@ -165,6 +172,7 @@
             </div>
           </div>
           <div :class="userRole === 'QAcoordinator' ? 'col-6' : 'col'">
+
             <div
               class="card text-center p-3 shadow mb-5 bg-body-tertiary rounded"
             >
@@ -269,10 +277,12 @@ import { reactive } from "vue";
 import { color } from "chart.js/helpers";
 
 const authStore = useAuthStore();
+
 const userRoles = authStore.getAuthUserRoles;
 const userDeptName = authStore.getDeptName;
 const userRole = userRoles[0];
 console.log("User Role:", userRole);
+
 console.log("Department:", userDeptName);
 
 const exportBtnLoading = ref(false); // Loading state for Excel download
@@ -655,6 +665,7 @@ const downloadDocumentsAsZip = async () => {
 };
 
 // Ideas of User in a department
+
 const conLoading = ref(false);
 const contableData = ref({});
 
@@ -693,7 +704,9 @@ const getResults = async () => {
   }
 };
 
+
 //Most Active Users
+
 
 const serverItemsLength = ref(0);
 const searchValue = ref("");
@@ -703,6 +716,7 @@ const serverOptions = ref({
   sortType: "",
   sortBy: "",
 });
+
 
 const MostActiveTable = ref([]);
 const mostactive = [
@@ -730,10 +744,12 @@ const getMostActiveUser = async () => {
     serverItemsLength.value = data.total;
   } catch (err) {
     console.error("Error fetching Most active users:", err);
+
   } finally {
     ActiveLoading.value = false;
   }
 };
+
 
 watch(
   serverOptions,
@@ -759,7 +775,9 @@ watch(
 // Fetch data on mount
 onMounted(async () => {
   await getClosure();
+
   getClosureDetail();
+
   await fetchDepartmentStats(); // Fetch department stats on mount
   await fetchContributions();
   await fetchBrowserStats();

@@ -30,6 +30,7 @@
           ></i>
         </div>
         <router-link
+        v-if="createroles"
           :to="{ name: 'closure-create' }"
           class="btn btn-primary waves-effect waves-light float-end"
         >
@@ -59,6 +60,7 @@
           <template #item-action="data">
             <Popper arrow placement="top" content="Change Status" hover>
               <button
+               v-if="createroles"
                 class="btn btn-secondary waves-effect waves-light btn-sm me-1"
                 data-bs-toggle="modal"
                 data-bs-target="#change-status-modal"
@@ -69,6 +71,7 @@
             </Popper>
             <Popper arrow placement="right" content="Edit" hover>
               <router-link
+               v-if="createroles"
                 class="btn btn-sm btn-info"
                 :to="{ name: 'closure-update', params: { id: data.id } }"
               >
@@ -132,14 +135,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, watch } from "vue";
+import { ref, onMounted, reactive, watch,computed } from "vue";
 import { Http } from "@/services/http-common";
 import Badge from "@/components/shared/Badge.vue";
 import { createToast } from "mosha-vue-toastify";
+import { useAuthStore } from "@/stores/auth";
 const pageLoading = ref(true);
 const loading = ref(false);
 const tableData = ref([]);
-
+const store = useAuthStore();
 const serverItemsLength = ref(0);
 const searchValue = ref("");
 const serverOptions = ref({
@@ -254,6 +258,11 @@ const changeClosureStatus = () => {
     })
     .finally(() => getResults());
 };
+const userRoles = computed(() => store.getAuthUserRoles || []);
+const allowedReportingRoles = ["Superadmin"];
+const createroles = computed(() => {
+  return userRoles.value.some((role) => allowedReportingRoles.includes(role));
+});
 onMounted(() => {
   getResults();
 });

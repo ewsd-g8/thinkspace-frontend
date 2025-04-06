@@ -28,12 +28,13 @@
             @click="searchValue = ''"
           ></i>
         </div>
-        <router-link
-          :to="{ name: 'category-create' }"
-          class="btn btn-primary waves-effect waves-light float-end"
-        >
-          <i class="mdi mdi-plus me-sm-1 text-white"></i>Add New
-        </router-link>
+       <router-link
+  :to="{ name: 'category-create' }"
+  class="btn btn-primary waves-effect waves-light float-end"
+ v-if="createcat"
+>
+  <i class="mdi mdi-plus me-sm-1 text-white"></i>Add New
+</router-link>
       </div>
       <div class="card-body">
         <EasyDataTable
@@ -58,6 +59,7 @@
           <template #item-action="data">
             <Popper arrow placement="top" content="Change Status" hover>
               <button
+               v-if="createcat"
                 class="btn btn-secondary waves-effect waves-light btn-sm me-1"
                 data-bs-toggle="modal"
                 data-bs-target="#change-status-modal"
@@ -68,6 +70,7 @@
             </Popper>
             <Popper arrow placement="right" content="Edit" hover>
               <router-link
+               v-if="createcat"
                 class="btn btn-sm btn-info"
                 :to="{ name: 'category-edit', params: { id: data.id } }"
               >
@@ -128,15 +131,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch,computed } from "vue";
 import { Http } from "@/services/http-common";
 import Badge from "@/components/shared/Badge.vue";
 import { createToast } from "mosha-vue-toastify";
+import { useAuthStore } from "@/stores/auth";
 const pageLoading = ref(true);
 const loading = ref(false);
 const tableData = ref([]);
 const serverItemsLength = ref(0);
 const searchValue = ref("");
+const store = useAuthStore();
+
+
 const serverOptions = ref({
   page: 1,
   rowsPerPage: 10,
@@ -250,7 +257,11 @@ const changeCategoryStatus = () => {
     })
     .finally(() => getResults());
 };
-
+const userRoles = computed(() => store.getAuthUserRoles || []);
+const allowedReportingRoles = ["QAmanager"];
+const createcat = computed(() => {
+  return userRoles.value.some((role) => allowedReportingRoles.includes(role));
+});
 onMounted(() => {
   getResults();
 });
