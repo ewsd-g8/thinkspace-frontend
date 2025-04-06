@@ -172,7 +172,7 @@
             </div>
           </div>
           <div :class="userRole === 'QAcoordinator' ? 'col-6' : 'col'">
->>>>>>> develop
+
             <div
               class="card text-center p-3 shadow mb-5 bg-body-tertiary rounded"
             >
@@ -703,6 +703,7 @@ const getResults = async () => {
     conLoading.value = false;
   }
 };
+
 
 //Most Active Users
 

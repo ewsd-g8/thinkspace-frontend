@@ -33,8 +33,6 @@ export const useAuthStore = defineStore("auth", {
       return state.user;
     },
     getAuthUserRoles(state) {
-
-      
       return state.roles;
     },
     getUserId(state) {
@@ -49,8 +47,7 @@ export const useAuthStore = defineStore("auth", {
     getDeptName(state) {
       return state.user.department_name;
     },
-      
-  
+
   },
   actions: {
     login(email, password) {
