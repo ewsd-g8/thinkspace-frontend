@@ -119,11 +119,7 @@
         </div>
         <div class="row row d-flex justify-content-between flex-wrap">
           <div class="col-8 shadow p-2 mb-5 bg-body-tertiary rounded">
-<<<<<<< Updated upstream
-            <span class="">Percentage of Ideas Per Department</span>
-=======
             <span class=""> User Per Department</span>
->>>>>>> Stashed changes
             <div class="w-100 mt-1" style="height: 320px">
               <Line :data="lineData" :options="options" />
             </div>
