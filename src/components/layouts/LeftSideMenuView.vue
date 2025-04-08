@@ -65,7 +65,7 @@
 </li>
 
           <!-- User Management (Visible to QAmanager, QAcoordinator, Superadmin) -->
-          <li v-if="canAccessAdminFeatures">
+          <li v-if="canAccessQAAdmin">
             <a
               href="#user-management"
               :aria-expanded="isActive(['/admin/users', '/admin/roles'])"
@@ -124,12 +124,15 @@ const userRoles = computed(() => authStore.getAuthUserRoles || []);
 // Define roles for different access levels
 const ideaPostRoles = ["Staff", "QAmanager", "QAcoordinator", "Superadmin"]; 
 const adminFeatureRoles = ["QAmanager", "QAcoordinator", "Superadmin"]; 
-
+const userManagementRoles = ["QAmanager", "Superadmin"];
 // Check if the user can access "Idea Post"
 const canAccessIdeaPost = computed(() => {
  
   return userRoles.value.some((role) => ideaPostRoles.includes(role));
 });
+const canAccessQAAdmin = computed(()=>{
+  return userRoles.value.some((role) => userManagementRoles.includes(role));
+})
 
 // Check if the user can access admin features (Dashboard, Category, Department, Report Type, User Management, Closure, Chart Demo)
 const canAccessAdminFeatures = computed(() => {
