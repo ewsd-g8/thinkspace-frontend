@@ -137,7 +137,7 @@ const showHidePassword = () => {
 
 const loading = ref(false);
 const recaptcha = ref(null);
-const recaptchaSiteKey = "6LcBVQMrAAAAAKTiw28hPVcXgLlTrwH5_es_0ydX"; 
+const recaptchaSiteKey = "6LegtxYrAAAAAE7xUvRVgb3TUQo6Gx4YK0EdXfwe"; 
 
 const user = reactive({
   email: "",
