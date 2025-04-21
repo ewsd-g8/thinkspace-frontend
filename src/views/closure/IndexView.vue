@@ -259,7 +259,7 @@ const changeClosureStatus = () => {
     .finally(() => getResults());
 };
 const userRoles = computed(() => store.getAuthUserRoles || []);
-const allowedReportingRoles = ["Superadmin"];
+const allowedReportingRoles = ["Superadmin", "QAcoordinator"];
 const createroles = computed(() => {
   return userRoles.value.some((role) => allowedReportingRoles.includes(role));
 });
