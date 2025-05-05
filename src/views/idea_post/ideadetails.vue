@@ -3,7 +3,7 @@
     <div class="card">
       <div class="card-body">
         <h4>Detail Ideas</h4>
-
+ 
         <div
           class="px-4 py-3"
           style="
@@ -156,7 +156,7 @@
               </button>
             </div>
           </div>
-
+ 
           <hr />
           <div class="d-flex justify-content-center align-item-center">
             <div class="grid w-75" v-if="showDocument">
@@ -179,7 +179,7 @@
                     />
                   </div>
                 </div>
-
+ 
                 <!-- Default Bootstrap Controls -->
                 <button
                   class="carousel-control-prev"
@@ -208,7 +208,7 @@
                   <span class="visually-hidden">Next</span>
                 </button>
               </div>
-
+ 
               <div
                 v-for="doc in ideas.document"
                 :key="doc.id"
@@ -256,23 +256,27 @@
                   >Comment Anonymously</label
                 >
               </div>
-              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button
-                  class="btn btn-primary me-md-2"
-                  type="submit"
-                  style="background-color: #670e10"
-                >
-                  Send
-                </button>
-                <button
-                  class="btn btn-primary"
-                  type="button"
-                  style="background-color: #670e10"
-                  @click="cancelComment"
-                >
-                  Cancel
-                </button>
-              </div>
+ 
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end" v-if="showBtn">
+  <button
+    class="btn btn-primary me-md-2"
+    type="submit"
+    style="background-color: #670e10"
+    :disabled="!isCommentAllowed"
+    :title="!isCommentAllowed ? 'Commenting is currently disabled' : ''"
+  >
+    Send
+  </button>
+  <button
+    class="btn btn-primary"
+    type="button"
+    style="background-color: #670e10"
+    @click="cancelComment"
+  >
+    Cancel
+  </button>
+</div>
+ 
             </div>
           </form>
         </div>
@@ -339,7 +343,7 @@
     </div>
   </div>
 </template>
-
+ 
 <script setup>
 import { ref, reactive, onMounted, computed, nextTick } from "vue";
 import { useVuelidate } from "@vuelidate/core";
@@ -354,7 +358,11 @@ import {
 } from "@/composables/validationErrors";
 // Ensure Bootstrap is loaded
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-
+ 
+const isCommentAllowed = ref(true);
+ 
+ 
+ 
 const loading = ref(false);
 const authStore = useAuthStore();
 const getUserID = authStore.getUserId; // No need for computed here
@@ -380,11 +388,11 @@ const ideas = reactive({
   user: {},
   is_anonymous: false,
 });
-
+ 
 let imageList = reactive([]);
-
+ 
 const sortOption = ref("newest"); // Default sort option
-
+ 
 // Computed property to sort comments locally
 const sortedComments = computed(() => {
   const comments = [...ideas.comments]; // Create a copy to avoid mutating original
@@ -394,7 +402,7 @@ const sortedComments = computed(() => {
     return sortOption.value === "newest" ? dateB - dateA : dateA - dateB;
   });
 });
-
+ 
 // Fetch idea details including comments (no sort parameter sent to backend)
 const fetchComments = async () => {
   loading.value = true;
@@ -403,7 +411,7 @@ const fetchComments = async () => {
     console.log("Fetching comments with URL:", url);
     const { data } = await Http.get(url);
     console.log("API response:", data);
-
+ 
     // Update only comments and comments_count
     ideas.comments = data.data.comments || [];
     ideas.comments_count = data.data.comments_count || 0;
@@ -418,7 +426,31 @@ const fetchComments = async () => {
     loading.value = false;
   }
 };
-
+ 
+const fetchClosurePostStatus = async () => {
+  try {
+    const response = await Http.get("/get-closure-post-status");
+    isCommentAllowed.value = response.data.data.comment; // Set isCommentAllowed based on API response
+  } catch (error) {
+    console.error("Failed to fetch closure post status:", error);
+    createToast(
+      {
+        title: "Error",
+        description: "Could not fetch comment status. Commenting may be disabled.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+    isCommentAllowed.value = false; // Default to disabled if API call fails
+  }
+};
+ 
+ 
+ 
 const getIdeaDetail = async () => {
   loading.value = true;
   try {
@@ -442,7 +474,7 @@ const getIdeaDetail = async () => {
     ideas.has_thumbs_down = data.user_reaction === false;
     ideas.user = data.user;
     ideas.is_anonymous = data.is_anonymous;
-
+ 
     imageList = ideas.document.filter((d) => isImage(d.file_path));
     console.log(imageList);
   } catch (err) {
@@ -453,7 +485,7 @@ const getIdeaDetail = async () => {
     loading.value = false;
   }
 };
-
+ 
 // Reaction
 const updatedIdea = reactive({
   content: "",
@@ -468,16 +500,16 @@ const updatedIdea = reactive({
   unlikes: 0,
   views_count: 0,
 });
-
+ 
 const thumbsUp = async () => {
   const newLikes = ideas.has_thumbs_up ? ideas.likes - 1 : ideas.likes + 1;
   const newUnlikes = ideas.has_thumbs_down ? ideas.unlikes - 1 : ideas.unlikes;
-
+ 
   ideas.likes = newLikes;
   ideas.unlikes = newUnlikes;
   ideas.has_thumbs_up = !ideas.has_thumbs_up;
   ideas.has_thumbs_down = false;
-
+ 
   try {
     await Http.post(`reactions`, {
       idea_id: route.params.id,
@@ -493,18 +525,18 @@ const thumbsUp = async () => {
     console.error("Error in thumbUp:", error.response?.data || error.message);
   }
 };
-
+ 
 const thumbsDown = async () => {
   const newUnlikes = ideas.has_thumbs_down
     ? ideas.unlikes - 1
     : ideas.unlikes + 1;
   const newLikes = ideas.has_thumbs_up ? ideas.likes - 1 : ideas.likes;
-
+ 
   ideas.likes = newLikes;
   ideas.unlikes = newUnlikes;
   ideas.has_thumbs_up = false;
   ideas.has_thumbs_down = !ideas.has_thumbs_down;
-
+ 
   try {
     await Http.post(`reactions`, {
       idea_id: route.params.id,
@@ -520,45 +552,45 @@ const thumbsDown = async () => {
     console.error("Error in thumbDown:", error.response?.data || error.message);
   }
 };
-
+ 
 const showBtn = ref(false);
 const showDocument = ref(false);
-
+ 
 const toggleBtn = () => {
   showBtn.value = !showBtn.value;
 };
-
+ 
 const showDocToggle = () => {
   showDocument.value = !showDocument.value;
 };
-
+ 
 const isImage = (filePath) => {
   return filePath && /\.(jpg|jpeg|png)$/i.test(filePath);
 };
-
+ 
 const isPDF = (filePath) => {
   return filePath && /\.pdf$/i.test(filePath);
 };
-
+ 
 const focusCommentBox = () => {
   const textarea = document.querySelector("#floatingTextarea");
   if (textarea) {
     textarea.focus();
   }
 };
-
+ 
 const cancelComment = () => {
   comment.content = "";
   showBtn.value = false;
 };
-
+ 
 const comment = reactive({
   content: "",
   idea_id: route.params.id,
   user_id: getUserID,
   is_anonymous: false,
 });
-
+ 
 const timeAgo = (timestamp) => {
   const currentDate = new Date();
   const postDate = new Date(timestamp);
@@ -567,7 +599,7 @@ const timeAgo = (timestamp) => {
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
-
+ 
   if (days < 0) return "In the future";
   if (days > 1) return `${days} days ago`;
   if (days === 1) return "Yesterday";
@@ -575,12 +607,12 @@ const timeAgo = (timestamp) => {
   if (minutes > 0) return `${minutes} minutes ago`;
   return "Just now";
 };
-
+ 
 // Function to trigger sorting (just updates UI since sorting is handled by computed)
 const sortComments = () => {
   // No need to fetch again; sortedComments will update automatically
 };
-
+ 
 const getClosure = async () => {
   try {
     const response = await Http.get("closures");
@@ -591,7 +623,7 @@ const getClosure = async () => {
     console.error("Failed to fetch closures", error);
   }
 };
-
+ 
 const v$ = useVuelidate(comment);
 // Function to convert UTC to local timezone
 const formatToLocalTime = (utcDate) => {
@@ -607,30 +639,81 @@ const formatToLocalTime = (utcDate) => {
     hour12: true,
   }); // e.g., "Mar 04, 2024, 10:00:00 AM"
 };
+ 
+ 
+ 
+ 
+onMounted(async () => {
+  await Promise.all([
+    getIdeaDetail(),
+    fetchComments(),
+    getClosure(),
+    fetchClosurePostStatus(),
+  ]);
+ 
+  const carouselElement = document.querySelector("#carouselExampleControls");
+  if (carouselElement) {
+    const carousel = new bootstrap.Carousel(carouselElement, {
+      interval: 5000,
+      wrap: true,
+    });
+ 
+    document.querySelector("#nextSlideBtn").addEventListener("click", () => {
+      carousel.next();
+    });
+ 
+    document.querySelector("#prevSlideBtn").addEventListener("click", () => {
+      carousel.prev();
+    });
+  }
+});
 const sendComment = async () => {
+  if (!isCommentAllowed.value) {
+    createToast(
+      {
+        title: "Error",
+        description: "Commenting is currently disabled.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+    return;
+  }
+ 
+ 
+ 
+ 
+ 
   let isFormCorrect = await v$.value.$validate();
   if (!isFormCorrect) return;
   loading.value = true;
-
+ 
   resetServerErrors();
-
+ 
   const currentDate = new Date();
-
+ 
   console.log(ideas.closurefinal);
+ 
   if (ideas.closurefinal < formatToLocalTime(currentDate)) {
     const fd = new FormData();
     fd.append("content", comment.content);
     fd.append("user_id", comment.user_id);
     fd.append("idea_id", comment.idea_id);
     fd.append("is_anonymous", comment.is_anonymous ? 1 : 0);
-
+ 
     await Http.post("comments", fd, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     })
       .then(() => {
+ 
         fetchComments(); // Refresh comments after posting
+ 
         createToast(
           {
             title: "Success",
@@ -669,32 +752,10 @@ const sendComment = async () => {
     loading.value = false;
   }
 };
-
-onMounted(async () => {
-  await getIdeaDetail();
-  fetchComments();
-  getClosure();
-
-  const carouselElement = document.querySelector("#carouselExampleControls");
-  if (carouselElement) {
-    const carousel = new bootstrap.Carousel(carouselElement, {
-      interval: 5000, // Auto-slide every 1 second
-      wrap: true,
-    });
-
-    // Example: Manually move to the next slide
-    document.querySelector("#nextSlideBtn").addEventListener("click", () => {
-      carousel.next();
-    });
-
-    // Example: Manually move to the previous slide
-    document.querySelector("#prevSlideBtn").addEventListener("click", () => {
-      carousel.prev();
-    });
-  }
-});
+ 
+ 
 </script>
-
+ 
 <style scoped>
 .loading-container {
   height: 50vh;

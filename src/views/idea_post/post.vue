@@ -61,7 +61,6 @@
               multiple
             ></v-select>
           </div>
-
           <!-- Document Upload -->
           <div class="mb-3">
             <label class="form-label"
@@ -112,7 +111,6 @@
               {{ documentError }}
             </p>
           </div>
-
           <!-- Anonymous Switch -->
           <div class="mb-3">
             <label class="form-label">Post Anonymously</label>
@@ -130,17 +128,15 @@
               </label>
             </div>
           </div>
-
           <!-- Closure Information -->
           <div class="mb-3">
             <p v-if="closures.length > 0 && closures[0]">
               This closure is
-              <span class="bold-text">{{ closures[0].name }}</span> and opened
-              on <span class="bold-text">{{ closures[0].date }}</span> and will
-              be closed on
+              <span class="bold-text">{{ closures[0].name }}</span> and deadline
+              is <span class="bold-text">{{ closures[0].date }}</span> and will
+              be final deadline is
               <span class="bold-text">{{ closures[0].final_date }}</span
-              >. After submission, your idea will be reviewed by the QA manager
-              and closed within
+              >. You won't be able to post the idea after the deadline. After the final deadline, you will not be able to write a comment.
               <span class="bold-text"
                 >{{
                   Math.ceil(
@@ -155,7 +151,7 @@
               >.
             </p>
           </div>
-
+ 
           <div class="form-check mb-3">
             <input
               class="form-check-input"
@@ -171,34 +167,34 @@
               >
             </label>
           </div>
-
+ 
           <!-- Post Button -->
           <button
-            class="cssbuttons-io-button"
-            type="submit"
-            :disabled="isBlocked"
-            :title="isBlocked ? 'You are blocked and cannot react' : ''"
-          >
-            Post
-            <div class="icon">
-              <svg
-                height="24"
-                width="24"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M0 0h24v24H0z" fill="none"></path>
-                <path
-                  d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
-                  fill="currentColor"
-                ></path>
-              </svg>
-            </div>
-          </button>
+          class="cssbuttons-io-button"
+  type="submit"
+  :disabled="isBlocked || !isPostAllowed"
+  :title="isBlocked ? 'You are blocked and cannot react' : !isPostAllowed ? 'Posting is currently disabled becaseue final deadline has passed' : ''"
+>
+  Post
+  <div class="icon">
+    <svg
+      height="24"
+      width="24"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M0 0h24v24H0z" fill="none"></path>
+      <path
+        d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
+        fill="currentColor"
+      ></path>
+    </svg>
+  </div>
+</button>
         </form>
       </div>
     </div>
-
+ 
     <div class="card mt-4">
       <div class="card-body">
         <h4>Your Ideas</h4>
@@ -245,11 +241,11 @@ import { useRouter } from "vue-router";
 import { createToast } from "mosha-vue-toastify";
 import { Http } from "@/services/http-common";
 import { useAuthStore } from "@/stores/auth";
-
+ 
 const authStore = useAuthStore();
 const getUserID = computed(() => authStore.getUserId);
 const router = useRouter();
-
+const isPostAllowed = ref(true);
 const isBlocked = ref(false);
 const categories = ref([]);
 const closures = ref([]);
@@ -264,14 +260,14 @@ const form = reactive({
   isAnonymous: false,
   agreeTerms: false,
 });
-
+ 
 const documentInput = ref(null);
 const selectedDocuments = ref([]);
 const documentError = ref("");
 const exportBtnLoading = ref(false);
 const serverOptions = ref({ sortBy: "default" });
 const searchValue = ref("");
-
+ 
 const handleDocumentChange = (event) => {
   const files = Array.from(event.target.files);
   const allowedTypes = [
@@ -281,14 +277,14 @@ const handleDocumentChange = (event) => {
     "application/pdf",
   ];
   const maxSize = 5 * 1024 * 1024;
-
+ 
   documentError.value = "";
-
+ 
   if (files.length > 3) {
     documentError.value = "Maximum of 3 documents allowed.";
     return;
   }
-
+ 
   for (const file of files) {
     if (!allowedTypes.includes(file.type)) {
       documentError.value = "Only JPG, JPEG, PNG, and PDF files are allowed.";
@@ -299,11 +295,11 @@ const handleDocumentChange = (event) => {
       return;
     }
   }
-
+ 
   selectedDocuments.value = files;
   console.log("Selected documents:", selectedDocuments.value);
 };
-
+ 
 const fetchUserDetails = async () => {
   try {
     const response = await Http.get(`/auth-user`);
@@ -322,7 +318,7 @@ const fetchUserDetails = async () => {
     );
   }
 };
-
+ 
 const getAllCategory = async () => {
   try {
     const response = await Http.get("/get-all-categories");
@@ -331,7 +327,7 @@ const getAllCategory = async () => {
     console.error("Failed to fetch categories", error);
   }
 };
-
+ 
 const getClosure = async () => {
   try {
     const response = await Http.get("closures");
@@ -340,12 +336,12 @@ const getClosure = async () => {
     console.error("Failed to fetch closures", error);
   }
 };
-
+ 
 const fetchUserIdeas = async () => {
   try {
     const response = await Http.get(`/ideas?user_id=${getUserID.value}`);
     console.log("response",response);
-    
+   
     userIdeas.value = response.data.data.data; // Assuming paginated response
     console.log("User ideas:", userIdeas.value);
   } catch (error) {
@@ -361,21 +357,21 @@ const fetchUserIdeas = async () => {
     );
   }
 };
-
+ 
 // New function to change idea status
 const changeIdeaStatus = async (ideaId) => {
   processingIdeas.value[ideaId] = true;
   try {
     const response = await Http.get(`ideas/change-status/${ideaId}`);
     const updatedIdea = response.data.data;
-    
+   
     // Update the idea in userIdeas reactively
     const index = userIdeas.value.findIndex((idea) => idea.id === ideaId);
     if (index !== -1) {
       userIdeas.value[index].is_active = updatedIdea.is_active;
       userIdeas.value = [...userIdeas.value]; // Trigger reactivity
     }
-
+ 
     createToast(
       {
         title: "Success",
@@ -406,7 +402,29 @@ const changeIdeaStatus = async (ideaId) => {
     processingIdeas.value[ideaId] = false;
   }
 };
-
+const fetchClosurePostStatus = async () => {
+  try {
+    const response = await Http.get("/get-closure-post-status");
+    console.log("response closure post status",response);
+   
+    isPostAllowed.value = response.data.data.post; // Set isPostAllowed based on API response
+  } catch (error) {
+    console.error("Failed to fetch closure post status:", error);
+    createToast(
+      {
+        title: "Error",
+        description: "Could not fetch post status. Posting may be disabled.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+    isPostAllowed.value = false; // Default to disabled if API call fails
+  }
+};
 const postIdea = async () => {
   if (isBlocked.value) {
     createToast(
@@ -439,7 +457,7 @@ const postIdea = async () => {
     );
     return;
   }
-
+ 
   if (form.category_id.length === 0) {
     createToast(
       { title: "Error", description: "You must choose at least one category." },
@@ -452,7 +470,7 @@ const postIdea = async () => {
     );
     return;
   }
-
+ 
   if (documentError.value) {
     createToast(
       { title: "Error", description: documentError.value },
@@ -465,7 +483,7 @@ const postIdea = async () => {
     );
     return;
   }
-
+ 
   const fd = new FormData();
   fd.append("title", form.title);
   fd.append("content", form.content);
@@ -485,15 +503,15 @@ const postIdea = async () => {
   }
   fd.append("user_id", form.userId);
   fd.append("is_anonymous", form.isAnonymous ? 1 : 0);
-
+ 
   form.category_id.forEach((categoryId) => {
     fd.append("categories[]", categoryId);
   });
-
+ 
   selectedDocuments.value.forEach((file, index) => {
     fd.append(`documents[${index}]`, file);
   });
-
+ 
   try {
     await Http.post("ideas", fd, {
       headers: {
@@ -534,8 +552,9 @@ const postIdea = async () => {
     );
   }
 };
-
+ 
 onMounted(async () => {
+  await fetchClosurePostStatus();
   await getAllCategory();
   await getClosure();
   await fetchUserDetails();
