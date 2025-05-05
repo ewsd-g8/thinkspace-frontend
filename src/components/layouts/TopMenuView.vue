@@ -57,7 +57,7 @@
 
       <!-- LOGO -->
       <div class="logo-box">
-        <a href="index.html" class="logo logo-dark text-center">
+        <a href="idea_post/idea" class="logo logo-dark text-center">
           <span class="logo-sm">
             <img
               src="/icon/think-space.png"
@@ -76,7 +76,7 @@
           </span>
         </a>
 
-        <a href="index.html" class="logo logo-light text-center">
+        <a href="idea_post/idea" class="logo logo-light text-center">
           <span class="logo-sm">
             <img
               src="/icon/think-space-white-logo.png"
