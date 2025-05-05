@@ -174,27 +174,27 @@
 
           <!-- Post Button -->
           <button
-            class="cssbuttons-io-button"
-            type="submit"
-            :disabled="isBlocked"
-            :title="isBlocked ? 'You are blocked and cannot react' : ''"
-          >
-            Post
-            <div class="icon">
-              <svg
-                height="24"
-                width="24"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M0 0h24v24H0z" fill="none"></path>
-                <path
-                  d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
-                  fill="currentColor"
-                ></path>
-              </svg>
-            </div>
-          </button>
+  class="cssbuttons-io-button"
+  type="submit"
+  :disabled="isBlocked || !isPostAllowed"
+  :title="isBlocked ? 'You are blocked and cannot react' : !isPostAllowed ? 'Posting is currently disabled becaseue final deadline has passed' : ''"
+>
+  Post
+  <div class="icon">
+    <svg
+      height="24"
+      width="24"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M0 0h24v24H0z" fill="none"></path>
+      <path
+        d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
+        fill="currentColor"
+      ></path>
+    </svg>
+  </div>
+</button>
         </form>
       </div>
     </div>
@@ -249,7 +249,7 @@ import { useAuthStore } from "@/stores/auth";
 const authStore = useAuthStore();
 const getUserID = computed(() => authStore.getUserId);
 const router = useRouter();
-
+const isPostAllowed = ref(true);
 const isBlocked = ref(false);
 const categories = ref([]);
 const closures = ref([]);
@@ -406,7 +406,29 @@ const changeIdeaStatus = async (ideaId) => {
     processingIdeas.value[ideaId] = false;
   }
 };
-
+const fetchClosurePostStatus = async () => {
+  try {
+    const response = await Http.get("/get-closure-post-status");
+    console.log("response closure post status",response);
+    
+    isPostAllowed.value = response.data.data.post; // Set isPostAllowed based on API response
+  } catch (error) {
+    console.error("Failed to fetch closure post status:", error);
+    createToast(
+      {
+        title: "Error",
+        description: "Could not fetch post status. Posting may be disabled.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+    isPostAllowed.value = false; // Default to disabled if API call fails
+  }
+};
 const postIdea = async () => {
   if (isBlocked.value) {
     createToast(
@@ -536,9 +558,11 @@ const postIdea = async () => {
 };
 
 onMounted(async () => {
-  await getAllCategory();
+  await fetchClosurePostStatus();
+   await getAllCategory();
   await getClosure();
   await fetchUserDetails();
   await fetchUserIdeas();
+ 
 });
 </script>
