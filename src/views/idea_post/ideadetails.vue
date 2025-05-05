@@ -256,23 +256,27 @@
                   >Comment Anonymously</label
                 >
               </div>
-              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button
-                  class="btn btn-primary me-md-2"
-                  type="submit"
-                  style="background-color: #670e10"
-                >
-                  Send
-                </button>
-                <button
-                  class="btn btn-primary"
-                  type="button"
-                  style="background-color: #670e10"
-                  @click="cancelComment"
-                >
-                  Cancel
-                </button>
-              </div>
+
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end" v-if="showBtn">
+  <button
+    class="btn btn-primary me-md-2"
+    type="submit"
+    style="background-color: #670e10"
+    :disabled="!isCommentAllowed"
+    :title="!isCommentAllowed ? 'Commenting is currently disabled' : ''"
+  >
+    Send
+  </button>
+  <button
+    class="btn btn-primary"
+    type="button"
+    style="background-color: #670e10"
+    @click="cancelComment"
+  >
+    Cancel
+  </button>
+</div>
+
             </div>
           </form>
         </div>
@@ -355,6 +359,10 @@ import {
 // Ensure Bootstrap is loaded
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
+const isCommentAllowed = ref(true);
+
+
+
 const loading = ref(false);
 const authStore = useAuthStore();
 const getUserID = authStore.getUserId; // No need for computed here
@@ -418,6 +426,30 @@ const fetchComments = async () => {
     loading.value = false;
   }
 };
+
+const fetchClosurePostStatus = async () => {
+  try {
+    const response = await Http.get("/admin/get-closure-post-status");
+    isCommentAllowed.value = response.data.data.comment; // Set isCommentAllowed based on API response
+  } catch (error) {
+    console.error("Failed to fetch closure post status:", error);
+    createToast(
+      {
+        title: "Error",
+        description: "Could not fetch comment status. Commenting may be disabled.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+    isCommentAllowed.value = false; // Default to disabled if API call fails
+  }
+};
+
+
 
 const getIdeaDetail = async () => {
   loading.value = true;
@@ -607,7 +639,53 @@ const formatToLocalTime = (utcDate) => {
     hour12: true,
   }); // e.g., "Mar 04, 2024, 10:00:00 AM"
 };
+
+
+
+onMounted(async () => {
+  await Promise.all([
+    getIdeaDetail(),
+    fetchComments(),
+    getClosure(),
+    fetchClosurePostStatus(), 
+  ]);
+
+  const carouselElement = document.querySelector("#carouselExampleControls");
+  if (carouselElement) {
+    const carousel = new bootstrap.Carousel(carouselElement, {
+      interval: 5000,
+      wrap: true,
+    });
+
+    document.querySelector("#nextSlideBtn").addEventListener("click", () => {
+      carousel.next();
+    });
+
+    document.querySelector("#prevSlideBtn").addEventListener("click", () => {
+      carousel.prev();
+    });
+  }
+});
 const sendComment = async () => {
+  if (!isCommentAllowed.value) {
+    createToast(
+      {
+        title: "Error",
+        description: "Commenting is currently disabled.",
+      },
+      {
+        type: "danger",
+        transition: "bounce",
+        position: "top-right",
+        showIcon: true,
+      }
+    );
+    return;
+  }
+
+
+const sendComment = async () => {
+>>>>>>> develop
   let isFormCorrect = await v$.value.$validate();
   if (!isFormCorrect) return;
   loading.value = true;
@@ -616,7 +694,6 @@ const sendComment = async () => {
 
   const currentDate = new Date();
 
-  console.log(ideas.closurefinal);
   if (ideas.closurefinal < formatToLocalTime(currentDate)) {
     const fd = new FormData();
     fd.append("content", comment.content);
@@ -630,7 +707,9 @@ const sendComment = async () => {
       },
     })
       .then(() => {
-        fetchComments(); // Refresh comments after posting
+
+        fetchComments();
+
         createToast(
           {
             title: "Success",
@@ -670,29 +749,6 @@ const sendComment = async () => {
   }
 };
 
-onMounted(async () => {
-  await getIdeaDetail();
-  fetchComments();
-  getClosure();
-
-  const carouselElement = document.querySelector("#carouselExampleControls");
-  if (carouselElement) {
-    const carousel = new bootstrap.Carousel(carouselElement, {
-      interval: 5000, // Auto-slide every 1 second
-      wrap: true,
-    });
-
-    // Example: Manually move to the next slide
-    document.querySelector("#nextSlideBtn").addEventListener("click", () => {
-      carousel.next();
-    });
-
-    // Example: Manually move to the previous slide
-    document.querySelector("#prevSlideBtn").addEventListener("click", () => {
-      carousel.prev();
-    });
-  }
-});
 </script>
 
 <style scoped>
