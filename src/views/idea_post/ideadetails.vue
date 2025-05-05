@@ -429,7 +429,7 @@ const fetchComments = async () => {
 
 const fetchClosurePostStatus = async () => {
   try {
-    const response = await Http.get("/admin/get-closure-post-status");
+    const response = await Http.get("/get-closure-post-status");
     isCommentAllowed.value = response.data.data.comment; // Set isCommentAllowed based on API response
   } catch (error) {
     console.error("Failed to fetch closure post status:", error);
@@ -642,6 +642,7 @@ const formatToLocalTime = (utcDate) => {
 
 
 
+
 onMounted(async () => {
   await Promise.all([
     getIdeaDetail(),
@@ -684,8 +685,9 @@ const sendComment = async () => {
   }
 
 
-const sendComment = async () => {
->>>>>>> develop
+
+
+
   let isFormCorrect = await v$.value.$validate();
   if (!isFormCorrect) return;
   loading.value = true;
@@ -693,6 +695,8 @@ const sendComment = async () => {
   resetServerErrors();
 
   const currentDate = new Date();
+
+  console.log(ideas.closurefinal);
 
   if (ideas.closurefinal < formatToLocalTime(currentDate)) {
     const fd = new FormData();
@@ -708,7 +712,7 @@ const sendComment = async () => {
     })
       .then(() => {
 
-        fetchComments();
+        fetchComments(); // Refresh comments after posting
 
         createToast(
           {
@@ -748,6 +752,7 @@ const sendComment = async () => {
     loading.value = false;
   }
 };
+
 
 </script>
 
