@@ -651,7 +651,7 @@ const downloadDocumentsAsZip = async () => {
     const errorMessage =
       error.message || "Failed to download documents as ZIP.";
     createToast(
-      { title: "Error", description: errorMessage },
+      { title: "Error", description: "There is no document to download" },
       {
         type: "danger",
         transition: "bounce",
