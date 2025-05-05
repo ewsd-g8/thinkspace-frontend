@@ -139,7 +139,7 @@
               is <span class="bold-text">{{ closures[0].date }}</span> and will
               be final deadline is
               <span class="bold-text">{{ closures[0].final_date }}</span
-              >. You won't be able to post the idea after the deadline. After the final deadline, you will not be able to write a comment.
+              >. After  deadline finished you will not be able to post the idea 
               <span class="bold-text"
                 >{{
                   Math.ceil(
