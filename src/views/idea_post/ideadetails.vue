@@ -256,6 +256,7 @@
                   >Comment Anonymously</label
                 >
               </div>
+
               <div class="d-grid gap-2 d-md-flex justify-content-md-end" v-if="showBtn">
   <button
     class="btn btn-primary me-md-2"
@@ -275,6 +276,7 @@
     Cancel
   </button>
 </div>
+
             </div>
           </form>
         </div>
@@ -356,7 +358,11 @@ import {
 } from "@/composables/validationErrors";
 // Ensure Bootstrap is loaded
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+
 const isCommentAllowed = ref(true);
+
+
+
 const loading = ref(false);
 const authStore = useAuthStore();
 const getUserID = authStore.getUserId; // No need for computed here
@@ -420,6 +426,7 @@ const fetchComments = async () => {
     loading.value = false;
   }
 };
+
 const fetchClosurePostStatus = async () => {
   try {
     const response = await Http.get("/admin/get-closure-post-status");
@@ -441,6 +448,9 @@ const fetchClosurePostStatus = async () => {
     isCommentAllowed.value = false; // Default to disabled if API call fails
   }
 };
+
+
+
 const getIdeaDetail = async () => {
   loading.value = true;
   try {
@@ -631,6 +641,7 @@ const formatToLocalTime = (utcDate) => {
 };
 
 
+
 onMounted(async () => {
   await Promise.all([
     getIdeaDetail(),
@@ -672,6 +683,9 @@ const sendComment = async () => {
     return;
   }
 
+
+const sendComment = async () => {
+>>>>>>> develop
   let isFormCorrect = await v$.value.$validate();
   if (!isFormCorrect) return;
   loading.value = true;
@@ -679,6 +693,7 @@ const sendComment = async () => {
   resetServerErrors();
 
   const currentDate = new Date();
+
   if (ideas.closurefinal < formatToLocalTime(currentDate)) {
     const fd = new FormData();
     fd.append("content", comment.content);
@@ -692,7 +707,9 @@ const sendComment = async () => {
       },
     })
       .then(() => {
+
         fetchComments();
+
         createToast(
           {
             title: "Success",
@@ -731,6 +748,7 @@ const sendComment = async () => {
     loading.value = false;
   }
 };
+
 </script>
 
 <style scoped>

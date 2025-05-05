@@ -2,422 +2,434 @@
   <div>
     <div class="card">
       <div class="card-body">
-        <h4>Post Idea</h4>
-        <form @submit.prevent="postIdea()">
-          <div class="mb-3">
-            <label for="userId" class="form-label" hidden>User ID</label>
-            <input
-              type="text"
-              class="form-control"
-              id="userId"
-              v-model="form.userId"
-              readonly
-              hidden
-            />
-          </div>
-          <div class="mb-3">
-            <label for="title" class="form-label" required>Title</label>
-            <input
-              type="text"
-              class="form-control"
-              id="title"
-              v-model="form.title"
-              autofocus
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="content" class="form-label">Idea Content</label>
-            <textarea
-              class="form-control content-textarea"
-              id="content"
-              rows="3"
-              v-model="form.content"
-              autofocus
-              required
-              spellcheck="true"
-            ></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label"
-              >Category <span class="text-danger">*</span></label
-            >
-            <p>
-              Suggested Categories:
-              <span v-if="categories.length > 0" class="suggested-category">
-                {{ categories[categories.length - 1].name }}
-              </span>
-              <span v-if="categories.length > 1" class="suggested-category">
-                {{ categories[categories.length - 2].name }}
-              </span>
-            </p>
-            <v-select
-              v-model="form.category_id"
-              class="style-chooser"
-              placeholder="Select category"
-              label="name"
-              :options="categories"
-              :reduce="(category) => category.id"
-              multiple
-            ></v-select>
-          </div>
+        <h4>Detail Ideas</h4>
 
-          <!-- Document Upload -->
-          <div class="mb-3">
-            <label class="form-label"
-              >Documents (Max 3, JPG/JPEG/PNG/PDF, 5MB each)</label
-            >
-            <label class="custum-file-upload" for="documentInput">
-              <div class="icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill=""
-                  viewBox="0 0 24 24"
+        <div
+          class="px-4 py-3"
+          style="
+            box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.2);
+            -webkit-box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 3px 6px 14px 1px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+          "
+        >
+          <div class="d-flex justify-content-between border-bottom mb-2">
+            <div class="d-flex justify-content-start align-items-center mb-1">
+              <img
+                v-if="!ideas.is_anonymous"
+                :src="
+                  ideas.user.profile
+                    ? ideas.user.profile
+                    : '/images/users/anonymous.jpg'
+                "
+                class="rounded-circle object-fit-cover"
+                style="width: 35px; height: 35px"
+              />
+              <img
+                v-if="ideas.is_anonymous"
+                :src="'/images/users/anonymous.jpg'"
+                class="rounded-circle object-fit-cover"
+                style="width: 35px; height: 35px"
+              />
+              <span style="font-weight: bold; margin-left: 10px">{{
+                !ideas.is_anonymous ? ideas.user.name : "Anonymous Participant"
+              }}</span>
+            </div>
+            <div class="d-flex justify-content-end">
+              <span style="margin-right: 20px"
+                >{{ ideas.views_count }} views</span
+              >
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <div>
+              <p class="text-muted">
+                <span
+                  style="
+                    background-color: #e5e5e5;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    padding: 5px;
+                    margin-right: 5px;
+                  "
                 >
-                  <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
-                  <g
-                    stroke-linejoin="round"
-                    stroke-linecap="round"
-                    id="SVGRepo_tracerCarrier"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <path
-                      fill=""
-                      d="M10 1C9.73478 1 9.48043 1.10536 9.29289 1.29289L3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 21.6569 4.34315 23 6 23H7C7.55228 23 8 22.5523 8 22C8 21.4477 7.55228 21 7 21H6C5.44772 21 5 20.5523 5 20V9H10C10.5523 9 11 8.55228 11 8V3H18C18.5523 3 19 3.44772 19 4V9C19 9.55228 19.4477 10 20 10C20.5523 10 21 9.55228 21 9V4C21 2.34315 19.6569 1 18 1H10ZM9 7H6.41421L9 4.41421V7ZM14 15.5C14 14.1193 15.1193 13 16.5 13C17.8807 13 19 14.1193 19 15.5V16V17H20C21.1046 17 22 17.8954 22 19C22 20.1046 21.1046 21 20 21H13C11.8954 21 11 20.1046 11 19C11 17.8954 11.8954 17 13 17H14V16V15.5ZM16.5 11C14.142 11 12.2076 12.8136 12.0156 15.122C10.2825 15.5606 9 17.1305 9 19C9 21.2091 10.7909 23 13 23H20C22.2091 23 24 21.2091 24 19C24 17.1305 22.7175 15.5606 20.9844 15.122C20.7924 12.8136 18.858 11 16.5 11Z"
-                      clip-rule="evenodd"
-                      fill-rule="evenodd"
-                    ></path>
-                  </g>
-                </svg>
+                  {{
+                    ideas.categories && ideas.categories.length
+                      ? `Tagged Categories: ${ideas.categories
+                          .map((cat) => cat.name)
+                          .join(", ")}`
+                      : "No categories"
+                  }}
+                </span>
+                - -
+                <span style="font-weight: bold">
+                  {{
+                    ideas.closurename
+                      ? ` ${ideas.closurename}`
+                      : "No closure ID"
+                  }}
+                </span>
+              </p>
+              <h5 style="font-weight: bold; font-size: 20px">
+                {{ ideas.title }}
+              </h5>
+              <div style="font-size: 15px">
+                <p style="text-align: justify">{{ ideas.content }}</p>
               </div>
-              <div class="text">
-                <span>Add Documents and Photos</span>
-              </div>
-              <input
-                type="file"
-                id="documentInput"
-                ref="documentInput"
-                multiple
-                accept=".jpg,.jpeg,.png,.pdf"
-                @change="handleDocumentChange"
-                class="hidden-input"
-              />
-            </label>
-            <ul v-if="selectedDocuments.length" class="mt-3 document-list">
-              <li v-for="(file, index) in selectedDocuments" :key="index">
-                {{ file.name }} ({{ (file.size / 1024 / 1024).toFixed(2) }} MB)
-              </li>
-            </ul>
-            <p v-if="documentError" class="text-danger error-message">
-              {{ documentError }}
-            </p>
+            </div>
           </div>
-
-          <!-- Anonymous Switch -->
-          <div class="mb-3">
-            <label class="form-label">Post Anonymously</label>
-            <div class="form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="isAnonymous"
-                v-model="form.isAnonymous"
-              />
-              <label class="form-check-label" for="isAnonymous">
-                {{
-                  form.isAnonymous ? "Post as Anonymous" : "Post with Username"
-                }}
-              </label>
+          <hr />
+          <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-start w-50">
+              <button class="btn btn-sm" @click="thumbsUp()">
+                <i class="mdi mdi-thumb-up"></i>
+                <span
+                  class="ml-1"
+                  style="
+                    margin-left: 5px;
+                    font-weight: bold;
+                    padding-right: 5px;
+                  "
+                  >{{ ideas.likes }}</span
+                >
+                <span>{{ ideas.likes ? "Liked" : "Like" }}</span>
+              </button>
+              <button class="btn btn-sm" @click="thumbsDown()">
+                <i class="mdi mdi-thumb-down"></i>
+                <span
+                  class="ml-1"
+                  style="
+                    margin-left: 5px;
+                    font-weight: bold;
+                    padding-right: 5px;
+                  "
+                  >{{ ideas.unlikes }}</span
+                >
+                <span>{{ ideas.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm position-relative"
+                @click="focusCommentBox"
+              >
+                <i class="mdi mdi-comment"></i>
+                <span
+                  class="ml-1"
+                  style="
+                    margin-left: 5px;
+                    font-weight: bold;
+                    padding-right: 5px;
+                  "
+                  >{{ ideas.comments_count }}</span
+                >
+                <span>{{
+                  ideas.comments_count ? "Commented" : "Comment"
+                }}</span>
+              </button>
+              <button
+                class="btn btn-sm"
+                @click="
+                  () =>
+                    $router
+                      .push({
+                        name: 'idea_report',
+                        params: { id: route.params.id },
+                      })
+                      .catch((err) => console.error(err))
+                "
+              >
+                <i class="mdi mdi-message-alert"></i>
+                <span class="ml-1" style="margin-left: 5px; padding-right: 5px"
+                  >Report</span
+                >
+              </button>
+            </div>
+            <div class="d-flex justify-content-end align-items-center w-50">
+              <button
+                class="btn btn-primary me-md-2 ml-3"
+                type="submit"
+                style="background-color: #670e10"
+                @click="showDocToggle()"
+                :disabled="ideas.document.length === 0"
+              >
+                Documents
+              </button>
             </div>
           </div>
 
-          <!-- Closure Information -->
-          <div class="mb-3">
-            <p v-if="closures.length > 0 && closures[0]">
-              This closure is
-              <span class="bold-text">{{ closures[0].name }}</span> and opened
-              on <span class="bold-text">{{ closures[0].date }}</span> and will
-              be closed on
-              <span class="bold-text">{{ closures[0].final_date }}</span
-              >. After submission, your idea will be reviewed by the QA manager
-              and closed within
-              <span class="bold-text"
-                >{{
-                  Math.ceil(
-                    Math.abs(
-                      new Date(closures[0]?.final_date) -
-                        new Date(closures[0]?.date)
-                    ) /
-                      (1000 * 60 * 60 * 24)
-                  )
-                }}
-                days</span
-              >.
-            </p>
-          </div>
-
-          <div class="form-check mb-3">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="terms"
-              v-model="form.agreeTerms"
-              required
-            />
-            <label class="form-check-label" for="terms">
-              I agree to the
-              <router-link :to="{ name: 'term_and_condition' }"
-                >terms and conditions</router-link
+          <hr />
+          <div class="d-flex justify-content-center align-item-center">
+            <div class="grid w-75" v-if="showDocument">
+              <div
+                id="carouselExampleControls"
+                class="carousel slide"
+                data-bs-ride="carousel"
               >
-            </label>
+                <div class="carousel-inner">
+                  <div
+                    class="carousel-item"
+                    v-for="(doc, index) in imageList"
+                    :key="index"
+                    :class="{ active: index === 0 }"
+                  >
+                    <img
+                      class="d-block w-100"
+                      :src="doc.file_path"
+                      alt="Slide"
+                    />
+                  </div>
+                </div>
+
+                <!-- Default Bootstrap Controls -->
+                <button
+                  class="carousel-control-prev"
+                  id="prevSlideBtn"
+                  type="button"
+                  data-bs-target="#carouselExampleControls"
+                  data-bs-slide="prev"
+                >
+                  <span
+                    class="carousel-control-prev-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="visually-hidden">Previous</span>
+                </button>
+                <button
+                  class="carousel-control-next"
+                  id="nextSlideBtn"
+                  type="button"
+                  data-bs-target="#carouselExampleControls"
+                  data-bs-slide="next"
+                >
+                  <span
+                    class="carousel-control-next-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="visually-hidden">Next</span>
+                </button>
+              </div>
+
+              <div
+                v-for="doc in ideas.document"
+                :key="doc.id"
+                class="g-col-6 g-col-md-4 mb-3 d-flex justify-content-center align-items-center"
+              >
+                <iframe
+                  v-if="isPDF(doc.file_path)"
+                  :src="doc.file_path"
+                  class="w-100 shadow-lg p-3 bg-body-tertiary rounded"
+                  style="height: 50vw"
+                ></iframe>
+              </div>
+            </div>
           </div>
-
-          <!-- Post Button -->
-          <button
-  class="cssbuttons-io-button"
-  type="submit"
-  :disabled="isBlocked || !isPostAllowed"
-  :title="isBlocked ? 'You are blocked and cannot react' : !isPostAllowed ? 'Posting is currently disabled becaseue final deadline has passed' : ''"
->
-  Post
-  <div class="icon">
-    <svg
-      height="24"
-      width="24"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M0 0h24v24H0z" fill="none"></path>
-      <path
-        d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
-        fill="currentColor"
-      ></path>
-    </svg>
-  </div>
-</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="card mt-4">
-      <div class="card-body">
-        <h4>Your Ideas</h4>
-        <div v-if="userIdeas.length > 0">
-          <ul class="list-group">
-            <li
-              v-for="idea in userIdeas"
-              :key="idea.id"
-              class="list-group-item"
+        </div>
+        <hr />
+        <div class="mb-3" ref="commentBox">
+          <form @submit.prevent="sendComment()">
+            <div class="form-floating mb-2">
+              <textarea
+                class="form-control"
+                placeholder="Leave a comment here"
+                id="floatingTextarea"
+                v-model="comment.content"
+                @focus="toggleBtn"
+              ></textarea>
+              <label for="floatingTextarea">Comments</label>
+            </div>
+            <div v-if="loading" class="text-center my-5">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p>Loading comments...</p>
+            </div>
+            <div class="d-flex justify-content-between" v-if="showBtn">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="anonymousComment"
+                  v-model="comment.is_anonymous"
+                />
+                <label class="form-check-label" for="anonymousComment"
+                  >Comment Anonymously</label
+                >
+              </div>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end" v-if="showBtn">
+  <button
+    class="btn btn-primary me-md-2"
+    type="submit"
+    style="background-color: #670e10"
+    :disabled="!isCommentAllowed"
+    :title="!isCommentAllowed ? 'Commenting is currently disabled' : ''"
+  >
+    Send
+  </button>
+  <button
+    class="btn btn-primary"
+    type="button"
+    style="background-color: #670e10"
+    @click="cancelComment"
+  >
+    Cancel
+  </button>
+</div>
+            </div>
+          </form>
+        </div>
+        <hr />
+        <ul class="list-group">
+          <li>
+            <div class="filter-last float-md-end w-15">
+              <select
+                class="form-control form-select"
+                v-model="sortOption"
+                @change="sortComments"
+              >
+                <option value="newest">Latest</option>
+                <option value="oldest">Oldest</option>
+              </select>
+            </div>
+          </li>
+          <li
+            class="list-group-item list-group-item-action"
+            aria-current="true"
+            v-for="com in sortedComments"
+            :key="com.id"
+          >
+            <div
+              class="d-flex w-100 justify-content-between border-bottom"
+              style="align-items: center"
             >
-              <h5><b>{{ idea.title }}</b></h5>
-              <p>{{ idea.content }}</p>
-              <small
-                >Posted on:
-                {{ new Date(idea.created_at).toLocaleDateString() }}</small
+              <div
+                class="d-flex"
+                style="justify-content: center; align-items: center"
               >
-              <p v-if="idea.is_anonymous">Posted Anonymously</p>
-              <p>
-                <strong>Status:</strong>
-                <span :class="idea.is_active ? 'text-success' : 'text-danger'">
-                  {{ idea.is_active ? "Active" : "Inactive" }}
-                </span>
-              </p>
-              <button
-                class="btn btn-danger btn-sm"
-                @click="changeIdeaStatus(idea.id)"
-                :disabled="processingIdeas[idea.id]"
-              >
-                {{ processingIdeas[idea.id] ? "Processing..." : (idea.is_active ? "Delete" : "Restore") }}
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div v-else>
-          <p>No ideas posted yet.</p>
-        </div>
+                <img
+                  v-if="!com.is_anonymous"
+                  :src="
+                    com.user.profile
+                      ? com.user.profile
+                      : '/images/users/anonymous.jpg'
+                  "
+                  class="rounded-circle object-fit-cover"
+                  style="width: 35px; height: 35px"
+                />
+                <img
+                  v-else-if="com.is_anonymous"
+                  :src="'/images/users/anonymous.jpg'"
+                  class="rounded-circle object-fit-cover"
+                  style="width: 35px; height: 35px"
+                />
+                <h5 style="margin-left: 10px">
+                  {{
+                    !com.is_anonymous
+                      ? com.user.full_name
+                      : "Anonymous Participant"
+                  }}
+                </h5>
+              </div>
+              <small>{{ timeAgo(com.created_at) }}</small>
+            </div>
+            <p class="mb-1 mt-1">
+              {{ com.content }}
+            </p>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
 </template>
+
 <script setup>
-import { ref, reactive, onMounted, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, reactive, onMounted, computed, nextTick } from "vue";
+import { useVuelidate } from "@vuelidate/core";
+import { useRouter, useRoute } from "vue-router";
 import { createToast } from "mosha-vue-toastify";
 import { Http } from "@/services/http-common";
 import { useAuthStore } from "@/stores/auth";
-
+import {
+  serverErrors,
+  errorFor,
+  resetServerErrors,
+} from "@/composables/validationErrors";
+// Ensure Bootstrap is loaded
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+const isCommentAllowed = ref(true);
+const loading = ref(false);
 const authStore = useAuthStore();
-const getUserID = computed(() => authStore.getUserId);
+const getUserID = authStore.getUserId; // No need for computed here
 const router = useRouter();
-const isPostAllowed = ref(true);
-const isBlocked = ref(false);
-const categories = ref([]);
+const route = useRoute();
 const closures = ref([]);
-const userIdeas = ref([]);
-const processingIdeas = ref({}); // Track processing state per idea
-const form = reactive({
-  title: "",
+const ideas = reactive({
   content: "",
-  closure_id: "",
-  userId: getUserID,
-  category_id: [],
-  isAnonymous: false,
-  agreeTerms: false,
+  title: "",
+  closurename: "",
+  closurefinal: "",
+  closure: "",
+  categories: "",
+  document: [],
+  comments: [],
+  comments_count: 0,
+  user_reaction: "",
+  likes: 0,
+  unlikes: 0,
+  views_count: 0,
+  has_thumbs_up: false,
+  has_thumbs_down: false,
+  user: {},
+  is_anonymous: false,
 });
 
-const documentInput = ref(null);
-const selectedDocuments = ref([]);
-const documentError = ref("");
-const exportBtnLoading = ref(false);
-const serverOptions = ref({ sortBy: "default" });
-const searchValue = ref("");
+let imageList = reactive([]);
 
-const handleDocumentChange = (event) => {
-  const files = Array.from(event.target.files);
-  const allowedTypes = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "application/pdf",
-  ];
-  const maxSize = 5 * 1024 * 1024;
+const sortOption = ref("newest"); // Default sort option
 
-  documentError.value = "";
+// Computed property to sort comments locally
+const sortedComments = computed(() => {
+  const comments = [...ideas.comments]; // Create a copy to avoid mutating original
+  return comments.sort((a, b) => {
+    const dateA = new Date(a.created_at);
+    const dateB = new Date(b.created_at);
+    return sortOption.value === "newest" ? dateB - dateA : dateA - dateB;
+  });
+});
 
-  if (files.length > 3) {
-    documentError.value = "Maximum of 3 documents allowed.";
-    return;
-  }
-
-  for (const file of files) {
-    if (!allowedTypes.includes(file.type)) {
-      documentError.value = "Only JPG, JPEG, PNG, and PDF files are allowed.";
-      return;
-    }
-    if (file.size > maxSize) {
-      documentError.value = "Each file must be less than 5MB.";
-      return;
-    }
-  }
-
-  selectedDocuments.value = files;
-  console.log("Selected documents:", selectedDocuments.value);
-};
-
-const fetchUserDetails = async () => {
+// Fetch idea details including comments (no sort parameter sent to backend)
+const fetchComments = async () => {
+  loading.value = true;
   try {
-    const response = await Http.get(`/auth-user`);
-    console.log("user", response);
-    isBlocked.value = response.data.data.is_blocked || false;
+    const url = `ideas/${route.params.id}`;
+    console.log("Fetching comments with URL:", url);
+    const { data } = await Http.get(url);
+    console.log("API response:", data);
+
+    // Update only comments and comments_count
+    ideas.comments = data.data.comments || [];
+    ideas.comments_count = data.data.comments_count || 0;
   } catch (error) {
-    console.error("Failed to fetch user details:", error);
-    createToast(
-      { title: "Error", description: "Could not verify user status." },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
+    console.error(
+      "Failed to load comments:",
+      error.response?.data || error.message
     );
-  }
-};
-
-const getAllCategory = async () => {
-  try {
-    const response = await Http.get("/get-all-categories");
-    categories.value = response.data.data;
-  } catch (error) {
-    console.error("Failed to fetch categories", error);
-  }
-};
-
-const getClosure = async () => {
-  try {
-    const response = await Http.get("closures");
-    closures.value = response.data.data.data;
-  } catch (error) {
-    console.error("Failed to fetch closures", error);
-  }
-};
-
-const fetchUserIdeas = async () => {
-  try {
-    const response = await Http.get(`/ideas?user_id=${getUserID.value}`);
-    console.log("response",response);
-    
-    userIdeas.value = response.data.data.data; // Assuming paginated response
-    console.log("User ideas:", userIdeas.value);
-  } catch (error) {
-    console.error("Failed to fetch user ideas:", error);
-    createToast(
-      { title: "Error", description: "Could not fetch your ideas." },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
-  }
-};
-
-// New function to change idea status
-const changeIdeaStatus = async (ideaId) => {
-  processingIdeas.value[ideaId] = true;
-  try {
-    const response = await Http.get(`ideas/change-status/${ideaId}`);
-    const updatedIdea = response.data.data;
-    
-    // Update the idea in userIdeas reactively
-    const index = userIdeas.value.findIndex((idea) => idea.id === ideaId);
-    if (index !== -1) {
-      userIdeas.value[index].is_active = updatedIdea.is_active;
-      userIdeas.value = [...userIdeas.value]; // Trigger reactivity
-    }
-
-    createToast(
-      {
-        title: "Success",
-        description: `Idea ${updatedIdea.is_active ? "restored" : "deleted"} successfully!`,
-      },
-      {
-        type: "success",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
-  } catch (error) {
-    console.error("Error changing idea status:", error);
-    createToast(
-      {
-        title: "Error",
-        description: "Failed to change idea status.",
-      },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
+    ideas.comments = [];
+    ideas.comments_count = 0;
   } finally {
-    processingIdeas.value[ideaId] = false;
+    loading.value = false;
   }
 };
 const fetchClosurePostStatus = async () => {
   try {
-    const response = await Http.get("/get-closure-post-status");
-    console.log("response closure post status",response);
-    
-    isPostAllowed.value = response.data.data.post; // Set isPostAllowed based on API response
+    const response = await Http.get("/admin/get-closure-post-status");
+    isCommentAllowed.value = response.data.data.comment; // Set isCommentAllowed based on API response
   } catch (error) {
     console.error("Failed to fetch closure post status:", error);
     createToast(
       {
         title: "Error",
-        description: "Could not fetch post status. Posting may be disabled.",
+        description: "Could not fetch comment status. Commenting may be disabled.",
       },
       {
         type: "danger",
@@ -426,31 +438,229 @@ const fetchClosurePostStatus = async () => {
         showIcon: true,
       }
     );
-    isPostAllowed.value = false; // Default to disabled if API call fails
+    isCommentAllowed.value = false; // Default to disabled if API call fails
   }
 };
-const postIdea = async () => {
-  if (isBlocked.value) {
-    createToast(
-      {
-        title: "Blocked",
-        description:
-          "You are blocked and cannot post ideas. Contact your administrator.",
-      },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
-    return;
+const getIdeaDetail = async () => {
+  loading.value = true;
+  try {
+    const response = await Http.get(`ideas/${route.params.id}`);
+    console.log("Idea detail response:", response);
+    const data = response.data.data;
+    ideas.content = data.content;
+    ideas.title = data.title;
+    ideas.categories = data.categories;
+    ideas.closurename = data.closure.name;
+    ideas.closure = data.closure;
+    ideas.closurefinal = data.closure.final_date;
+    ideas.document = data.documents;
+    ideas.comments = data.comments;
+    ideas.comments_count = data.comments_count;
+    ideas.user_reaction = data.user_reaction;
+    ideas.likes = data.likes;
+    ideas.unlikes = data.unlikes;
+    ideas.views_count = data.views_count;
+    ideas.has_thumbs_up = data.user_reaction === true;
+    ideas.has_thumbs_down = data.user_reaction === false;
+    ideas.user = data.user;
+    ideas.is_anonymous = data.is_anonymous;
+
+    imageList = ideas.document.filter((d) => isImage(d.file_path));
+    console.log(imageList);
+  } catch (err) {
+    if (err.response?.status === 404) {
+      router.push({ name: "page-not-found" });
+    }
+  } finally {
+    loading.value = false;
   }
-  if (!form.agreeTerms) {
+};
+
+// Reaction
+const updatedIdea = reactive({
+  content: "",
+  title: "",
+  closurename: "",
+  categories: "",
+  document: [],
+  comments: [],
+  comments_count: 0,
+  user_reaction: "",
+  likes: 0,
+  unlikes: 0,
+  views_count: 0,
+});
+
+const thumbsUp = async () => {
+  const newLikes = ideas.has_thumbs_up ? ideas.likes - 1 : ideas.likes + 1;
+  const newUnlikes = ideas.has_thumbs_down ? ideas.unlikes - 1 : ideas.unlikes;
+
+  ideas.likes = newLikes;
+  ideas.unlikes = newUnlikes;
+  ideas.has_thumbs_up = !ideas.has_thumbs_up;
+  ideas.has_thumbs_down = false;
+
+  try {
+    await Http.post(`reactions`, {
+      idea_id: route.params.id,
+      type: true,
+    });
+    const response = await Http.get(`ideas/${route.params.id}`);
+    updatedIdea.user_reaction = response.data.data.user_reaction;
+    ideas.has_thumbs_up = updatedIdea.user_reaction === true;
+    ideas.has_thumbs_down = updatedIdea.user_reaction === false;
+    ideas.likes = response.data.data.likes;
+    ideas.unlikes = response.data.data.unlikes;
+  } catch (error) {
+    console.error("Error in thumbUp:", error.response?.data || error.message);
+  }
+};
+
+const thumbsDown = async () => {
+  const newUnlikes = ideas.has_thumbs_down
+    ? ideas.unlikes - 1
+    : ideas.unlikes + 1;
+  const newLikes = ideas.has_thumbs_up ? ideas.likes - 1 : ideas.likes;
+
+  ideas.likes = newLikes;
+  ideas.unlikes = newUnlikes;
+  ideas.has_thumbs_up = false;
+  ideas.has_thumbs_down = !ideas.has_thumbs_down;
+
+  try {
+    await Http.post(`reactions`, {
+      idea_id: route.params.id,
+      type: false,
+    });
+    const response = await Http.get(`ideas/${route.params.id}`);
+    updatedIdea.user_reaction = response.data.data.user_reaction;
+    ideas.has_thumbs_up = updatedIdea.user_reaction === true;
+    ideas.has_thumbs_down = updatedIdea.user_reaction === false;
+    ideas.likes = response.data.data.likes;
+    ideas.unlikes = response.data.data.unlikes;
+  } catch (error) {
+    console.error("Error in thumbDown:", error.response?.data || error.message);
+  }
+};
+
+const showBtn = ref(false);
+const showDocument = ref(false);
+
+const toggleBtn = () => {
+  showBtn.value = !showBtn.value;
+};
+
+const showDocToggle = () => {
+  showDocument.value = !showDocument.value;
+};
+
+const isImage = (filePath) => {
+  return filePath && /\.(jpg|jpeg|png)$/i.test(filePath);
+};
+
+const isPDF = (filePath) => {
+  return filePath && /\.pdf$/i.test(filePath);
+};
+
+const focusCommentBox = () => {
+  const textarea = document.querySelector("#floatingTextarea");
+  if (textarea) {
+    textarea.focus();
+  }
+};
+
+const cancelComment = () => {
+  comment.content = "";
+  showBtn.value = false;
+};
+
+const comment = reactive({
+  content: "",
+  idea_id: route.params.id,
+  user_id: getUserID,
+  is_anonymous: false,
+});
+
+const timeAgo = (timestamp) => {
+  const currentDate = new Date();
+  const postDate = new Date(timestamp);
+  const diffMs = currentDate - postDate;
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days < 0) return "In the future";
+  if (days > 1) return `${days} days ago`;
+  if (days === 1) return "Yesterday";
+  if (hours > 0) return `${hours} hours ago`;
+  if (minutes > 0) return `${minutes} minutes ago`;
+  return "Just now";
+};
+
+// Function to trigger sorting (just updates UI since sorting is handled by computed)
+const sortComments = () => {
+  // No need to fetch again; sortedComments will update automatically
+};
+
+const getClosure = async () => {
+  try {
+    const response = await Http.get("closures");
+    console.log(response);
+    closures.value = response.data.data.data;
+    console.log("closure", closures.value);
+  } catch (error) {
+    console.error("Failed to fetch closures", error);
+  }
+};
+
+const v$ = useVuelidate(comment);
+// Function to convert UTC to local timezone
+const formatToLocalTime = (utcDate) => {
+  if (!utcDate) return ""; // Handle null/undefined
+  const date = new Date(utcDate); // Parse UTC date string
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }); // e.g., "Mar 04, 2024, 10:00:00 AM"
+};
+
+
+onMounted(async () => {
+  await Promise.all([
+    getIdeaDetail(),
+    fetchComments(),
+    getClosure(),
+    fetchClosurePostStatus(), 
+  ]);
+
+  const carouselElement = document.querySelector("#carouselExampleControls");
+  if (carouselElement) {
+    const carousel = new bootstrap.Carousel(carouselElement, {
+      interval: 5000,
+      wrap: true,
+    });
+
+    document.querySelector("#nextSlideBtn").addEventListener("click", () => {
+      carousel.next();
+    });
+
+    document.querySelector("#prevSlideBtn").addEventListener("click", () => {
+      carousel.prev();
+    });
+  }
+});
+const sendComment = async () => {
+  if (!isCommentAllowed.value) {
     createToast(
       {
         title: "Error",
-        description: "You must agree to the terms and conditions.",
+        description: "Commenting is currently disabled.",
       },
       {
         type: "danger",
@@ -462,90 +672,54 @@ const postIdea = async () => {
     return;
   }
 
-  if (form.category_id.length === 0) {
-    createToast(
-      { title: "Error", description: "You must choose at least one category." },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
-    return;
-  }
+  let isFormCorrect = await v$.value.$validate();
+  if (!isFormCorrect) return;
+  loading.value = true;
 
-  if (documentError.value) {
-    createToast(
-      { title: "Error", description: documentError.value },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
-    return;
-  }
+  resetServerErrors();
 
-  const fd = new FormData();
-  fd.append("title", form.title);
-  fd.append("content", form.content);
-  if (closures.value.length > 0) {
-    fd.append("closure_id", closures.value[0].id);
-  } else {
-    createToast(
-      { title: "Error", description: "No closure available." },
-      {
-        type: "danger",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
-    return;
-  }
-  fd.append("user_id", form.userId);
-  fd.append("is_anonymous", form.isAnonymous ? 1 : 0);
+  const currentDate = new Date();
+  if (ideas.closurefinal < formatToLocalTime(currentDate)) {
+    const fd = new FormData();
+    fd.append("content", comment.content);
+    fd.append("user_id", comment.user_id);
+    fd.append("idea_id", comment.idea_id);
+    fd.append("is_anonymous", comment.is_anonymous ? 1 : 0);
 
-  form.category_id.forEach((categoryId) => {
-    fd.append("categories[]", categoryId);
-  });
-
-  selectedDocuments.value.forEach((file, index) => {
-    fd.append(`documents[${index}]`, file);
-  });
-
-  try {
-    await Http.post("ideas", fd, {
+    await Http.post("comments", fd, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    });
-    router.push({ name: "idea_post_idea" });
-    createToast(
-      { title: "Success", description: "Successfully Created Post!" },
-      {
-        type: "success",
-        transition: "bounce",
-        position: "top-right",
-        showIcon: true,
-      }
-    );
-    await fetchUserIdeas(); // Refresh ideas after posting
-    // Reset form
-    form.title = "";
-    form.content = "";
-    form.category_id = [];
-    form.isAnonymous = false;
-    form.agreeTerms = false;
-    selectedDocuments.value = [];
-  } catch (error) {
-    console.error("Failed to create post", error);
+    })
+      .then(() => {
+        fetchComments();
+        createToast(
+          {
+            title: "Success",
+            description: "Successfully Sent Comment!",
+          },
+          {
+            type: "success",
+            transition: "bounce",
+            position: "top-right",
+            showIcon: true,
+          }
+        );
+      })
+      .catch((error) => {
+        console.log("Error Response:", error.response);
+        serverErrors(error.response?.data.errors);
+      })
+      .finally(() => {
+        loading.value = false;
+        comment.content = "";
+        showBtn.value = false;
+      });
+  } else {
     createToast(
       {
         title: "Error",
-        description: error.response?.data?.message || "Failed to post idea.",
+        description: "Comment Session is Ended for this closure",
       },
       {
         type: "danger",
@@ -554,15 +728,13 @@ const postIdea = async () => {
         showIcon: true,
       }
     );
+    loading.value = false;
   }
 };
-
-onMounted(async () => {
-  await fetchClosurePostStatus();
-   await getAllCategory();
-  await getClosure();
-  await fetchUserDetails();
-  await fetchUserIdeas();
- 
-});
 </script>
+
+<style scoped>
+.loading-container {
+  height: 50vh;
+}
+</style>

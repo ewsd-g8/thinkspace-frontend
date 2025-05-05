@@ -43,7 +43,7 @@
                 class="btn btn-success me-2 mb-2"
                 tabindex="0"
               >
-                <span class="d-none d-sm-block text-white">Add photo</span>
+                <span class="d-none d-sm-block ">Add photo</span>
                 <i class="bx bx-upload d-block d-sm-none"></i>
                 <input
                   type="file"
@@ -78,14 +78,14 @@
             <div class="row">
               <div class="mb-3 col-md-6">
                 <label for="name" class="form-label"
-                  >Name <span class="text-danger">*</span></label
+                  >User Name <span class="text-danger">*</span></label
                 >
                 <input
                   class="form-control"
                   type="text"
                   id="name"
                   autofocus
-                  placeholder="Enter Name"
+                  placeholder="Enter User Name"
                   v-model="user.name"
                   :class="{
                     'is-invalid': v$.name.$error || errorFor('name'),
@@ -96,6 +96,31 @@
                   :vuelidateErrors="{
                     errors: v$.name.$errors,
                     value: 'Name',
+                  }"
+                ></v-errors>
+              </div>
+
+              <!-- full name -->
+              <div class="mb-3 col-md-6">
+                <label for="fullname" class="form-label">
+                  Full Name <span class="text-danger">*</span>
+                </label>
+                <input
+                  class="form-control"
+                  type="text"
+                  id="fullname"
+                  autofocus
+                  placeholder="Enter Full Name"
+                  v-model="user.fullname"
+                  :class="{
+                    'is-invalid': v$.fullname.$error || errorFor('fullname'),
+                  }"
+                />
+                <v-errors
+                  :serverErrors="errorFor('fullname')"
+                  :vuelidateErrors="{
+                    errors: v$.fullname.$errors,
+                    value: 'Full Name',
                   }"
                 ></v-errors>
               </div>
@@ -146,7 +171,9 @@
                 ></v-errors>
               </div>
               <div class="mb-3 col-md-6">
-                <label for="mobile" class="form-label">Password Confirm</label>
+                <label for="mobile" class="form-label"
+                  >Password Confirm <span class="text-danger">*</span></label
+                >
                 <input
                   class="form-control"
                   type="password"
@@ -191,8 +218,59 @@
                   }"
                 ></v-errors>
               </div>
+
               <div class="mb-3 col-md-6">
-                <label for="mobile" class="form-label">Mobile</label>
+                <label class="form-label">
+                  Department <span class="text-danger">*</span>
+                </label>
+                <v-select
+                  v-model="user.departments"
+                  class="style-chooser"
+                  placeholder="Select department"
+                  label="name"
+                  :options="departments"
+                  :reduce="(department) => department.id"
+                  :class="{
+                    'vuelidate-invalid':
+                      v$.departments.$error || errorFor('departments'),
+                  }"
+                ></v-select>
+                <v-errors
+                  :serverErrors="errorFor('departments')"
+                  :vuelidateErrors="{
+                    errors: v$.departments.$errors,
+                    value: 'Department',
+                  }"
+                ></v-errors>
+              </div>
+              <!-- To change backendcode about department -->
+              <!-- <div class="mb-3 col-md-6">
+                <label class="form-label"
+                  >Department <span class="text-danger">*</span></label
+                >
+                <v-select
+                  v-model="user.roles"
+                  class="style-chooser"
+                  placeholder="Select role"
+                  label="name"
+                  :options="roles"
+                  :reduce="(role) => role.name"
+                  :class="{
+                    'vuelidate-invalid': v$.roles.$error || errorFor('roles'),
+                  }"
+                ></v-select>
+                <v-errors
+                  :serverErrors="errorFor('roles')"
+                  :vuelidateErrors="{
+                    errors: v$.roles.$errors,
+                    value: 'Role',
+                  }"
+                ></v-errors>
+              </div> -->
+              <div class="mb-3 col-md-6">
+                <label for="mobile" class="form-label"
+                  >Mobile <span class="text-danger">*</span></label
+                >
                 <input
                   v-model="user.mobile"
                   class="form-control"
@@ -255,15 +333,17 @@ const loading = ref(false);
 const imagePreview = ref("");
 const router = useRouter();
 const roles = ref([]);
-
+const departments = ref([]);
 const user = reactive({
   name: "",
+  fullname: "",
   email: "",
   password: "",
   password_confirmation: "",
   roles: [],
   mobile: "",
   profile: "",
+  departments: [],
 });
 
 const handleFileChange = (event) => {
@@ -283,10 +363,18 @@ const resetFile = () => {
 
 const getRoles = async () => {
   await Http.get("get-all-roles").then((res) => {
+    console.log(res);
     roles.value = res.data.data;
   });
 };
-
+const getDepartments = async () => {
+  try {
+    const response = await Http.get("departments");
+    departments.value = response.data.data.data;
+  } catch (error) {
+    console.error("Failed to fetch categories", error);
+  }
+};
 const mobileFormatValidator = helpers.withParams(
   { type: "mobileFormat" },
   (value) => /^09\d{7,9}$/.test(value)
@@ -302,6 +390,7 @@ const fileSizeValidator = helpers.withParams({ type: "fileSize" }, (value) => {
 const rules = computed(() => {
   return {
     name: { required },
+    fullname: { required },
     email: { required, email },
     password: { required, minLength: minLength(6) },
     password_confirmation: {
@@ -312,6 +401,7 @@ const rules = computed(() => {
       ),
     },
     roles: { required },
+    departments: { required },
     mobile: {
       required,
       formatValidator: helpers.withMessage(
@@ -323,6 +413,27 @@ const rules = computed(() => {
       fileSizeValidator: helpers.withMessage(
         "File size must be max size of 2Mb.",
         fileSizeValidator
+      ),
+    },
+    // cap , lower , special Cha and 8 long
+    password: {
+      required,
+      minLength: minLength(8),
+      hasCapitalLetter: helpers.withMessage(
+        "Must contain at least one capital letter",
+        (value) => /[A-Z]/.test(value)
+      ),
+      hasLowercaseLetter: helpers.withMessage(
+        "Must contain at least one lowercase letter",
+        (value) => /[a-z]/.test(value)
+      ),
+      hasSpecialCharacter: helpers.withMessage(
+        "Must contain at least one special character",
+        (value) => /[^A-Za-z0-9]/.test(value)
+      ),
+      hasNumber: helpers.withMessage(
+        "Must contain at least one number",
+        (value) => /\d/.test(value)
       ),
     },
   };
@@ -338,13 +449,15 @@ const saveUser = async () => {
 
   const fd = new FormData();
   fd.append("name", user.name);
+  fd.append("full_name", user.fullname);
   fd.append("email", user.email);
   fd.append("password", user.password);
   fd.append("password_confirmation", user.password_confirmation);
   fd.append("roles", user.roles);
   fd.append("mobile", user.mobile);
   fd.append("profile", user.profile);
-
+  fd.append("department_id", user.departments);
+  console.log(user.departments);
   await Http.post("users", fd, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -375,5 +488,6 @@ const saveUser = async () => {
 onMounted(() => {
   resetServerErrors();
   getRoles();
+  getDepartments();
 });
 </script>

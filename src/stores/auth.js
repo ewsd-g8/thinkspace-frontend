@@ -13,6 +13,9 @@ export const useAuthStore = defineStore("auth", {
         name: "",
         email: "",
         profile: "",
+        last_logout_at: "",
+        isFirstLogin: false,
+        department_name: "",
       },
     };
   },
@@ -32,6 +35,19 @@ export const useAuthStore = defineStore("auth", {
     getAuthUserRoles(state) {
       return state.roles;
     },
+    getUserId(state) {
+      return state.user.id;
+    },
+    getUserLogout(state) {
+      return state.user.last_logout_at;
+    },
+    getIsFirstLogin(state) {
+      return state.user.isFirstLogin;
+    },
+    getDeptName(state) {
+      return state.user.department_name;
+    },
+
   },
   actions: {
     login(email, password) {
@@ -40,9 +56,10 @@ export const useAuthStore = defineStore("auth", {
           email,
           password,
         };
-
+        localStorage.setItem("show_modal", "true");
         Http.post("auth/login", bodyParameter)
           .then((res) => {
+            console.log("Login View: ", res);
             this.isAuthenticated = true;
             this.access_token = res.data.data.access_token;
             this.user.id = res.data.data.user.id;
@@ -51,6 +68,10 @@ export const useAuthStore = defineStore("auth", {
             this.user.profile = res.data.data.user.profile;
             this.roles = res.data.data.roles;
             this.permissions = res.data.data.permissions;
+            this.user.last_logout_at = res.data.data.user.last_logout_at;
+            this.user.isFirstLogin =
+              this.user.last_logout_at === null ? true : false;
+            this.user.department_name = res.data.data.department.name;
             resolve("Successfully Login");
           })
           .catch((error) => {

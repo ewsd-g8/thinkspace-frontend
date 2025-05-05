@@ -7,6 +7,8 @@ import { createPinia } from "pinia";
 import piniaPersist from "pinia-plugin-persist";
 
 import { useAuthStore } from "./stores/auth";
+import { hasPermissions } from "./composables/checkAuthorize"; // Importing hasPermissions
+
 
 import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
@@ -23,6 +25,9 @@ import "mosha-vue-toastify/dist/style.css";
 import Popper from "vue3-popper";
 
 import "spinkit/spinkit.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
+
+// import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 router.beforeEach((to) => {
   document.body.scrollTop = 0;

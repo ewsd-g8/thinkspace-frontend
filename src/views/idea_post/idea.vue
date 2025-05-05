@@ -1,0 +1,648 @@
+<template>
+  <div>
+    <div class="card">
+      <div class="card-body">
+        <!-- Search and Content Length Filters -->
+        <div class="mb-3 d-flex justify-content-between flex-wrap">
+          <div class="search-container">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search by title"
+              v-model="searchQuery"
+              @input="debouncedSearchIdeas"
+            />
+          </div>
+          <div class="content-length-container">
+            <select
+              class="form-control form-control-sm content-length-filter"
+              v-model="selectedContentLength"
+              @change="filterIdeas"
+            >
+              <option value="">All Lengths</option>
+              <option value="short">Short (< 100 chars)</option>
+              <option value="medium">Medium (100-400 chars)</option>
+              <option value="long">Long (> 400 chars)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Filters Container (Removed Closure Dropdown) -->
+        <div class="mb-3 d-flex justify-content-between flex-wrap">
+          <div class="filter-container">
+            <select
+              class="form-control"
+              v-model="selectedCategory"
+              @change="filterIdeas"
+            >
+              <option value="">All Categories</option>
+              <option
+                v-for="category in categories"
+                :key="category.id"
+                :value="category.name"
+              >
+                {{ category.name }}
+              </option>
+            </select>
+          </div>
+          <div class="filter-middle">
+            <select
+              class="form-control"
+              v-model="selectedDepartment"
+              @change="filterIdeas"
+            >
+              <option value="">All Departments</option>
+              <option
+                v-for="department in departments"
+                :key="department.id"
+                :value="department.name"
+              >
+                {{ department.name }}
+              </option>
+            </select>
+          </div>
+          <div class="filter-last">
+            <select
+              class="form-control"
+              v-model="sortOption"
+              @change="sortIdeas"
+            >
+              <option value="newest">Newest to Oldest</option>
+              <option value="oldest">Oldest to Newest</option>
+              <option value="mostLikes">Most Likes</option>
+              <option value="mostDislikes">Most Dislikes</option>
+              <option value="mostViews">Most Views</option>
+              <option value="noComments">No Comments</option>
+              <option value="latestReport" v-if="canReport">Reported idea</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Loading Animation -->
+        <div v-if="loading" class="text-center my-5">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p>Loading ideas...</p>
+        </div>
+
+        <!-- Ideas List -->
+        <ul v-else class="list-group">
+          <li
+            class="list-group-item"
+            v-for="idea in filteredIdeas"
+            :key="idea.id"
+          >
+            <div
+              class="profile-container"
+              @mouseover="showPopup(idea)"
+              @mouseleave="hidePopup()"
+              @click="togglePopup(idea)"
+            >
+              <div class="profile-flex">
+                <img
+                  :src="
+                    idea.is_anonymous
+                      ? '/images/users/anonymous.jpg'
+                      : idea.user?.profile || '/images/users/anonymous.jpg'
+                  "
+                  class="profile-img"
+                  alt="User Profile"
+                />
+                <span class="profile-name">
+                  {{
+                    idea.is_anonymous
+                      ? "Anonymous Participant"
+                      : idea.user?.name || "Unknown User"
+                  }}
+                </span>
+              </div>
+            </div>
+
+            <span class="views-count">{{ idea.views_count }} views</span>
+            <div
+              @click="viewIdeaDetails(idea.id)"
+              style="cursor: pointer"
+              class="d-flex justify-content-between"
+            >
+              <div>
+                <p class="text-muted">
+                  <span class="category-tag">
+                    {{
+                      idea.categories && idea.categories.length
+                        ? `Tagged Categories: ${idea.categories
+                            .map((cat) => cat.name)
+                            .join(", ")}`
+                        : "No categories"
+                    }}
+                  </span>
+                  - -
+                  <span class="closure-name">
+                    {{ idea.closure_id ? ` ${idea.closure.name}` : "No closure" }}
+                  </span>
+                </p>
+                <h5 class="idea-title">{{ idea.title }}</h5>
+                <div>
+                  <p class="content-preview">
+                    {{ truncateContent(idea.content) }}
+                    <div v-if="idea.content.length > 100" class="see-more">
+                      <router-link
+                        :to="{ name: 'idea_details', params: { id: idea.id } }"
+                        @click.stop
+                        >...see more</router-link
+                      >
+                    </div>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div
+              v-if="currentIdea && currentIdea.id === idea.id && popupVisible"
+              class="idea-popup"
+            >
+              <img
+                :src="
+                  idea.is_anonymous
+                    ? '/images/users/anonymous.jpg'
+                    : idea.user?.profile || '/images/users/anonymous.jpg'
+                "
+                alt="Profile Picture"
+                style="width: 300px; height: 200px; object-fit: cover;"
+              />
+              <h5>{{ idea.title }}</h5>
+              <p>
+                <strong>Full Name:</strong>
+                {{
+                  idea.is_anonymous
+                    ? "Anonymous"
+                    : idea.user?.full_name || "Unknown"
+                }}
+              </p>
+              <p>
+                <strong>Department:</strong>
+                {{
+                  idea.is_anonymous
+                    ? "Anonymous"
+                    : idea.user?.department?.name || "Not specified"
+                }}
+              </p>
+              <p><strong>Idea view:</strong> {{ idea.views_count || "0" }}</p>
+              <p>
+                <strong>Closure:</strong>
+                {{ idea.closure?.name || "No closure" }}
+              </p>
+            </div>
+            <hr />
+
+            <button
+              class="btn btn-sm"
+              :class="{ liked: idea.has_thumbs_up }"
+              @click="thumbUp(idea)"
+              :disabled="isBlocked"
+              :title="isBlocked ? 'You are blocked and cannot react' : ''"
+            >
+              <i class="mdi mdi-thumb-up"></i>
+              <span class="btn-likes">{{ idea.likes }}</span>
+              <span>{{ idea.likes ? "Liked" : "Like" }}</span>
+            </button>
+            <button
+              class="btn btn-sm"
+              :class="{ unliked: idea.has_thumbs_down }"
+              @click="thumbDown(idea)"
+              :disabled="isBlocked"
+              :title="isBlocked ? 'You are blocked and cannot react' : ''"
+            >
+              <i class="mdi mdi-thumb-down"></i>
+              <span class="btn-likes">{{ idea.unlikes }}</span>
+              <span>{{ idea.has_thumbs_down ? "Disliked" : "Unlike" }}</span>
+            </button>
+
+            <button
+              class="btn btn-sm"
+              :disabled="isBlocked"
+              @click="viewIdeaDetails(idea.id)"
+              :title="isBlocked ? 'You are blocked and cannot comment' : ''"
+            >
+              <i class="mdi mdi-comment"></i>
+              <span class="btn-likes">{{ idea.comments_count }}</span>
+              <span>Comments</span>
+            </button>
+            <router-link
+              :to="{ name: 'report_idea_details', params: { id: idea.id } }"
+            >
+              <button
+                class="btn btn-sm"
+                v-if="canReport"
+                @click="reportIdea(idea)"
+              >
+                <i class="mdi mdi-message-alert"></i>
+                <span class="btn-likes">{{ idea.reports_count }}</span>
+                <span>Report</span>
+              </button>
+            </router-link>
+          </li>
+        </ul>
+
+        <!-- Pagination Controls -->
+        <div v-if="!loading" class="d-flex justify-content-between mt-3">
+          <button
+            class="btn btn-primary"
+            @click="previousPage"
+            :disabled="currentPage === 1"
+          >
+            Previous
+          </button>
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+          <button
+            class="btn btn-primary"
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+          >
+            Next
+          </button>
+        </div>
+        <div>
+              <WelcomeModal
+      v-if="isShowAlert"
+      :title="modalTitle"
+      :message="modalMsg"
+      :show="showModal"
+      @close="closeModal()"
+    />
+        </div>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { Http } from "@/services/http-common";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth.js";
+import WelcomeModal from "@/components/shared/modal.vue";
+
+// Custom debounce function
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
+const ideas = ref([]);
+const searchQuery = ref("");
+const departments = ref([]);
+const categories = ref([]);
+const latestClosure = ref(null); // Store latest closure data
+const selectedCategory = ref("");
+const selectedDepartment = ref("");
+const selectedContentLength = ref("");
+const sortOption = ref("newest");
+const currentPage = ref(1);
+const itemsPerPage = 5;
+const totalIdeas = ref(0);
+const loading = ref(true);
+const store = useAuthStore();
+const user_id = store.getAuthUser.id;
+const router = useRouter();
+const isBlocked = ref(false);
+const originalIdeas = ref([]);
+const popupVisible = ref(false);
+const currentIdea = ref(null);
+
+const fetchUserDetails = async () => {
+  try {
+    const response = await Http.get("/auth-user");
+    isBlocked.value = response.data.data.is_blocked || false;
+  } catch (error) {
+    console.error("Failed to fetch user details:", error);
+  }
+};
+
+const fetchLatestClosure = async () => {
+  try {
+    const res = await Http.get("closures"); 
+    console.log("closure",res);
+    
+    const closures = res.data.data.data || [];
+    latestClosure.value = closures
+      .filter((c) => c.is_active) 
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]; 
+    console.log("Latest closure:", latestClosure.value);
+  } catch (error) {
+    console.error("Failed to fetch closures:", error);
+  }
+};
+
+const totalPages = computed(() => {
+  return Math.ceil(totalIdeas.value / itemsPerPage) || 1;
+});
+
+const filteredIdeas = computed(() => {
+  return [...ideas.value];
+});
+
+const fetchIdeas = async (
+  page = currentPage.value,
+  search = searchQuery.value
+) => {
+  loading.value = true;
+  try {
+    // Always use the latest closure's name
+    const closureName = latestClosure.value?.name || "";
+    const url = `ideas?page=${page}&paginate=${itemsPerPage}&search=${encodeURIComponent(
+      search
+    )}&category=${encodeURIComponent(
+      selectedCategory.value
+    )}&department=${encodeURIComponent(
+      selectedDepartment.value
+    )}&closure=${encodeURIComponent(
+      closureName
+    )}&contentLength=${encodeURIComponent(
+      selectedContentLength.value
+    )}&sort=${encodeURIComponent(sortOption.value)}`;
+    console.log("Fetching ideas with URL:", url);
+    const { data } = await Http.get(url);
+    console.log("API response:", data);
+
+    ideas.value = (data.data.data || []).map((idea) => ({
+      ...idea,
+      likes: idea.likes || 0,
+      unlikes: idea.unlikes || 0,
+      views_count: idea.views_count || 0,
+      comments_count: idea.comments_count || 0,
+      has_thumbs_up: idea.has_reacted && idea.user_reaction === true,
+      has_thumbs_down: idea.has_reacted && idea.user_reaction === false,
+    }));
+    originalIdeas.value = ideas.value.map((idea) => ({ ...idea }));
+    totalIdeas.value = data.data.total || 0;
+  } catch (error) {
+    console.error(
+      "Failed to load ideas:",
+      error.response?.data || error.message
+    );
+    ideas.value = [];
+    originalIdeas.value = [];
+    totalIdeas.value = 0;
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Pop-up control functions
+const showPopup = (idea) => {
+  currentIdea.value = idea;
+  popupVisible.value = true;
+};
+
+const hidePopup = () => {
+  popupVisible.value = false;
+  currentIdea.value = null;
+};
+
+const togglePopup = (idea) => {
+  if (currentIdea.value && currentIdea.value.id === idea.id) {
+    hidePopup();
+  } else {
+    showPopup(idea);
+  }
+};
+
+const thumbUp = async (idea) => {
+  const index = ideas.value.findIndex((i) => i.id === idea.id);
+  const originalIndex = originalIdeas.value.findIndex((i) => i.id === idea.id);
+  if (index === -1 || originalIndex === -1) return;
+
+  const currentIdea = ideas.value[index];
+  const newLikes = currentIdea.has_thumbs_up
+    ? (currentIdea.likes || 0) - 1
+    : (currentIdea.likes || 0) + 1;
+  const newUnlikes = currentIdea.has_thumbs_down
+    ? (currentIdea.unlikes || 0) - 1
+    : currentIdea.unlikes || 0;
+  ideas.value[index] = {
+    ...currentIdea,
+    likes: newLikes,
+    unlikes: newUnlikes,
+    has_thumbs_up: !currentIdea.has_thumbs_up,
+    has_thumbs_down: false,
+  };
+  originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+  ideas.value = [...ideas.value];
+
+  try {
+    await Http.post(`reactions`, { user_id, idea_id: idea.id, type: true });
+    const response = await Http.get(`ideas/${idea.id}`);
+    const updatedIdea = response.data.data;
+    ideas.value[index] = {
+      ...updatedIdea,
+      has_thumbs_up: updatedIdea.user_reaction === true,
+      has_thumbs_down: updatedIdea.user_reaction === false,
+    };
+    originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+    ideas.value = [...ideas.value];
+  } catch (error) {
+    await fetchIdeas(currentPage.value);
+    console.error("Error in thumbUp:", error.response?.data || error.message);
+  }
+};
+
+const thumbDown = async (idea) => {
+  const index = ideas.value.findIndex((i) => i.id === idea.id);
+  const originalIndex = originalIdeas.value.findIndex((i) => i.id === idea.id);
+  if (index === -1 || originalIndex === -1) return;
+
+  const currentIdea = ideas.value[index];
+  const newUnlikes = currentIdea.has_thumbs_down
+    ? (currentIdea.unlikes || 0) - 1
+    : (currentIdea.unlikes || 0) + 1;
+  const newLikes = currentIdea.has_thumbs_up
+    ? (currentIdea.likes || 0) - 1
+    : currentIdea.likes || 0;
+  ideas.value[index] = {
+    ...currentIdea,
+    likes: newLikes,
+    unlikes: newUnlikes,
+    has_thumbs_up: false,
+    has_thumbs_down: !currentIdea.has_thumbs_down,
+  };
+  originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+  ideas.value = [...ideas.value];
+
+  try {
+    await Http.post(`reactions`, { user_id, idea_id: idea.id, type: false });
+    const response = await Http.get(`ideas/${idea.id}`);
+    const updatedIdea = response.data.data;
+    ideas.value[index] = {
+      ...updatedIdea,
+      has_thumbs_up: updatedIdea.user_reaction === true,
+      has_thumbs_down: updatedIdea.user_reaction === false,
+    };
+    originalIdeas.value[originalIndex] = { ...ideas.value[index] };
+    ideas.value = [...ideas.value];
+  } catch (error) {
+    await fetchIdeas(currentPage.value);
+    console.error("Error in thumbDown:", error.response?.data || error.message);
+  }
+};
+
+const viewIdeaDetails = async (ideaId) => {
+  try {
+    await Http.post(`views`, { idea_id: ideaId });
+    const response = await Http.get(`ideas/${ideaId}`);
+    const updatedIdea = response.data.data;
+
+    const index = ideas.value.findIndex((i) => i.id === ideaId);
+    if (index !== -1) {
+      ideas.value[index] = {
+        ...updatedIdea,
+        likes: updatedIdea.likes || 0,
+        unlikes: updatedIdea.unlikes || 0,
+        has_thumbs_up:
+          updatedIdea.has_reacted && updatedIdea.user_reaction === true,
+        has_thumbs_down:
+          updatedIdea.has_reacted && updatedIdea.user_reaction === false,
+      };
+      originalIdeas.value[index] = { ...ideas.value[index] };
+      ideas.value = [...ideas.value];
+    }
+
+    router.push({ name: "idea_details", params: { id: ideaId } });
+  } catch (error) {
+    console.error(
+      "Error in viewIdeaDetails:",
+      error.response?.data || error.message
+    );
+    router.push({ name: "idea_details", params: { id: ideaId } });
+  }
+};
+
+//Show Modal Welcome and Last Login Message 
+
+const showModal = ref(false);
+const modalTitle = ref("");
+const modalMsg = ref("");
+
+
+const closeModal = () => {
+  showModal.value = false;
+};
+
+const authStore = useAuthStore();
+const lastLogout = authStore.getUserLogout;
+let isFirstLogin = authStore.getIsFirstLogin;
+
+console.log(lastLogout);
+console.log(isFirstLogin);
+
+//show modal
+const isShowAlert = computed(() => {
+  let isShow = false;
+  let showAlert = localStorage.getItem("show_modal");
+  if (showAlert) {
+    isShow = true;
+    localStorage.removeItem("show_modal");
+  }
+  return isShow;
+});
+
+onMounted(async () => {
+    if (isFirstLogin) {
+    modalTitle.value = "Welcom to Think Space";
+    modalMsg.value =
+      "Thank you for participating us! This is your first time Logging in";
+    showModal.value = true;
+    isFirstLogin = false;
+  } else if (lastLogout) {
+    const lastLoginDate = new Date(lastLogout).toLocaleString();
+    modalTitle.value = "Welcome Back!";
+    modalMsg.value = `You last logged in at ${lastLoginDate}.`;
+    showModal.value = true;
+  }
+  try {
+    await fetchUserDetails();
+    await getDepartments();
+    await getCategories();
+    await fetchLatestClosure(); // Fetch latest closure first
+    await fetchIdeas(1); // Fetch ideas for latest closure
+  } catch (error) {
+    console.error("Failed to initialize:", error);
+  }
+
+});
+
+const debouncedSearchIdeas = debounce(() => {
+  currentPage.value = 1;
+  fetchIdeas(currentPage.value);
+}, 500);
+
+
+const filterIdeas = () => {
+  console.log("filterIdeas triggered with:", {
+    category: selectedCategory.value,
+    department: selectedDepartment.value,
+  });
+  currentPage.value = 1;
+  fetchIdeas(currentPage.value);
+};
+
+const sortIdeas = () => {
+  currentPage.value = 1;
+  fetchIdeas(currentPage.value);
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    fetchIdeas(currentPage.value);
+  }
+};
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchIdeas(currentPage.value);
+  }
+};
+
+const getDepartments = async () => {
+  try {
+    const res = await Http.get("get-all-departments");
+    departments.value = res.data.data || [];
+    console.log("Departments:", departments.value);
+  } catch (error) {
+    console.error("Failed to fetch departments:", error);
+  }
+};
+
+const getCategories = async () => {
+  try {
+    const res = await Http.get("get-all-categories");
+    categories.value = res.data.data || [];
+    console.log("Categories:", categories.value);
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
+  }
+};
+
+const truncateContent = (content) => {
+  const maxLength = 200;
+  if (!content || typeof content !== "string") return "";
+  if (content.length <= maxLength) return content;
+  return content.substring(0, maxLength).trim() + "...";
+};
+
+const userRoles = computed(() => store.getAuthUserRoles || []);
+const allowedReportingRoles = ["Superadmin", "QAmanager"];
+const canReport = computed(() => {
+  return userRoles.value.some((role) => allowedReportingRoles.includes(role));
+});
+
+const reportIdea = (idea) => {
+  if (!canReport.value) return;
+  console.log(`Reporting idea with ID: ${idea.id}`);
+};
+</script>

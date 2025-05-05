@@ -33,8 +33,9 @@
           ></i>
         </div>
         <router-link
+        v-if="createroles"
           :to="{ name: 'role-create' }"
-          class="btn btn-blue waves-effect waves-light float-end"
+          class="btn btn-primary waves-effect waves-light float-end"
         >
           <i class="mdi mdi-plus me-sm-1 text-white"></i>Add New
         </router-link>
@@ -62,6 +63,7 @@
           <template #item-action="data">
             <Popper arrow placement="right" content="Edit" hover>
               <router-link
+              v-if="createroles"
                 class="btn btn-sm btn-info"
                 :to="{ name: 'role-edit', params: { id: data.id } }"
               >
@@ -76,15 +78,22 @@
             ></Badge>
           </template>
         </EasyDataTable>
-      </div>
+      </div> 
+
     </div>
   </div>
 </template>
+
+
+
+
+
 <script setup>
-import { ref, onMounted, reactive, watch } from "vue";
+import { ref, onMounted, reactive, watch,computed } from "vue";
 import { Http } from "@/services/http-common";
 import Badge from "@/components/shared/Badge.vue";
-
+const store = useAuthStore();
+import { useAuthStore } from "@/stores/auth";
 const pageLoading = ref(true);
 const loading = ref(false);
 const tableData = ref([]);
@@ -116,6 +125,7 @@ const getResults = async () => {
     `roles?page=${serverOptions.value.page}&paginate=${serverOptions.value.rowsPerPage}&sortType=${serverOptions.value.sortType}&sortBy=${serverOptions.value.sortBy}&search=${searchValue.value}`
   )
     .then((res) => {
+      console.log("res", res);
       tableData.value = res.data.data.roles.data;
       serverItemsLength.value = res.data.data.roles.total;
     })
@@ -127,6 +137,11 @@ const getResults = async () => {
     });
 };
 
+const userRoles = computed(() => store.getAuthUserRoles || []);
+const allowedReportingRoles = ["Superadmin","QAmanager"];   //to fix
+const createroles = computed(() => {
+  return userRoles.value.some((role) => allowedReportingRoles.includes(role));
+});
 const updateSort = (selectedSortOptions) => {
   serverOptions.value.sortType = selectedSortOptions.sortType
     ? selectedSortOptions.sortType
