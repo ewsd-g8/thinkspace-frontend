@@ -153,7 +153,6 @@ const updatedepartment = async () => {
   const fd = new FormData();
   fd.append("name", departments.name);
   fd.append("description", departments.description);
-  s;
   fd.append("color", departments.color);
 
   await Http.post(`departments/${route.params.id}?_method=PUT`, fd, {
