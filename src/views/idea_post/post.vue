@@ -135,12 +135,11 @@
           <div class="mb-3">
             <p v-if="closures.length > 0 && closures[0]">
               This closure is
-              <span class="bold-text">{{ closures[0].name }}</span> and opened
-              on <span class="bold-text">{{ closures[0].date }}</span> and will
-              be closed on
+              <span class="bold-text">{{ closures[0].name }}</span> and deadline
+              is <span class="bold-text">{{ closures[0].date }}</span> and will
+              be final deadline is
               <span class="bold-text">{{ closures[0].final_date }}</span
-              >. After submission, your idea will be reviewed by the QA manager
-              and closed within
+              >. You won't be able to post the idea after the deadline. After the final deadline, you will not be able to write a comment.
               <span class="bold-text"
                 >{{
                   Math.ceil(
