@@ -61,7 +61,6 @@
               multiple
             ></v-select>
           </div>
- 
           <!-- Document Upload -->
           <div class="mb-3">
             <label class="form-label"
@@ -112,7 +111,6 @@
               {{ documentError }}
             </p>
           </div>
- 
           <!-- Anonymous Switch -->
           <div class="mb-3">
             <label class="form-label">Post Anonymously</label>
@@ -130,7 +128,6 @@
               </label>
             </div>
           </div>
- 
           <!-- Closure Information -->
           <div class="mb-3">
             <p v-if="closures.length > 0 && closures[0]">
